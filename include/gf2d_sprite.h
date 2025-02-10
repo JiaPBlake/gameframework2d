@@ -7,12 +7,12 @@
 #include "gfc_vector.h"
 #include "gfc_text.h"
 
-typedef struct Sprite_S
-{
+typedef struct Sprite_S     //J NOTE:  All the Generic details to the given resource goes here,  and won't necessarily need to be copied for every single "entity" you wanna "spawn".
+{                           //^The specifics will go somewhere else
     int ref_count;
-    GFC_TextLine filepath;
-    SDL_Texture *texture;
-    SDL_Surface *surface;
+    GFC_TextLine filepath;   //He made  TextLine.  which is just a character array  128 char's long.  (and a TextWord - 16,  and a block - 1024)
+    SDL_Texture *texture;   //Texture is on GPU
+    SDL_Surface *surface;   //Surface is on CPU
     Uint32 frames_per_line;
     Uint32 frame_w,frame_h;
 }Sprite;

@@ -2,6 +2,9 @@
 #define __TILESET_H__
 
 #include "gfc_text.h"
+#include "gfc_vector.h"
+#include "gfc_list.h"
+#include "gf2d_sprite.h"
 
 typedef struct {		//OR  all this nifo could just be in a Def file.
 	Uint8			frame;  //which tile in the tile set
@@ -14,8 +17,8 @@ typedef struct {		//OR  all this nifo could just be in a Def file.
 typedef struct {
 	GFC_TextLine		name;
 	Sprite				*tiles;
-	GFC_Vector2d		tileSize;
-	GFC_List* tileDefs;
+	GFC_Vector2D		tileSize;
+	GFC_List*			tileDefs;
 
 }TileSet;
 

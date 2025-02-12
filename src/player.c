@@ -8,7 +8,7 @@
 //void player_think(Entity* self);
 //void player_update(Entity* self);  //I decided to declare them in player.h instead  Haven't test ran this lmao but it should work fine
 
-Entity *player_new_entity(GFC_Vector2D position)
+Entity *player_new_entity(GFC_Vector2D position) //added def file const char *
 {
 	Entity *self;
 	self = entity_new();  //create the new entity [spot in our total Entity List]. Where-in its _inuse flag will be set.
@@ -16,6 +16,9 @@ Entity *player_new_entity(GFC_Vector2D position)
 		slog("failed to spawn a new player entity");
 		return NULL;
 	}
+	gfc_input_init("config/my_input.cfg");  //he added this  AHHH this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
+	//That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
+	
 	//Bounding box here
 	//self->bounds = (25,25); //specific dimensions of your sprite's pixels.
 	self->think = player_think;  //Set my entity's Think function   TO the function we make in this file!
@@ -43,6 +46,7 @@ void player_think(Entity* self) {
 	
 	if (!self) return;  //if I no am, then can not think!
 	
+	gfc_input_update();
 	/*GFC_Vector2D dir = {0};		Video code just to be sure this works upon compiling.  It does
 	int mx = 0, my = 0;
 	SDL_GetMouseState(&mx, &my);
@@ -56,14 +60,13 @@ void player_think(Entity* self) {
 	
 
 	//Swear to you there's something wrong with the gfc_input_update() function in gfc_input.c
-	/*
+	
 	//GFC_Vector2D screen;		
 	//The problem is not with these functions.  We PROPERLY get to the gfc_input_command_down() function. AND the Input object has our list of keys...
 	//it just.. WON'T read the keys
 	//actually to be so deadass with you it might have smth to do with the way it's not searching through the Input *in object's ->keyCodes list... also dk what this is: gfc_input_data.input_list
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
 		self->velocity.x = 1.0;
-		slog("Right key pressed");
 	}
 	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
 		self->velocity.x = -1.0;

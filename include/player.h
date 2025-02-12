@@ -6,6 +6,7 @@
 /**
  * @brief spawn a new player entity
  * @param position where to spawn the player
+ * added @param defFile  player def file
  * @return NULL on error,  or a pointer to the spawned player entity
 */
 

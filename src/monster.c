@@ -35,7 +35,7 @@ Entity* monster_new_entity(GFC_Vector2D position)
 }
 
 
-void monster_think(Entity* self) {
+void monster_think(Entity *self) {
 	//GFC_Vector2D screen;
 	if (!self) return;			//if I no am, then can not think!
 

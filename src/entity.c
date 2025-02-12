@@ -2,6 +2,7 @@
 #include "simple_logger.h"
 //#include "gfc_config.h"
 #include "gf2d_graphics.h"
+#include "gf2d_sprite.h"
 #include "entity.h"
 
 //Same design pattern as what's in gf2dSprite.c  -- just instead of managing Sprites,  we're managing entities

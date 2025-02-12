@@ -3,6 +3,7 @@
 
 #include "gfc_text.h"
 #include "gfc_vector.h"
+#include "gfc_list.h"
 #include "gf2d_sprite.h"
 
 typedef struct {
@@ -16,5 +17,10 @@ typedef struct {
 	GFC_List		*entity_list;	//GFC_List is a dynamic list
 
 }World;
+
+void world_free(World* world);
+World* world_new();
+
+World* world_load(const char* filename);
 
 #endif

@@ -5,11 +5,13 @@
 #include "gfc_config.h"
 #include "gfc_text.h"
 #include "gfc_vector.h"
+#include "gfc_shape.h"
 #include "gf2d_sprite.h"
 
 typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward naming"  which allows us to Refer to this structure within the structure itself!
 	Uint8				_inuse;		/**<memory management flag*/  //The underscore at the start is a convention in C,  to say this is a Private variable, and probably shouldn't be touched
 	GFC_TextLine		name;			/**<name of the entity*/	//in order to access this  we need to access the gfc_text.h file
+	GFC_Rect			bounds;
 	Sprite				*sprite;		/**<graphical representation of the entity*/   //Pointer TO the sprite data managed by the Sprite Manager. As opposed to a copy of the picture
 	float				frame;			/**<for drawing the sprite*/
 	GFC_Vector2D		position;		/**<where to draw it*/

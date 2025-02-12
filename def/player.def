@@ -1,6 +1,6 @@
 {
 	"name": "player_class",
-	"bounds": null,
+	"bounds": [25, 36, 36, 32]
 	"sprite": "images/ed210.png",
 	"spriteSize": null,
 	"spriteFPL": 16,

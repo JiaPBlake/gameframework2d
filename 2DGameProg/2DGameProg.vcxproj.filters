@@ -125,6 +125,12 @@
     <ClCompile Include="..\src\monster.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\world.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\spawn.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -238,6 +244,12 @@
     <ClInclude Include="..\include\world.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\spawn.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\tileset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\player.def">
@@ -248,6 +260,9 @@
     </None>
     <None Include="..\config\my_input.cfg">
       <Filter>Config Files</Filter>
+    </None>
+    <None Include="..\def\testLevel.level">
+      <Filter>Def Files</Filter>
     </None>
   </ItemGroup>
 </Project>

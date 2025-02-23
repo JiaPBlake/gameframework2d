@@ -131,6 +131,9 @@
     <ClCompile Include="..\src\spawn.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\collision.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -250,6 +253,9 @@
     <ClInclude Include="..\include\tileset.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\player.def">
@@ -261,7 +267,13 @@
     <None Include="..\config\my_input.cfg">
       <Filter>Config Files</Filter>
     </None>
-    <None Include="..\def\testLevel.level">
+    <None Include="..\def\fierce.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\levels\testLevel.level">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\items.def">
       <Filter>Def Files</Filter>
     </None>
   </ItemGroup>

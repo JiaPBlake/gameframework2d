@@ -1,0 +1,55 @@
+{
+  "items": [
+    {1st item},
+    {
+        "name": "item_resounding_artifact",
+		"sprite": "arti.png",
+		"sprite_size": [3,3],
+		"spriteFPL": 1,
+
+		"spawn_Position":[60, 500],
+		"velocity":0,
+		"acceleration":0,
+
+		"bounds":0
+    },
+	{
+        "name": "item_black_orb",
+		"sprite": "orb.png",
+		"sprite_size": [3,3],
+		"spriteFPL": 1,
+
+		"spawn_Position":[65, 500],
+		"velocity":0,
+		"acceleration":0,
+
+		"bounds":0
+    },
+	{
+        "name": "item_tectonic_stone",
+		"sprite": "stone.png",
+		"sprite_size": [3,3],
+		"spriteFPL": 1,
+
+		"spawn_Position":[70, 500],
+		"velocity":0,
+		"acceleration":0,
+
+		"bounds":0
+    },
+	{
+        "name": "item_trident",
+		"sprite": "trident.png",
+		"sprite_size": [3,3],
+		"spriteFPL": 1,
+
+		"spawn_Position":[75, 500],
+		"velocity":0,
+		"acceleration":0,
+
+		"bounds":0
+    }
+
+  ]
+  
+}

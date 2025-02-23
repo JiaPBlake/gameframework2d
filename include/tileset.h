@@ -18,7 +18,7 @@ typedef struct {
 	GFC_TextLine		name;
 	Sprite				*tiles;
 	GFC_Vector2D		tileSize;
-	GFC_List*			tileDefs;
+	GFC_List			*tileDefs;
 
 }TileSet;
 

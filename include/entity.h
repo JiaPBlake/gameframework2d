@@ -8,15 +8,45 @@
 #include "gfc_shape.h"
 #include "gf2d_sprite.h"
 
+typedef enum {
+	ETT_none,
+	ETT_player,
+	ETT_monsters,
+	ETT_item,
+	ETT_MAX
+}EntityTeamType;
+
+typedef enum {
+	ECL_Player
+	//ECL //I actually don't remember what he put here..   especially because the point of this is to be a BITMASK. so we want to make each layer equal to a specific bit
+}EntityCollisionLayers;
+
+/*For example:
+* Layer 1 = 1							00001
+* Layer 2 = 2							00010
+* Layer 3 = 4							00100
+* Layer 4 = 8	which correspondes to:	01000  respectively.
+*/
+
+//But I don't remember if he did that^^  through:  #define WORLD_LAYER 1
+//or.. if he used the enum typedef.   'cause I think layers are supposed to be Uint8's.
+
+
 typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward naming"  which allows us to Refer to this structure within the structure itself!
 	Uint8				_inuse;		/**<memory management flag*/  //The underscore at the start is a convention in C,  to say this is a Private variable, and probably shouldn't be touched
 	GFC_TextLine		name;			/**<name of the entity*/	//in order to access this  we need to access the gfc_text.h file
-	GFC_Rect			bounds;
+	//EntityTeamType		team;
+	//EntityCollisionLayers	layer;
 	Sprite				*sprite;		/**<graphical representation of the entity*/   //Pointer TO the sprite data managed by the Sprite Manager. As opposed to a copy of the picture
+	GFC_Vector2D		sprite_size;	/**<Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
 	float				frame;			/**<for drawing the sprite*/
+	Uint32				framesPerLine;
 	GFC_Vector2D		position;		/**<where to draw it*/
 	GFC_Vector2D		velocity;		/**<how we are moving*/
 	GFC_Vector2D		acceleration;	/**Whether we should change our speed ? */
+	
+	GFC_Rect			bounds;		//x,y  Top left corner
+	GFC_Vector2D		center;
 	float				rotation;		
 	
 	float				speedMax;   //Just so that entity.c can compile.  I don't think I'll be needing a speedmax, but it'd be incredibly nice to learn about and have
@@ -24,6 +54,7 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	//Time to set up the think function baby oh boy
 	void				(*think)(struct Entity_S* self);   /**<function to call to make decisions based on the world state*/  //The think function will take a pointer to an Entity
 	void				(*update)(struct Entity_S* self);  /**<function to call to execute those decisions*/ //Making another function  to update,  such that Think can SPECIFICALLY occur before updating
+	//void				(*damage)
 
 }Entity;
 
@@ -42,6 +73,7 @@ void entity_system_free_all(Entity *ignore); //J SPECIFIC:  adding an entity to 
  * @brief draw all inuse entities, if they have a sprite
  */
 void entity_system_draw_all();
+
 /**  (INSTEAD of draw all)
  * @brief draw all entities in the provided list
  * @param entities a GFC_List of entity pointers
@@ -89,5 +121,15 @@ void entity_configure(Entity* self, SJson* json);
  */
 void entity_configure_from_file(Entity* self, const char* filename);
 
+
+int entity_collision_check(Entity* self, Entity* other);
+
+/**
+ * @brief get a list of all colliding entities, honoring team and layers
+ * @param self - the entity to check with
+ * @return NULL if there are no collisions,  a list of entity poniters otherwise
+ * @note any list returned MUST BE FREED with gfc_list_delete()
+*/
+GFC_List *entity_collide_all(Entity * self);
 
 #endif

@@ -169,6 +169,7 @@
     <ClCompile Include="..\gfc\src\gfc_types.c" />
     <ClCompile Include="..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\gfc\src\miniz.c" />
+    <ClCompile Include="..\src\collision.c" />
     <ClCompile Include="..\src\monster.c" />
     <ClCompile Include="..\src\entity.c" />
     <ClCompile Include="..\src\game.c" />
@@ -210,6 +211,7 @@
     <ClInclude Include="..\gfc\simple_json\include\simple_json_types.h" />
     <ClInclude Include="..\gfc\simple_json\include\simple_json_value.h" />
     <ClInclude Include="..\gfc\simple_logger\include\simple_logger.h" />
+    <ClInclude Include="..\include\collision.h" />
     <ClInclude Include="..\include\monster.h" />
     <ClInclude Include="..\include\entity.h" />
     <ClInclude Include="..\include\gf2d_draw.h" />
@@ -222,8 +224,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\config\my_input.cfg" />
+    <None Include="..\def\fierce.def" />
+    <None Include="..\def\items.def" />
+    <None Include="..\def\levels\testLevel.level" />
     <None Include="..\def\player.def" />
-    <None Include="..\def\testLevel.level" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

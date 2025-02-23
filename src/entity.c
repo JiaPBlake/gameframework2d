@@ -1,9 +1,13 @@
 //J START - Entity c file  for the .h file
 #include "simple_logger.h"
 //#include "gfc_config.h"
+#include "gfc_shape.h"
 #include "gf2d_graphics.h"
-#include "gf2d_sprite.h"
+#include "gf2d_draw.h"
+ 
 #include "entity.h"
+
+extern Uint8 _DRAWBOUNDS;
 
 //Same design pattern as what's in gf2dSprite.c  -- just instead of managing Sprites,  we're managing entities
 typedef struct {  //our singleton entity system/manager.  our big-ass list of entities
@@ -53,7 +57,7 @@ Entity* entity_new() { //since we initialized our entity list to 0, this functio
 		//memset requires the Memory address OF THAT specific, indexed entity.
 		entity_system.entity_list[i]._inuse = 1;  //set the inuse flag to 1
 		return &entity_system.entity_list[i]; //return the address of the thing we just allocated
-		//If any Entity needs things to be initalized ahead of time,  HERE is where we should do that.  So things like Default Color and Scale
+		//If ALL Entities needs things to be initalized ahead of time,  HERE is where we should do that.  So things like Default Color and Scale
 
 	}
 	slog("failed to allocate new entity: list full");
@@ -84,15 +88,24 @@ void entity_free(Entity *self) {
 void entity_draw(Entity* self) {
 	if (!self) return;
 	if (!self->sprite) return; //can't work without a sprite
+	
+	GFC_Rect rect = { 0 };
 	//now call the draw function for a sprite
 	gf2d_sprite_draw(self->sprite,
-		self->position,
-		NULL,
-		NULL,
-		&self->rotation,
-		NULL,
-		NULL,
+		self->position,	//position
+		NULL,			//scale
+		&self->center,		//center which is a 2D vector
+		&self->rotation,	//rotation
+		NULL,		//flip
+		NULL,		//colorShift
 		(Uint32) self->frame);
+	//he's adding this for Bound-related things  Just as a means to give yourself some trace,  SEE the bounding box when you run the game
+	if (_DRAWBOUNDS)
+	{	//DIJSOFA WAITT LMAOO wait wait.
+		gfc_rect_copy(rect, self->bounds); //copy our bounds rectangle into our new rect
+		gfc_vector2d_add(rect, rect, self->position); //This is for offset purposes. TO draw it AT the position of the player. Because his vector add is a macro. So long as the things have an x and y, they can be added ! so this works for rectangles
+		gf2d_draw_rect(rect, GFC_COLOR_RED);
+	}
 }
 
 void entity_system_draw_all() {  //this used to just be "draw"  ?? maybe I just forgot to add draw() 
@@ -129,36 +142,53 @@ void entity_system_update_all() {  //up to date ??
 }
 
 //After we delved into the creation of Definition files:
-
-/*void entity_configure(Entity* self, SJson* json) {
-	GFC_Vector4D bounds;
-	const char* filename = NULL;
+void entity_configure(Entity* self, SJson* json) {
 	if ((!self) || (!json)) return;
-
+	//Let's get started .
+	char *ent_name = sj_object_get_string(json, "name");
+	if (ent_name) gfc_line_cpy(self->name, ent_name);  //something something  Copy A into B  and make sure it's not longer than the length of a Line.
+	const char* filename = NULL;
 	filename = sj_object_get_string(json, "sprite");
-	if (filename) {
-
-		sj_object_get_vector2d();  //which we grabbed from gfc_config.h
+	if (filename) { //if it has a sprite
+		GFC_Vector2D sp_sz = {0};
+		sj_object_get_vector2d(json, "sprite_size", &sp_sz);  //which we grabbed from gfc_config.h
+		//slog("Sprite Size vector fetched from json object's x: %f", (Uint32)sp_sz.x);
+		//For some reason this slog prints 0... but the saving from the sj obviously worked bc it loaded the sprite properly...
+		Uint32 framesPerLine;
+		sj_object_get_int32(json, "spriteFPL", &framesPerLine);
 		self->sprite = gf2d_sprite_load_all(
 			filename,
-			(Uint32)frameSize.x,
-			(Uint32)frameSize.y,
+			(Uint32)sp_sz.x,
+			(Uint32)sp_sz.y,
 			framesPerLine,
 			0
 		);
-	}
-	sj_object_get_float(json, "speedMax", &self->speedMax);
-	sprite = sj_object_get_string(json, "name");
-	if (sprite) gfc_line_cpy(self->name, sprite);  //something something  Copy A into B  and make sure it's not longer than the length of a Line.
-	//He's talking about the Bounding boxes here I think
+		//GFC_Vector2D centre = gfc_vector2d(); //hehe british spelling to be different
+		self->center = gfc_vector2d(sp_sz.x/2, sp_sz.y/2);
+		self->framesPerLine = framesPerLine;
+		self->frame = 0; //Since frame 0 will be the default for every entity,  just et the first frame here in the configure function
 
-	sj_object_get_vector4d(json, "bounds", &bounds);
-	//gfc_shape.h   has:
-	self->bounds = gfc_rect_from_vector4(bounds);
+		GFC_Vector4D bounds; //Use this as a 4D vector to save the numbers from the json file. THEN uset he get Rect from 4D vector function to save it into the entity's bounds
+		sj_object_get_vector4d(json, "bounds", &bounds);
+		self->bounds = gfc_rect_from_vector4(bounds);
+
+	}
+	
+	GFC_Vector2D pos = {0};
+	sj_object_get_vector2d(json, "spawn_Position", &pos);
+	self->position = pos;
+
+	GFC_Vector2D vel = { 0 };;
+	sj_object_get_vector2d(json, "velocity", &vel);
+	self->velocity = vel;
+	gfc_vector2d_normalize(&self->velocity);
+	
+
+	sj_object_get_float(json, "speedMax", &self->speedMax);
 }
 
 
-//Also making an   \|/ to configure it from the filename, which is significantly easier.  This just
+//Also making this function to configure it from the filename, which is significantly easier.  This just
 void entity_configure_from_file(Entity* self, const char* filename) {
 	SJson* json;
 	if (!self) return;
@@ -169,6 +199,7 @@ void entity_configure_from_file(Entity* self, const char* filename) {
 
 }
 
+/*
 //He has an Update Position function here
 void eneitty_update_position(Entity* self) {
 	GFC_Vector2D screen;
@@ -182,5 +213,83 @@ void eneitty_update_position(Entity* self) {
 
 }
 */
+
+
+
+
+	//This might highkey be useful, depending on how I implement collision.  If I implement ALL collisions to prevent clipping, a.k.a I can stand on my enemies. This might come in handy for my skeleton
+/*
+int entity_layer_check(Entity* self, EntityCollisionLayers layer) {
+	if (!self) return;
+
+	return self->layer & layer; //will return True  IF and only IF the layer is true
+}
+
+void entity_set_collision_layer(Entity* self, EntityCollisionLayers layer) {
+	if (!self) return;
+
+	self->layer |= layer; //turn the Layer on.
+}
+
+void entity_remove_collision_layer(Entity* self, EntityCollisionLayers layer) {
+	if (!self) return;
+
+	self->layer &= ~layer; //turn the Layer['s SPECIFIC BIT] off.
+}*/
+
+
+int entity_collision_check(Entity* self, Entity* other) { //the way he's doing Entity Collision
+	GFC_Rect bounds1, bounds2;
+	if ((!self) || (!other))  return 0;
+
+	
+	//if (!entity_layer_check()) return 0;   //if there IS no layer, return 0.  So now we need to be sure that we set the mask to allow things to collide
+
+	//Need to compare the bounds in WORLD space,   not in Entity space.
+
+	gfc_rect_copy(bounds1, self->bounds);
+	gfc_rect_copy(bounds2, other->bounds);
+
+	//To move them to worldspace,  I now need to add these bounds  to our position...  which is what I did  :((
+	gfc_vector2d_add(bounds1, bounds1, self->position);
+	gfc_vector2d_add(bounds2, bounds2, other->position);
+
+	return gfc_rect_overlap(bounds1, bounds2);
+
+}
+
+
+//ohh chat what is this,,	 WE GOIN' THROUGH THE WHOLE LIST  OH YEAH
+GFC_List* entity_collide_all(Entity* self) {
+	if (!self) return NULL;
+	//ohhhhhh we goin through the whole list-
+	
+	GFC_List* entities;
+	entities = gfc_list_new();
+
+	int i;
+	for (i = 0; i < entity_system.entity_max; i++) {
+		if (!entity_system.entity_list[i]._inuse) continue;  //if not in use. Skip
+		if (self == &entity_system.entity_list[i]) continue;  //Don't wanna collide against myself
+
+		if (entity_collision_check(self, &entity_system.entity_list[i])) {
+			gfc_list_append(entities, &entity_system.entity_list[i] );
+		}
+
+	}
+
+	if (!gfc_list_count(entities)) { //if, by the end of my for loop, I never collided with anything:
+		gfc_list_delete(entities);
+		return NULL;
+	}
+	return entities;
+
+	return NULL;
+}
+
+//entity_move(Entity *self)   gfc_vector2d_add(self->position, self->position, self->velocity);   and then again, updating Velocity by adding Acceleration
+	//check for movement collision:
+	//if (I collide at new position) cancel the movement;
+
 
 /*eol@eof*/

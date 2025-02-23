@@ -1,8 +1,13 @@
 {
 	"name": "player_class",
-	"bounds": [25, 36, 36, 32]
 	"sprite": "images/ed210.png",
-	"spriteSize": null,
+	"sprite_size": [128, 128],
 	"spriteFPL": 16,
-	"speedMax":
+
+	"spawn_Position":[40, 500],
+	"velocity":[5,0],
+	"acceleration":0,
+
+	"bounds": [-39, -28, 64, 56],
+	"speed_Max": 5	
 }

@@ -7,7 +7,13 @@
 #include "entity.h"
 #include "player.h"  //J ADDED:
 #include "monster.h"
-//#include "world.h"  //J TO BE ADDED
+#include "world.h"  //J TO BE ADDED
+
+Uint8 _DRAWBOUNDS = 1;
+//extern Uint8 _INVENTORY_FLAG = 0;
+Entity* otherEnt;
+
+void parse_args(int argc, char* argv[]);
 
 int main(int argc, char * argv[])
 {
@@ -15,6 +21,7 @@ int main(int argc, char * argv[])
     int done = 0;
     const Uint8 * keys;
     Sprite *sprite;
+    World* world;
     
     int mx,my;
     float mf = 0;
@@ -23,13 +30,14 @@ int main(int argc, char * argv[])
     Entity* player;   //J START:
     Entity* monster;
     GFC_Vector2D player_position;
-    player_position.x = 0;
-    player_position.y = 0;
+    player_position.x = 20;
+    player_position.y = 200;
     GFC_Vector2D monster_position = gfc_vector2d(600, 400);
-
+    GFC_Vector2D default_pos = gfc_vector2d(-1, -1);
 
     /*program initializtion*/
     init_logger("gf2d.log",0);
+    parse_args(argc, argv); //argc will always be 1 at LEAST  //J ADDED
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
         "gf2d",
@@ -48,12 +56,17 @@ int main(int argc, char * argv[])
     /*demo setup*/
     sprite = gf2d_sprite_load_image("images/backgrounds/dest_bg.png");  //J CHANGE:  used to be "images/backgrounds/bg_flat.png"
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
+    
     slog("press [escape] to quit");
     //J START:
-    player = player_new_entity(player_position);
-    monster = monster_new_entity(monster_position);
+    player = player_new_entity( default_pos /*player_position */ );
+    monster = monster_new_entity(/*monster_position*/ default_pos );
+    world = world_load("def/levels/testLevel.level");
 
-    //world = world_load("defs/levels/testLevel.level"); //J TO BE ADDED
+    //Collision Check:
+    otherEnt = monster; //Once I create the monster entity - allocate space for it, define its aspects, etc...   Set my coll_check GLOBAL pointer to it, so that player.c can see it hopefully
+
+    //world = world_load("def/levels/testLevel.level"); //J TO BE ADDED
 
     /*main game loop*/
     while(!done)
@@ -72,10 +85,19 @@ int main(int argc, char * argv[])
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first
             gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));
-            //world_draw(world)   //J TO BE ADDED
+            
+            
+            world_draw(world);   //J TO BE ADDED
 
             entity_system_draw_all();    //draw shit -- I want my entities to exist in front of the background, but drawn before the mouse  //J TO BE ADDED
             
+            //Maybe I should have a extern flag in here? _INBATTLE.  so that I can start drawing the Battle UI when need-be
+            /*same thing for showing hte inventory at the push of a button I suppose
+            if (_INVENTORY_FLAG) {
+                slog("Inventory should actively be on screen");
+            }*/
+
+
             //UI elements last
             gf2d_sprite_draw(
                 mouse,
@@ -94,7 +116,21 @@ int main(int argc, char * argv[])
     }
     entity_free(player); //J ADDED
     entity_free(monster); //J ADDED
+    world_free(world);
+
     slog("---==== END ====---");
     return 0;
 }
+
+void parse_args(int argc, char* argv[]) {
+    int i;
+    if (argc < 2) return;
+    for (i = 1; i < argc; i++) {
+        if (gfc_strlcmp( "--drawbounds", argv[i]) == 0) {
+            _DRAWBOUNDS = 1;
+        }
+    }
+
+}
+
 /*eol@eof*/

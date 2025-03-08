@@ -1,0 +1,31 @@
+{
+	"name": "fierce_wyvern2",
+	"sprite": "images/fierce2.png",
+	"sprite_size": [ 214, 200 ],
+	"bounds": [ -107, -100, 214, 200 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"speed_Max": 0,
+	"moveList": [
+		{
+			"AttackList": [
+				{
+					"Attack1": "TailSlap",
+					"move_sprite": "fire.png"
+				},
+				{
+					"Attack2": "TailSlap",
+					"move_sprite": "fire.png"
+				}
+			]
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

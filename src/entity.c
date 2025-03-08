@@ -6,6 +6,7 @@
 #include "gf2d_draw.h"
  
 #include "entity.h"
+#include "camera.h"
 
 extern Uint8 _DRAWBOUNDS;
 
@@ -76,23 +77,33 @@ void entity_system_free_all(Entity *ignore) {  //JUST iterates and calls  entity
 void entity_free(Entity *self) {
 	if (!self) return;			//NEVER TRUST A POINTER.   Always check in case it doesn't exist.  and if it doesn't exist,  Stop. Return. END
 	//So far, the entity class that I have ONLY has one dynamically allocated member, the sprite.
-	//  If I add anything else, I will need this funciton to free that specifically as well
 	if (self->sprite) { //if the entity has a sprite.  Free the sprite  -- function yoikned from Sprite.c  bc sprites are managed by the Sprite Manager.
 		gf2d_sprite_free(self->sprite); //frees the spot IN the masterlist of Sprites.   gf2d_sprite.h takes care of actually deleting things.
 	}
+
+
+
+	//  If I add anything else, I will need this funciton to free that specifically as well
+	if (self->data_free) self->data_free(self);  //if our Entity has data to free. Free that data
+	
 	memset(self, 0, sizeof(Entity));
 	self->_inuse = 0; //Set its inuse flag to 0
-	//free();   //I think?????  Like this is all I need to free a piece of memory I use, right??
 }
 
 void entity_draw(Entity* self) {
 	if (!self) return;
 	if (!self->sprite) return; //can't work without a sprite
 	
+	GFC_Vector2D camera, position;  //Everything I draw will now have to honor the Camera's position J CAMERA
+	camera = camera_get_offset();
+	gfc_vector2d_add(position, camera, self->position);
+
+	//So now!  in the 2 places we have "position"  there used to be self->position
+
 	GFC_Rect rect = { 0 };
 	//now call the draw function for a sprite
 	gf2d_sprite_draw(self->sprite,
-		self->position,	//position
+		/*self->*/position,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
 		NULL,			//scale
 		&self->center,		//center which is a 2D vector
 		&self->rotation,	//rotation
@@ -101,19 +112,26 @@ void entity_draw(Entity* self) {
 		(Uint32) self->frame);
 	//he's adding this for Bound-related things  Just as a means to give yourself some trace,  SEE the bounding box when you run the game
 	if (_DRAWBOUNDS)
-	{	//DIJSOFA WAITT LMAOO wait wait.
+	{
 		gfc_rect_copy(rect, self->bounds); //copy our bounds rectangle into our new rect
-		gfc_vector2d_add(rect, rect, self->position); //This is for offset purposes. TO draw it AT the position of the player. Because his vector add is a macro. So long as the things have an x and y, they can be added ! so this works for rectangles
+		gfc_vector2d_add(rect, rect, /*self->*/position); //This is for offset purposes. TO draw it AT the position of the player. Because his vector add is a macro. So long as the things have an x and y, they can be added ! so this works for rectangles
 		gf2d_draw_rect(rect, GFC_COLOR_RED);
 	}
 }
 
 void entity_system_draw_all() {  //this used to just be "draw"  ?? maybe I just forgot to add draw() 
 	int  i;
+	Entity* p = NULL;
 	for (i = 0; i < entity_system.entity_max; i++) {
 		if (!entity_system.entity_list[i]._inuse) continue; //if the entity is NOT in use,  don't draw it
-
+		if (gfc_strlcmp(entity_system.entity_list[i].name, "player") == 0) {
+			p = &entity_system.entity_list[i]; //save the player  and draw it last -- outside the for loop.
+			continue;
+		}
 		entity_draw(&entity_system.entity_list[i]);
+	}
+	if ( p ) {
+		entity_draw(p);
 	}
 }
 
@@ -125,6 +143,7 @@ void entity_system_think_all() {  //up to date ??  Can't remember where the actu
 		if (!entity_system.entity_list[i].think)   //if it DOES NOT have a Think function
 			continue;
 		//Skipped making a  think(Entity *self)  function in this file.  bc this is the only call we need
+		//if (gfc_strlcmp(entity_system.entity_list[i].name, "cave_f") == 0) { slog("What the fuck: %i", i); }
 		entity_system.entity_list[i].think(&entity_system.entity_list[i]);  //call the think funcion with ourselves as the argument
 	}
 }
@@ -144,9 +163,13 @@ void entity_system_update_all() {  //up to date ??
 //After we delved into the creation of Definition files:
 void entity_configure(Entity* self, SJson* json) {
 	if ((!self) || (!json)) return;
+
 	//Let's get started .
 	char *ent_name = sj_object_get_string(json, "name");
-	if (ent_name) gfc_line_cpy(self->name, ent_name);  //something something  Copy A into B  and make sure it's not longer than the length of a Line.
+	if (ent_name) {
+		gfc_line_cpy(self->name, ent_name);  //something something  Copy A into B  and make sure it's not longer than the length of a Line.
+//slog("Name copied: %s",ent_name);
+	}
 	const char* filename = NULL;
 	filename = sj_object_get_string(json, "sprite");
 	if (filename) { //if it has a sprite
@@ -164,7 +187,7 @@ void entity_configure(Entity* self, SJson* json) {
 			0
 		);
 		//GFC_Vector2D centre = gfc_vector2d(); //hehe british spelling to be different
-		self->center = gfc_vector2d(sp_sz.x/2, sp_sz.y/2);
+		self->center = gfc_vector2d(sp_sz.x*0.5, sp_sz.y*0.5);
 		self->framesPerLine = framesPerLine;
 		self->frame = 0; //Since frame 0 will be the default for every entity,  just et the first frame here in the configure function
 
@@ -178,13 +201,32 @@ void entity_configure(Entity* self, SJson* json) {
 	sj_object_get_vector2d(json, "spawn_Position", &pos);
 	self->position = pos;
 
-	GFC_Vector2D vel = { 0 };;
+	GFC_Vector2D vel = { 0 };
 	sj_object_get_vector2d(json, "velocity", &vel);
 	self->velocity = vel;
 	gfc_vector2d_normalize(&self->velocity);
 	
+	self->type = ENT_none;
+	//slog("Entity %s Configured to have type none",self->name);
+	const char* ent_type = sj_object_get_string(json, "type");
+	if (ent_type) {
+		if (gfc_strlcmp(ent_type, "fierce") == 0) {
+			//slog("Fierce entity found: %s", self->name);
+			self->type = ENT_fierce;
+		}
+		else if (gfc_strlcmp(ent_type, "docile") == 0) {
+			//slog("Docile entity found: %s", self->name);
+			self->type = ENT_docile;
+			//slog("Entity %s's type is: %i", self->name, self->type);
+		}
+		else if (gfc_strlcmp(ent_type, "cunning") == 0) {
+			//slog("Cunning entity found");
+			self->type = ENT_cunning;
+		}
+		//gfc_line_cpy(self->name, ent_name);
+	}
 
-	sj_object_get_float(json, "speedMax", &self->speedMax);
+	//sj_object_get_float(json, "speedMax", &self->speedMax);
 }
 
 
@@ -199,21 +241,23 @@ void entity_configure_from_file(Entity* self, const char* filename) {
 
 }
 
-/*
+
 //He has an Update Position function here
-void eneitty_update_position(Entity* self) {
+/*void entity_update_position(Entity* self) {
 	GFC_Vector2D screen;
 	if (!self) return;
 
 	gfc_vector2d_normalize(&self->velocity);	//I could've sworn we did this already somewhere else..  maybe player !
 	gfc_vector2d_scale(self->velocity, self->velocity, self->speedMax);
 	screen = gf2d_graphics_get_resolution();
-	gfc_vector2d_add(self->position, self->position, self->velocity);
+	entity_move(self);
+	//gfc_vector2d_add(self->position, self->position, self->velocity); I believe this function is instead in his entity_move() function
+
+	//And then he has a section where he checks The Bounds of the Screen - so that we don't move offscreen
+
 	if (self->position.x + self->bounds.x < 0) self
 
-}
-*/
-
+}*/
 
 
 
@@ -258,9 +302,8 @@ int entity_collision_check(Entity* self, Entity* other) { //the way he's doing E
 
 }
 
-
 //ohh chat what is this,,	 WE GOIN' THROUGH THE WHOLE LIST  OH YEAH
-GFC_List* entity_collide_all(Entity* self) {
+GFC_List* entity_collide_all(Entity* self) {  //Works and up to date
 	if (!self) return NULL;
 	//ohhhhhh we goin through the whole list-
 	
@@ -268,7 +311,7 @@ GFC_List* entity_collide_all(Entity* self) {
 	entities = gfc_list_new();
 
 	int i;
-	for (i = 0; i < entity_system.entity_max; i++) {
+	for (i = 0; i < entity_system.entity_max; i++) { //iterate through the list of all our entities and see which ones we're colliding with
 		if (!entity_system.entity_list[i]._inuse) continue;  //if not in use. Skip
 		if (self == &entity_system.entity_list[i]) continue;  //Don't wanna collide against myself
 
@@ -282,14 +325,31 @@ GFC_List* entity_collide_all(Entity* self) {
 		gfc_list_delete(entities);
 		return NULL;
 	}
-	return entities;
+	return entities; //return the list. Please be sure to delete it after calling this function
 
 	return NULL;
 }
 
-//entity_move(Entity *self)   gfc_vector2d_add(self->position, self->position, self->velocity);   and then again, updating Velocity by adding Acceleration
-	//check for movement collision:
-	//if (I collide at new position) cancel the movement;
+entity_move(Entity* self) {
+	//he has a Bounds rect
+	GFC_Shape bounds;
 
+	//and a position vector
+	GFC_Vector2D position;
+
+	gfc_vector2d_add(position, self->position, self->velocity);
+	//and then again, updating SELF'S Velocity by adding Acceleration
+	gfc_vector2d_add(self->velocity, self->velocity, self->acceleration);
+	
+	//check for movement collision:
+	bounds = gfc_shape_from_rect(self->bounds);
+	gfc_shape_move(&bounds, position);
+	//if(self->layer)
+
+	//if (I collide at new position) cancel the movement;
+	//if my entity is ON the world layer:
+	//if self->layer & ECL_World
+
+}
 
 /*eol@eof*/

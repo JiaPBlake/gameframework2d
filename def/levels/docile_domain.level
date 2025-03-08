@@ -1,5 +1,5 @@
 {
-	"name": "testLevel",
+	"name": "docile_domain",
 	"tileSet": "images/backgrounds/ts2.png",
 	"tileSetSize": [ 256, 64 ],
 	"tileSetFPL": 1,
@@ -18,38 +18,24 @@
 		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
+		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ],
 		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
 	],
 
-	"entity_List": [
+	"entity_List":
+	[
 		{
-			"name": "player"
+			"name": "docile_dragon"
 		},
 		{
-			"name": "fierce_wyvern"
-		},
-		{
-			"name": "fierce_wyvern2"
-		},
-		{
-			"name": "cunning_drake",
-			"position": [ 1100, 550 ]
-		},
-		{
-			"name": "cunning_wyvern",
-			"position": [ 950, 550 ]
-		},
-		{
-			"name": "docile_dragon",
-			"position": [ 950, 550 ]
+			"name": "cave_c"
 		},
 		{
 			"name": "cave_f"
 		},
 		{
-			"name": "cave_c"
+			"name": "player"
 		}
-
 	]
 
 }

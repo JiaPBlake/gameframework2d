@@ -1,0 +1,16 @@
+{
+	"name": "cave_d",
+	"sprite": "images/cave_d.png",
+	"sprite_size": [ 217, 225 ],
+	"bounds": [ -109, -113, 218, 226 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 2300, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "docile",
+	"domain": "def/levels/fierce_domain.level",
+
+	"speed_Max": 0
+}

@@ -1,0 +1,33 @@
+{
+	"name": "docile_amphi",
+	"sprite": "images/fierce.png",
+	"sprite_size": [ 214, 200 ],
+	"bounds": [ -107, -100, 214, 200 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 540 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "docile",
+
+	"speed_Max": 0,
+	"moveList": [
+		{
+			"AttackList": [
+				{
+					"Attack1": "Wingblast",
+					"move_sprite": "fire.png"
+				},
+				{
+					"Attack2": "Galerise",
+					"move_sprite": "fire.png"
+				}
+			]
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

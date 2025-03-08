@@ -134,6 +134,21 @@
     <ClCompile Include="..\src\collision.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\camera.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\object.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\exit.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\battle.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -256,6 +271,21 @@
     <ClInclude Include="..\include\collision.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\ui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\battle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\object.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\exit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\camera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\player.def">
@@ -267,13 +297,43 @@
     <None Include="..\config\my_input.cfg">
       <Filter>Config Files</Filter>
     </None>
-    <None Include="..\def\fierce.def">
+    <None Include="..\def\fierce1.def">
       <Filter>Def Files</Filter>
     </None>
     <None Include="..\def\levels\testLevel.level">
       <Filter>Def Files</Filter>
     </None>
     <None Include="..\def\items.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\levels\fierce_domain.level">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cave_d.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cave_f.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cunning1.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\docile.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\levels\cunning_domain.level">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cave_c.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\fierce2.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\docile_amphi.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\levels\docile_domain.level">
       <Filter>Def Files</Filter>
     </None>
   </ItemGroup>

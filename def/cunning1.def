@@ -1,0 +1,33 @@
+{
+	"name": "cunning_drake",
+	"sprite": "images/cunning_drake.png",
+	"sprite_size": [ 298, 238 ],
+	"bounds": [ -150, -119, 300, 238 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "cunning",
+
+	"speed_Max": 0,
+	"moveList": [
+		{
+			"AttackList": [
+				{
+					"Attack1": "Razoredge",
+					"move_sprite": "fire.png"
+				},
+				{
+					"Attack2": "Zippyzoom",
+					"move_sprite": "fire.png"
+				}
+			]
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

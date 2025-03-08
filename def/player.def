@@ -1,13 +1,23 @@
 {
-	"name": "player_class",
+	"name": "player",
 	"sprite": "images/ed210.png",
-	"sprite_size": [128, 128],
+	"sprite_size": [ 128, 128 ],
+	"bounds": [ -39, -29, 78, 56 ],
 	"spriteFPL": 16,
 
-	"spawn_Position":[40, 500],
-	"velocity":[5,0],
-	"acceleration":0,
+	"spawn_Position": [ 40, 400 ],
+	"velocity": [ 3, 0 ],
+	"acceleration": 0,
 
-	"bounds": [-39, -28, 64, 56],
-	"speed_Max": 5	
+	"speed_Max": 3,
+	"moveList": [
+		{
+			"Attack": "Fireblast",
+			"move_sprite": "fire.png"
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
 }

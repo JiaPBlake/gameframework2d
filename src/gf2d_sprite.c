@@ -17,7 +17,7 @@ typedef struct
     Sprite * sprite_list;
 }SpriteManager;
 
-static SpriteManager sprite_manager = { 0 };  //J NOTE  J CHANGE.  Static acts as a Private for only this FIle -- Don't let anyone outside of THIS C file grab it.
+static SpriteManager sprite_manager = { 0 };  //J NOTE  J CHANGE.  Static acts as a Private for only this File -- Don't let anyone outside of THIS C file grab it.
 //J NOTE:  Global Singleton sprite_manager
 void gf2d_sprite_close()
 {

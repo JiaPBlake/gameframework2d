@@ -1,0 +1,33 @@
+{
+	"name": "fierce_wyvern",
+	"sprite": "images/fierce.png",
+	"sprite_size": [ 374, 350 ],
+	"bounds": [ -187, -175, 374, 350 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 530 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "fierce",
+
+	"speed_Max": 0,
+	"moveList": [
+		{
+			"AttackList": [
+				{
+					"Attack1": "Fireblast",
+					"move_sprite": "fire.png"
+				},
+				{
+					"Attack2": "Chomp",
+					"move_sprite": "fire.png"
+				}
+			]
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

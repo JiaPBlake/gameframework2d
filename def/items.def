@@ -1,55 +1,65 @@
 {
-  "items":
-	[
-    {
+	"items": [
+		{
 			"name": "item_resounding_artifact",
 			"sprite": "arti.png",
-			"sprite_size": [3,3],
+			"sprite_size": [ 30, 30 ],
 			"spriteFPL": 1,
+			"bounds": [ 0, 0, 30, 30 ],
 
-			"spawn_Position":[60, 500],
-			"velocity":0,
-			"acceleration":0,
+			"spawn_Position": [ 60, 500 ]
 
-			"bounds":0
-    },
-	  {
-      "name": "item_black_orb",
+		},
+		{
+			"name": "item_drumstick",
+			"sprite": "drumstick.png",
+			"sprite_size": [ 30, 30 ],
+			"spriteFPL": 1,
+			"bounds": [ 0, 0, 30, 30 ],
+
+			"spawn_Position": [ 60, 500 ]
+
+		},
+		{
+			"name": "item_black_orb",
 			"sprite": "orb.png",
-			"sprite_size": [3,3],
+			"sprite_size": [ 30, 30 ],
 			"spriteFPL": 1,
+			"bounds": [ 0, 0, 30, 30 ],
 
-			"spawn_Position":[65, 500],
-			"velocity":0,
-			"acceleration":0,
+			"type": "fierce",
 
-			"bounds":0
-    },
-	  {
-      "name": "item_tectonic_stone",
+			"spawn_Position": [ 65, 500 ]
+
+
+		},
+		{
+			"name": "item_tectonic_stone",
 			"sprite": "stone.png",
-			"sprite_size": [3,3],
+			"sprite_size": [ 30, 30 ],
 			"spriteFPL": 1,
+			"bounds": [ 0, 0, 30, 30 ],
 
-			"spawn_Position":[70, 500],
-			"velocity":0,
-			"acceleration":0,
+			"type": "cunning",
 
-			"bounds":0
-    },
-	  {
-      "name": "item_trident",
+			"spawn_Position": [ 70, 500 ],
+
+			"bounds": 0
+		},
+		{
+			"name": "item_trident",
 			"sprite": "trident.png",
-			"sprite_size": [3,3],
+			"sprite_size": [ 30, 30 ],
 			"spriteFPL": 1,
+			"bounds": [ 0, 0, 30, 30 ],
 
-			"spawn_Position":[75, 500],
-			"velocity":0,
-			"acceleration":0,
+			"type": "docile",
 
-			"bounds":0
-    }
+			"spawn_Position": [ 75, 500 ],
 
-  ]
+			"bounds": 0
+		}
+
+	]
   
 }

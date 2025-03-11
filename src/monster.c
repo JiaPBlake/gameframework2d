@@ -47,7 +47,7 @@ Entity* monster_new_entity(GFC_Vector2D position, const char* defFile) //Now tha
 //Def file section
 	entity_configure_from_file(self, defFile);  //INSTEAD OF this Sprite loading bock underneath
 	//position override from the parameters:
-	if (position.x >= 0) { gfc_vector2d_copy(self->position, position); } //if position is a negative vector, don't override, just use the one from the def file
+	if (position.x >= 0) { slog("Position override for Monster %s",self->name); gfc_vector2d_copy(self->position, position); } //if position is a negative vector, don't override, just use the one from the def file
 /*Calling Sprite hard-coded
 	self->velocity = gfc_vector2d(1, 0);
 	self->sprite = gf2d_sprite_load_all(
@@ -130,11 +130,11 @@ void monster_think(Entity *self) {
 }
 
 void monster_update(Entity* self) {
-	gfc_vector2d_add(self->position, self->position, self->velocity);
+	/*gfc_vector2d_add(self->position, self->position, self->velocity);
 	if (self->position.x + self->bounds.x < 0) self->position.x = 0 - self->bounds.x;
 	if (self->position.y + self->bounds.y < 0) self->position.y = 0 - self->bounds.y;
 	if (self->position.x - self->bounds.x > 1200) self->position.x = 1200 + self->bounds.x;
-	if (self->position.y - self->bounds.y > 700) self->position.y = 700 + self->bounds.y;
+	if (self->position.y - self->bounds.y > 700) self->position.y = 700 + self->bounds.y;*/
 
 	//I was going to implement a special bounds check, so that each monster could be like.. 20 pixels IN the ground, but... nah it's way easier to just do it based on def file
 	//since each monster (1 dragon per domain btw)  will be especially placed into the map

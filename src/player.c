@@ -8,12 +8,16 @@
 #include "collision.h"
 #include "world.h"
 #include "camera.h"
-#include "battle.h"
+//#include "battle.h"
+#include "window.h" //to set selected
+#include "inventory.h"
 
 //extern Entity *otherEnt;  //artifact of old thinking (me trying to implement collision before we went over it in class
 Uint8 _INBATTLE = 0;
 Uint8 _NEWENCOUNTER = 0;
 extern Uint32 _MOUSEBUTTON;
+Uint8 health_frame = 5;
+int keySelectTimer = 0; //50 frames
 
 //void player_think(Entity* self);
 //void player_update(Entity* self);  //I decided to declare them in player.h instead  Haven't test ran this lmao but it should work fine
@@ -25,9 +29,18 @@ Entity* thePlayer = NULL;
 // "Rule of 3"s in programming: if ever we need a constant Constructor -  we'll need a Deconstructor  as well as a co-? Constructor
 
 typedef struct {
-	float			speedMax; /**<Max speed of the player.So that when Player is in battle, we can change this value to 0 so that they don't move*/
-	int xp, neededxp;
-	int inventory[10];
+	//float	speedMax; /**<Max speed of the player.So that when Player is in battle, we can change this value to 0 so that they don't move*/
+	//int xp, neededxp;   //don't need these
+	int		fierce_points;
+	int		docile_points;
+	int		cunning_points;															//WAIT I LIED I COULD TOTALLY MAKE PICK-UPABLE ITEMS ENTITIES !! THAT WOULD MAKE COLLISSION SO MUCH EASIER LMAOO
+			//Something important to think about.  INVENTORY is something only a player will have.  Inventory has its OWN *itemsList.  and the World will have its own as well - for the purpose of drawing them for pickup
+	Inventory inventory;  //   this.. this should be a pointer . 'cause our init function takes a pointer. (I mean yeah I could just pass &)  but like I feel like... a pointer here makes things easier..?
+	/*int orb;
+	int stone;		Don't need these here. each item in inventory->itemsList has its own count. and that's what the inventory_add_item() functions are for
+	int trident;
+	int drumstick;
+	int artifact;*/
 }PlayerEntityData;
 
 Entity* player_get_the() {
@@ -52,7 +65,7 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 		slog("failed to spawn a new player entity");
 		return NULL;
 	}
-	slog("Initializing Config File");
+	//slog("Initializing Config File");  //Jlog
 	gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
 	//That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
 
@@ -71,12 +84,18 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 	self->data_free = player_data_free;
 	//Feb 24:   Polymorphism --  our Player IS an Entity, but we're adding more to it
 //And I don't have to worry about trying to implement this into entity_configure,  because all this upcoming info is SPECIFIC to the player
-	data = gfc_allocate_array(sizeof(PlayerEntityData), 1);
+	/*data = gfc_allocate_array(sizeof(PlayerEntityData), 1);
 	if (data) {
-		data->neededxp = 1000;
-	}
+		data->fierce_points = 0;
+		data->docile_points = 0;
+		data->cunning_points = 0;
 
-	self->data = data; 
+	
+		inventory_init(&data->inventory); //Player Entity Data's inventory
+
+		self->data = data;   //"data" is the type-associated version.
+	}*/
+	
 
 	//Set my global variable. So others can find me with the player_get_the() function
 	thePlayer = self;
@@ -85,19 +104,23 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 }
 
 void player_data_free(Entity* self) {
+	slog("Made it to the player_data_free function even though it's a void pointer");
 	if ((!self) || (!self->data)) return;
 	
 	PlayerEntityData* data;
-	data = self->data;
+	data = (PlayerEntityData *)self->data; //cast the Void pointer specifically to a PlayerEntityData* pointer
 	
 	//other cleanup goes here
 	//gf2d_sprite_Free(data->profilePicture);  //for example.  if I had a sprite for profilePicture
+	slog("In the Player data free function. About to free up the inventory");
+	//inventory_cleanup(&data->inventory);
 
+
+//free the data once we're done with it
 	free(data);	///BECAUSEE   my Entity, self.  ONLY knows "data"  as a void pointer.  It does not know that it's a PlayerEntityData
 	self->data = NULL; //could have just done   free(self->data),  but!  if we have other things to be cleaned up,  like a Sprite !!  making a PlayerEntityData pointer is (the only...?) best way to access it
 
 }
-
 
 
 void player_think(Entity* self) {
@@ -169,7 +192,12 @@ void player_think(Entity* self) {
 		
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
 		if (other->team & ETT_monsters) {
-			_INBATTLE = 1;
+			if (!_INBATTLE) {
+				if (health_frame == 0) { health_frame = 5; slog("Health reset"); }
+				else health_frame--;
+					
+			}
+			_INBATTLE = 1;  //I only want health to decrease ONCE PER collision.  not while I'm colliding
 			//self->velocity.x = 0;
 			self->think = player_think_battle;
 			//Get the monster I'm colliding with
@@ -211,32 +239,52 @@ void player_think_battle(Entity* self) {
 
 	//Select UI box
 	/*
+	I need to know what button I'm on.
+	 
+	
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
 		//go right UI
 	}
-	if (gfc_input_command_down("left")) {  //if I'm pressin'  left
+	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
 		//go right UI
 	}
-
-	if (gfc_input_command_down("down")) {  //if I'm pressin'  down
-		//go right UI
+	
+	if (gfc_input_command_down("enter")) {   //if I press enter,  I want to perform the action of that button... WHICH IS GOING TO VARY PER BUTTON FUCK
+		button.action();  //where action is a function pointer ??? BITCH!?!?
 	}
-	if (gfc_input_command_down("up")) {  //if I'm pressin'  up
-		//go right UI
-	}*/
+	*/
+	gfc_input_update();
+	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
+		//self->velocity.x = 1.0;
+		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
+			//slog("Going right");
+			inc_selected();
+			keySelectTimer = 10;
+		}
+		if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
+			keySelectTimer--;
+		}
+	}
+	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
+		//self->velocity.x = -1.0;
+		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
+			dec_selected();
+			keySelectTimer = 10;
+		}
+		if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
+			keySelectTimer--;
+		}
+	}
+	else { self->velocity.x = 0; }
+	gfc_vector2d_normalize(&self->velocity);  //takes a pointer
+	gfc_vector2d_scale(self->velocity, self->velocity, 3);  //Scale the velocity
 
-	GFC_Vector2D dir = { 0 };		//Video code just to be sure this works upon compiling.It does
-		int mx = 0, my = 0;
-	SDL_GetMouseState(&mx, &my);
-	if (self->position.x < mx) dir.x = 1;
-	if (self->position.y < my) dir.y = 1;
-	if (self->position.x > mx) dir.x = -1;
-	if (self->position.y > my) dir.y = -1;
+	//GFC_Vector2D move = gfc_vector2d(850, 100);
+	//gfc_vector2d_sub(self->position, self->position, move);
+	self->position = gfc_vector2d(400, 620);
 
-	gfc_vector2d_normalize(&dir);
-	gfc_vector2d_scale(self->velocity, dir, 2);
-
-
+	//Once collision is done  set _INBATTLE = 0,  but I need to change this for the actual battle function.
+	/*
 	Entity* other;
 	GFC_List* others;
 	int i, c; //i for iterating.   c for getting the  gfc_list_count(others);  so that we can iterate  i < c
@@ -249,14 +297,36 @@ void player_think_battle(Entity* self) {
 		self->think = player_think;
 	}
 	gfc_list_delete(others);
+	//slog("collision list deleted");
+	*/
 
 
+	if (gfc_input_command_down("down")) {  //if I'm pressin'  right
+		//self->velocity.x = 1.0;
+		reset_selected();
+		_INBATTLE = 0;
+		self->think = player_think;
+	}
 
+	if (gfc_input_command_down("enter")) {  //if I'm pressin'  right
+		//self->velocity.x = 1.0;
+		
+		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
+			
+			slog("Performing action");
+			button_perform_action(get_selected(), window_get_active());
+
+			keySelectTimer = 10;
+		}
+		if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
+			keySelectTimer--;
+		}
+	}
+	
+	
 	//I  want toooooooo   call  battle_start()   in my Think
 			//and battle_end  in THIS think
-
-
-	//slog("collision list deleted");
+	
 
 }
 
@@ -297,4 +367,17 @@ void player_update(Entity* self) {
 
 	//chat I forget basic math  idk how to do bounds LMAO
 	//NVM WE FIGURED IT OUT !!  I could make a CheckBounds() function and plop it in entity..
+}
+
+
+//Using this to try and draw the sprite of any 1 item just to see what purpose I could give that
+void player_show_inven(Entity* self) {
+	PlayerEntityData* data;
+	data = self->data;
+	data->inventory;
+
+	slog("Trying to display Resounding Artifact from the player inventory");
+	display_item(&data->inventory, "item_resounding_artifact");
+
+
 }

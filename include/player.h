@@ -38,4 +38,9 @@ void player_update(Entity* self);
 void player_data_free(Entity* self);
 
 
+
+//Inventory testing
+void player_show_inven(Entity* self);
+
+
 #endif

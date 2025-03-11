@@ -173,6 +173,8 @@
     <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\collision.c" />
     <ClCompile Include="..\src\exit.c" />
+    <ClCompile Include="..\src\inventory.c" />
+    <ClCompile Include="..\src\items.c" />
     <ClCompile Include="..\src\monster.c" />
     <ClCompile Include="..\src\entity.c" />
     <ClCompile Include="..\src\game.c" />
@@ -182,7 +184,9 @@
     <ClCompile Include="..\src\object.c" />
     <ClCompile Include="..\src\player.c" />
     <ClCompile Include="..\src\spawn.c" />
+    <ClCompile Include="..\src\text.c" />
     <ClCompile Include="..\src\ui.c" />
+    <ClCompile Include="..\src\window.c" />
     <ClCompile Include="..\src\world.c" />
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +224,8 @@
     <ClInclude Include="..\include\collision.h" />
     <ClInclude Include="..\include\battle.h" />
     <ClInclude Include="..\include\exit.h" />
+    <ClInclude Include="..\include\inventory.h" />
+    <ClInclude Include="..\include\items.h" />
     <ClInclude Include="..\include\monster.h" />
     <ClInclude Include="..\include\entity.h" />
     <ClInclude Include="..\include\gf2d_draw.h" />
@@ -228,8 +234,10 @@
     <ClInclude Include="..\include\object.h" />
     <ClInclude Include="..\include\player.h" />
     <ClInclude Include="..\include\spawn.h" />
+    <ClInclude Include="..\include\text.h" />
     <ClInclude Include="..\include\tileset.h" />
     <ClInclude Include="..\include\ui.h" />
+    <ClInclude Include="..\include\window.h" />
     <ClInclude Include="..\include\world.h" />
   </ItemGroup>
   <ItemGroup>
@@ -248,6 +256,8 @@
     <None Include="..\def\levels\fierce_domain.level" />
     <None Include="..\def\levels\testLevel.level" />
     <None Include="..\def\player.def" />
+    <None Include="..\def\testWindow.def" />
+    <None Include="..\def\ui_window_battle.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

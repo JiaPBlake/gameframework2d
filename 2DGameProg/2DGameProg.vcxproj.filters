@@ -149,6 +149,18 @@
     <ClCompile Include="..\src\battle.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\text.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\window.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\items.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\inventory.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -286,6 +298,18 @@
     <ClInclude Include="..\include\camera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\window.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\items.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\inventory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\player.def">
@@ -334,6 +358,12 @@
       <Filter>Def Files</Filter>
     </None>
     <None Include="..\def\levels\docile_domain.level">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\ui_window_battle.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\testWindow.def">
       <Filter>Def Files</Filter>
     </None>
   </ItemGroup>

@@ -59,7 +59,7 @@ void world_tile_layer_build(World* world) {
 	GFC_Vector2D position = {0};
 	Uint32 frame;
 	//We're going to make a Surface for our Sprite. So we can convert it to a Texture to use (such that we can draw it all at once)
-		// "We're going to be useing gf2d_sprite-draw_to_surface()  to draw TO the tileLayer (the SDL_Surface, I think)  all of our tile-stuff (all our Tile sprite related stuff)
+		// "We're going to be using gf2d_sprite-draw_to_surface()  to draw TO the tileLayer (the SDL_Surface, I think)  all of our tile-stuff (all our Tile sprite related stuff)
 	
 	world->tileLayer = gf2d_sprite_new();	//Create a Sprite
 	if (!world->tileLayer) slog("We didn't even make the damn tileLayer..");
@@ -103,7 +103,7 @@ void world_tile_layer_build(World* world) {
 		slog("Failed to convert World tileLayer to a texture");
 		return;
 	}
-	slog("Layer created");
+	//slog("Layer created");  //Jlog
 }
 
 World* world_load(const char* filename) {
@@ -233,7 +233,6 @@ World* world_load(const char* filename) {
 		
 		//else { slog("Enty index #%i not found. Not spawning", i); }
 	}
-
 	sj_free(json);  //don't forget to clean the json object
 
 	world_tile_layer_build(world); //J ADDED -  create the tileLayer so that it can be drawn

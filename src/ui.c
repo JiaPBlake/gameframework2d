@@ -1,10 +1,12 @@
+#include <SDL_ttf.h>
 #include "simple_logger.h"
-//#include "gfc_config.h"
+
+#include "gfc_config.h"
 #include "gf2d_graphics.h"
 #include "gf2d_draw.h"
+#include "camera.h"
 
 #include "ui.h"
-
 
 
 typedef struct {  //our singleton entity system/manager.  our big-ass list of entities
@@ -28,7 +30,7 @@ void ui_system_close() {
 	slog("UI system closed");
 }
 
-//Done.   Just allocates .ui_elem_list
+//Done.   Just allocates .ui_elem_list ;   atexit(ui_system_close)
 void ui_system_init(Uint32 maxElems) {
 	if (ui_sub_system.ui_elem_list) {
 		slog("Cannot initialize more than one UI System/List. One is already active");
@@ -48,8 +50,8 @@ void ui_system_init(Uint32 maxElems) {
 	slog("UI system initialized");
 }
 
-
-//ok.  THIS function should be reserved for freeing / cleeaning MY WHOLE LIST.  highkey.  'cause WOULD there be JUST one Element I'd want to keep...?  maybe health..??
+					//I mean. at exit, we're passing NULL to the ignore argument anyways.  But I think I would only need to FREEE my UI elems on closing anyway.. Becuase I'll never really need to allocate more elements mid way through... The UI I have will all be there, just only drawn @ specific times
+//ok.  THIS function should be reserved for freeing / cleaning MY WHOLE LIST.  highkey.  'cause WOULD there be JUST one Element I'd want to keep...?  maybe health..??
 						// \|/no idea if I wanna make this a List
 void ui_system_free_all(UI_Element* ignore) {  //JUST iterates and calls  entity_free()
 	int i;
@@ -116,7 +118,7 @@ void ui_element_configure(UI_Element* self, SJson* json) {
 			framesPerLine,
 			0
 		);
-		//GFC_Vector2D centre = gfc_vector2d(); //hehe british spelling to be different
+		self->sprite_size = sp_sz;
 		self->center = gfc_vector2d(sp_sz.x * 0.5, sp_sz.y * 0.5);
 		self->framesPerLine = framesPerLine;
 		self->frame = 0; //Since frame 0 will be the default for every entity,  just et the first frame here in the configure function
@@ -125,31 +127,23 @@ void ui_element_configure(UI_Element* self, SJson* json) {
 		sj_object_get_vector4d(json, "bounds", &bounds);
 		self->bounds = gfc_rect_from_vector4(bounds);
 
+		float rot;
+		sj_object_get_float(json, "rotation", &rot);
+		self->rotation = rot;
+
 	}
 
 	GFC_Vector2D pos = { 0 };
 	sj_object_get_vector2d(json, "spawn_Position", &pos);
 	self->position = pos;
 
-	
-	
-	GFC_Vector2D		sprite_size;	/**<Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
-	float				frame;			/**<for drawing the sprite*/
-	Uint32				framesPerLine;
-	GFC_Rect			bounds;		//x,y  Top left corner
-	GFC_Vector2D		center;
-	float				rotation;
-
-	GFC_Vector2D		position;		/**<where to draw it*/
 
 	UI_Type				type;
+	
 	//maybe a textline or whatever here for,,,  t e xt...
+	self->think = NULL;
+	self->update = NULL;
 
-
-
-	//Time to set up the think function baby oh boy
-	void				(*think)(struct Ui_S* self);   /**<function to call to make decisions based on the world state*/  //The think function will take a pointer to an Entity
-	void				(*update)(struct Ui_S* self);
 
 }
 
@@ -167,6 +161,76 @@ void ui_element_configure_from_file(UI_Element* ui, const char* filename) {
 */
 void ui_system_draw_all();  //**********I MIGHT!!  want a parameter here for the type of encounter
 
+//I SHOULD MAKE THIS A  Draw_Entire_Window( Window* win) KINDA THING 
+
+
+
+
+
+
+
+
+//me trying to bullshit a UI:  LMAO
+
+void adjust_health(Sprite* healthbar) {
+
+}
+
+/*UI_Element* ui_make() {
+	
+	UI_Element* ui = ui_element_new();
+	ui->sprite_size = gfc_vector2d();
+	ui->framesPerLine = 6;
+	ui->sprite = gf2d_sprite_load_all(
+		filename,
+		(Uint32)sprite_size.x,
+		(Uint32)sprite_size.y,
+		framesPerLine,
+		0
+	);
+
+	ui->frame = 0;
+
+
+	GFC_Rect			bounds;			//x,y  Top left corner
+	GFC_Vector2D		center;
+	float				rotation;
+
+	GFC_Vector2D		position;		/**<where to draw it
+
+	return ui;
+}*/
+
+void draw_health_stat(UI_Element* self, float frame) {
+	if (!self) return;
+	if (!self->sprite) return; //can't work without a sprite
+
+	GFC_Vector2D camera, position;  //Everything I draw will now have to honor the Camera's position J CAMERA
+	camera = camera_get_offset();
+	gfc_vector2d_add(position, camera, self->position);
+
+
+	GFC_Rect rect = { 0 };
+
+	float f = frame;
+	if (frame < 0) {
+		f = self->frame;
+	}
+
+	gf2d_sprite_draw(self->sprite,
+		/*self->*/position,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
+		NULL,				//scale
+		&self->center,		//center which is a 2D vector
+		&self->rotation,	//rotation
+		NULL,				//flip
+		NULL,				//colorShift
+		(Uint32)f); //For when I make more than JUST the Willpower counter
+
+}
+
+void draw_stats() {
+
+}
 
 /*if (_INBATTLE) {
 	load ALLL battle assets

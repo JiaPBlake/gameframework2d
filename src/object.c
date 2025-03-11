@@ -59,13 +59,11 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 				if (self->type & ENT_fierce) {   //... :|  for some reason this always equates to 1..
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/fierce_domain.level", pos);
-					slog("1");
 				}
 				
 				else if (self->type & ENT_docile) {   //... :|  for some reason this always equates to 1..
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/docile_domain.level", pos);
-					slog("2");
 				}
 				
 				else if (self->type & ENT_cunning) {   //... :|  for some reason this always equates to 1..

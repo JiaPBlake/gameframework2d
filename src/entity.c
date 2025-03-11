@@ -81,10 +81,19 @@ void entity_free(Entity *self) {
 		gf2d_sprite_free(self->sprite); //frees the spot IN the masterlist of Sprites.   gf2d_sprite.h takes care of actually deleting things.
 	}
 
-
-
 	//  If I add anything else, I will need this funciton to free that specifically as well
-	if (self->data_free) self->data_free(self);  //if our Entity has data to free. Free that data
+	if (self->data_free) {
+		slog("Calling Entity %s's data free function.",self->name);
+		
+		if (self->team == ETT_item) {
+			slog("The entity I'm freeing is an item.  Casting self to be an item Pointer");
+			self->data_free( (void*)self); //I hope this works..
+		}
+		else {
+			slog("About to enter Data Free function for Entity name: %s",self->name);
+			self->data_free(self);		//if our Entity has data to free. Free that data
+		}
+	}  
 	
 	memset(self, 0, sizeof(Entity));
 	self->_inuse = 0; //Set its inuse flag to 0
@@ -186,7 +195,8 @@ void entity_configure(Entity* self, SJson* json) {
 			framesPerLine,
 			0
 		);
-		//GFC_Vector2D centre = gfc_vector2d(); //hehe british spelling to be different
+		//if (!self->sprite->surface) { slog("Entity has no sprite surface"); }  //for Window comparison... these don't have surfaces
+		self->sprite_size = sp_sz;
 		self->center = gfc_vector2d(sp_sz.x*0.5, sp_sz.y*0.5);
 		self->framesPerLine = framesPerLine;
 		self->frame = 0; //Since frame 0 will be the default for every entity,  just et the first frame here in the configure function
@@ -218,6 +228,7 @@ void entity_configure(Entity* self, SJson* json) {
 			//slog("Docile entity found: %s", self->name);
 			self->type = ENT_docile;
 			//slog("Entity %s's type is: %i", self->name, self->type);
+			//if (self->type & ENT_docile) slog("Docile's y position is: %f. Center is: %f", self->position.y,self->center.y);
 		}
 		else if (gfc_strlcmp(ent_type, "cunning") == 0) {
 			//slog("Cunning entity found");
@@ -238,7 +249,7 @@ void entity_configure_from_file(Entity* self, const char* filename) {
 	if (!json) return;
 	entity_configure(self, json);
 	//close it
-
+	sj_free(json);   //COMPLETELY forgot to close it for the first 4 weeks of having this funciton .
 }
 
 

@@ -1,11 +1,11 @@
-{ 
-	"name": "docile_dragon",
-	"sprite": "images/docile_d.png",
-	"sprite_size": [ 204, 350 ],
-	"bounds": [ -102, -175, 204, 350 ],
+{
+	"name": "docile_wyv",
+	"sprite": "images/docy.png",
+	"sprite_size": [ 225, 200 ],
+	"bounds": [ -113, -100, 226, 200 ],
 	"spriteFPL": 1,
 
-	"spawn_Position": [ 950, 600 ],
+	"spawn_Position": [ 950, 540 ],
 	"velocity": [ 0, 0 ],
 	"acceleration": 0,
 
@@ -14,14 +14,13 @@
 	"speed_Max": 0,
 	"moveList": [
 		{
-			"AttackList":
-			[
+			"AttackList": [
 				{
-					"Attack1": "TailSlap",
+					"Attack1": "Wingblast",
 					"move_sprite": "fire.png"
 				},
 				{
-					"Attack2": "Waterblast",
+					"Attack2": "Galerise",
 					"move_sprite": "fire.png"
 				}
 			]

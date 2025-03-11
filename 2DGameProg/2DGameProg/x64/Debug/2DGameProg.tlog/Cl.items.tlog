@@ -30,6 +30,8 @@ C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\battle.c;C:
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\camera.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\camera.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\collision.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\collision.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\exit.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\exit.obj
+C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\inventory.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\inventory.obj
+C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\items.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\items.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\monster.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\monster.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\entity.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\entity.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\game.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\game.obj
@@ -39,5 +41,7 @@ C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\gf2d_sprite
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\object.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\object.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\player.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\player.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\spawn.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\spawn.obj
+C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\text.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\text.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\ui.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\ui.obj
+C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\window.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\window.obj
 C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\src\world.c;C:\Users\Jiapb\OneDrive\Documents\Code\IT266\git\gameframework2d\2DGameProg\2DGameProg\x64\Debug\world.obj

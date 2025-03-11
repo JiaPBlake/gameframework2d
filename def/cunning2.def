@@ -1,26 +1,26 @@
 {
-	"name": "fierce_wyvern2",
-	"sprite": "images/fierce2.png",
-	"sprite_size": [ 214, 200 ],
-	"bounds": [ -107, -100, 214, 200 ],
+	"name": "cunning_wyvern",
+	"sprite": "images/cunning_wyvern.png",
+	"sprite_size": [ 298, 238 ],
+	"bounds": [ -150, -119, 300, 238 ],
 	"spriteFPL": 1,
 
 	"spawn_Position": [ 950, 550 ],
 	"velocity": [ 0, 0 ],
 	"acceleration": 0,
 
-	"type": "fierce",
+	"type": "cunning",
 
 	"speed_Max": 0,
 	"moveList": [
 		{
 			"AttackList": [
 				{
-					"Attack1": "TailSlap",
+					"Attack1": "Razoredge",
 					"move_sprite": "fire.png"
 				},
 				{
-					"Attack2": "TailSlap",
+					"Attack2": "Zippyzoom",
 					"move_sprite": "fire.png"
 				}
 			]

@@ -4,6 +4,7 @@
 #include "player.h"
 #include "monster.h"
 #include "object.h"
+#include "items.h"
 
 typedef struct {
 	const char		*name;
@@ -30,8 +31,33 @@ static SpawnPair spawn_list[] =
 		monster_new_entity //assign the spawn function
 	},
 	{
+		"fierce_wyvern2", //name
+		"def/fierce2.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
 		"cunning_drake", //name
 		"def/cunning1.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
+		"cunning_wyvern", //name
+		"def/cunning2.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
+		"docile_dragon", //name
+		"def/docile.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
+		"docile_amphi", //name
+		"def/docile_amphi.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
+		"docile_wyv", //name
+		"def/docile_wyvern.def", //name of the def file
 		monster_new_entity //assign the spawn function
 	},
 	{
@@ -48,6 +74,11 @@ static SpawnPair spawn_list[] =
 		"cave_c", //name
 		"def/cave_c.def", //name of the def file
 		object_new_entity //assign the spawn function
+	},
+	{
+		"item_resounding_artifact", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
+		"item_resounding_artifact", //name of the def file
+		item_new_entity //assign the spawn function	
 	},
 	{0}
 };

@@ -46,8 +46,9 @@ typedef struct Ui_S{
 	
 	UI_Type				type;
 	GFC_TextBlock		body;
+	
 	//maybe a textline or whatever here for,,,  t e xt...
-
+	//Font  //aha .  I'm making a Font type,,,,
 
 
 	//Don't think I need these at all but.  Here's the framework just in case  WAIT LIED MY ASS OFF LMAO this is how I'm going to click on shit.
@@ -109,5 +110,12 @@ void ui_element_configure(UI_Element* self, SJson* json);
 void ui_element_configure_from_file(UI_Element* self, const char* filename);
 
 
+void adjust_health(Sprite* healthbar);
+
+UI_Element* ui_make();
+
+void draw_health_stat(UI_Element* self, float frame);
+
+void draw_stats();
 
 #endif

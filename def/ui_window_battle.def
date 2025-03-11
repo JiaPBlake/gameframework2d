@@ -1,0 +1,42 @@
+{ //Name of Window
+  "name": "battle_screen",
+  "window_Text": "Are you sure?",
+  //Sprite Object
+  "window_sprite": "images/ui/battle_window.png",
+  "window_sprite_size": [ 1200, 720 ],
+  "window_bounds": [ 0, 0, 1200, 720 ],
+  "window_position": [ 0, 0 ],
+  //Button Object
+  "buttons": [
+    { //Attack Button
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [120, 510],
+      "sprite_size": [ 180, 100 ],
+      "action": "newWindow",
+      "nextWindow": "battle_screen_attack"
+    },
+    { //Converse Button
+      "sprite": "images/ui/converse_button.png",
+      "button_position": [ 200, 390 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "newWindow",
+      "nextWindow": "battle_screen_converse"
+    },
+    { //Tame Button
+      "sprite": "images/ui/flee_button.png",
+      "button_position": [ 350, 390 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "exitWindow",
+      "text": "Yes"
+    },
+    { //Flee Button
+      "sprite": "images/ui/tame_button.png",
+      "button_position": [ 400, 510 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "exitWindow",
+      "text": "Yes"
+    }
+  ]
+
+}
+

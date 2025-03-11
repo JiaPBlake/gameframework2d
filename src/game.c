@@ -138,8 +138,8 @@ int main(int argc, char * argv[])
     GFC_Vector2D h_center = gfc_vector2d(160, 32);
     //stats_screen = ui_make();     //J TO BE ADDED (UI)
     
-    UI_Window* win = window_new();
-    window_configure_from_file(win, "def/testWindow.def");
+    UI_Window* starting_win = window_new();
+    window_configure_from_file(starting_win, "def/testWindow.def");
     
     
     //battleWin = window_configure("def/testWindow.def");
@@ -236,7 +236,7 @@ int main(int argc, char * argv[])
                 //slog("in battle");
                 
                 //..  basically.  I want a single draw call here:    to Draw the Proper UI_Elements.  While I have them THINK out there ^
-                window_draw(win);
+                window_draw(window_get_active());
                 /*GFC_Vector2D center = gfc_vector2d(302, 67);
                 gf2d_sprite_draw(
                     battle_alert,

@@ -1,4 +1,4 @@
-{ //Name of Window
+{ //This shit do not work btw LOL
   "name": "battle_screen",
   "window_Text": "Are you sure?",
   //Sprite Object
@@ -10,17 +10,17 @@
   "buttons": [
     { //Attack Button
       "sprite": "images/ui/attack_button.png",
-      "button_position": [120, 510],
+      "button_position": [ 120, 510 ],
       "sprite_size": [ 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "battle_screen_attack"
+      "nextWindow": "ui_window_attack.def"
     },
     { //Converse Button
       "sprite": "images/ui/converse_button.png",
       "button_position": [ 200, 390 ],
       "sprite_size": [ 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "battle_screen_converse"
+      "nextWindow": "ui_window_converse.def"
     },
     { //Tame Button
       "sprite": "images/ui/flee_button.png",

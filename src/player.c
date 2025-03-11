@@ -309,7 +309,6 @@ void player_think_battle(Entity* self) {
 	}
 
 	if (gfc_input_command_down("enter")) {  //if I'm pressin'  right
-		//self->velocity.x = 1.0;
 		
 		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
 			
@@ -323,7 +322,20 @@ void player_think_battle(Entity* self) {
 		}
 	}
 	
-	
+	if (gfc_input_command_down("back")) {
+		
+		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
+
+			slog("Trying to back out to last window");
+			window_go_back();	
+
+			keySelectTimer = 10;
+		}
+		if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
+			keySelectTimer--;
+		}
+	}
+
 	//I  want toooooooo   call  battle_start()   in my Think
 			//and battle_end  in THIS think
 	

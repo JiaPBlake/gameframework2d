@@ -81,7 +81,7 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	void					(*update)(struct Entity_S* self);  /**<function to call to execute those decisions*/ //Making another function  to update,  such that Think can SPECIFICALLY occur before updating
 	
 	//void					(*damage)
-	int						(*collide)(struct Entity_S* self, struct Entity_S* other, EntityCollisionType type);
+	//int					(*collide)(struct Entity_S* self, struct Entity_S* other, EntityCollisionType type);
 
 
 

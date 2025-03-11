@@ -296,6 +296,17 @@ void button_configure(Button *self, SJson* json) {
 	}
 	else { slog("Button Sprite couldn't be found"); }
 
+	const char* button_new_window = NULL;
+	
+	//Save the next window it's meant to create (IF it needs to)
+	if (self->actionType & BT_NewWindow) {
+		if (self->actionType & BT_CloseWindow) slog("Just testing the other actionType to make sure it DOESN'T proc");
+
+		button_new_window = sj_object_get_string(json, "nextWindow");
+		gfc_line_cpy(self->windowToOpen, button_new_window);
+		slog("Button's next window to open should be: %s", self->windowToOpen);
+	}
+
 }
 
 void window_layer_build(UI_Window* window) {
@@ -543,12 +554,21 @@ void window_draw(UI_Window* window) {
 }
 
 //
-void window_transition() {
-	slog("in Window transition function");
-	previousWindow = activeWindow;
+void window_transition(Button* self) {
+	if (!nextWindow) {
+		slog("in Window transition function");
+		previousWindow = activeWindow;
+		UI_Window* win = window_new();
+		window_configure_from_file(win, self->windowToOpen);
 
-	
-	slog("New Window loaded. Name of previous: %s", previousWindow->name);
+		activeWindow = win;
+		slog("New Window loaded. Name of previous: %s", previousWindow->name);
+	}
+	else {
+		slog("Next window has already been loaded. No need to configure it again.");
+		previousWindow = activeWindow; //To go back to Attack screen from Main.  Save Main into prev.  SHOULD already be there.. but. y'know just incase
+		activeWindow = nextWindow;
+	}
 }
 /*					//get_active()
 void world_transition(World* old, const char* newWorld, GFC_Vector2D targetPlayerSpawn) {  //here we go
@@ -586,6 +606,17 @@ void world_transition(World* old, const char* newWorld, GFC_Vector2D targetPlaye
 }
 */
 
+void window_go_back() {
+	if (!previousWindow) { slog("No previous window. Cannot back out"); return; }
+	UI_Window* temp;
+	temp = activeWindow;
+	slog("The CURRENT Window's name is: %s",temp->name);
+	activeWindow = previousWindow;
+	previousWindow = NULL; //so that I can't try and go back more than once.  Otherwise, that messes things up
+	slog("Window sawpped. Now, Window's name is: %s", activeWindow->name);
+	nextWindow = temp;
+}
+
 void button_perform_action(int selected, UI_Window* win) {
 	//this is gonna have to load windows in the same way Worlds do
 	if (!win) { slog("Window not provided. Not performing any button actions"); return; }
@@ -602,7 +633,7 @@ void button_perform_action(int selected, UI_Window* win) {
 		slog("Calling Selected Button's action function");
 		//Everything up to this point works perfectly fine
 		
-		button->action();
+		button->action(button);
 		//... fuck idk how to do this with a function pointer...  truth be told to you
 		
 	}

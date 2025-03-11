@@ -257,7 +257,9 @@
     <None Include="..\def\levels\testLevel.level" />
     <None Include="..\def\player.def" />
     <None Include="..\def\testWindow.def" />
+    <None Include="..\def\ui_window_attack.def" />
     <None Include="..\def\ui_window_battle.def" />
+    <None Include="..\def\ui_window_converse.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

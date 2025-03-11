@@ -366,5 +366,11 @@
     <None Include="..\def\testWindow.def">
       <Filter>Def Files</Filter>
     </None>
+    <None Include="..\def\ui_window_attack.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\ui_window_converse.def">
+      <Filter>Def Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

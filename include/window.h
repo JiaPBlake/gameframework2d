@@ -14,7 +14,7 @@ typedef enum {
 }ButtonType;
 
 
-typedef struct {
+typedef struct Button_S {
 	Uint8				_inuse;
 	Uint8				_selected;    //to change frame and highlight
 
@@ -34,7 +34,7 @@ typedef struct {
 	// Implement the Collision in player.c   JUST like world [write the function here, include it].  That's an order.
 	//wait .  no fuck you we're operating on Enters.   YUP YUP!!  WASD AND ENTERS
 	ButtonType			actionType;
-	void				(*action)();
+	void				(*action)(struct Button_S* but);
 	GFC_TextLine		windowToOpen;
 
 
@@ -135,7 +135,8 @@ void window_draw(UI_Window* window);
 
 void window_layer_build(UI_Window* window);
 
-void window_transition();
+void window_transition(Button* self);
+void window_go_back();
 
 UI_Window* window_get_prev();
 UI_Window* window_get_next();

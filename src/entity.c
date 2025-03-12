@@ -254,12 +254,14 @@ void entity_configure(Entity* self, SJson* json) {
 		}
 		else if (gfc_strlcmp(ent_type, "test") == 0) {
 			slog("Test cave found");
-			self->type = ENT_MAX;
+			self->type = ENT_test;
 
 		}
 		//gfc_line_cpy(self->name, ent_name);
 	}
 
+
+	self->firstCombat = 0;
 	/*  Just realized I added a "domain" key in my cave def files.   I coulddd configure this,  but truth be told I'd much rather have the next domains hard-coded FOR NOW at least .  Once we get to procedural generation....... yeah .
 	const char* domain = sj_object_get_string(json, "domain");
 	if (domain) {

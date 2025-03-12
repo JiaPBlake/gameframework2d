@@ -31,27 +31,27 @@
 		},
 		{
 			"name": "fierce_wyvern2",
-			"position": [ 750, 480 ]
+			"position": [ 950, 480 ]
 		},
 		{
 			"name": "cunning_drake",
-			"position": [ 1200, 550 ]
+			"position": [ 1500, 550 ]
 		},
 		{
 			"name": "cunning_wyvern",
-			"position": [ 980, 550 ]
+			"position": [ 1180, 550 ]
 		},
 		{
 			"name": "docile_dragon",
-			"position": [ 950, 780 ]
+			"position": [ 1150, 780 ]
 		},
 		{
 			"name": "docile_amphi",
-			"position": [ 950, 400 ]
+			"position": [ 1150, 400 ]
 		},
 		{
 			"name": "docile_wyv",
-			"position": [ 750, 780 ]
+			"position": [ 1150, 780 ]
 		},
 		{
 			"name": "alpha_dragon"

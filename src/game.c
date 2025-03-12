@@ -203,14 +203,16 @@ int main(int argc, char * argv[])
         //slog("HERE");
         if (_MOUSEBUTTON) {
             //slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y);
-            slog("click detected. Enabling flag to draw the item");
-            _INVENTORY_FLAG = 1;
+            //slog("click detected. Enabling flag to draw the item");
+            //_INVENTORY_FLAG = 1;
+            slog("Click detected. Incrementing all points");
+            inc_player_points(ENT_MAX);
         }
 
 
         gf2d_graphics_clear_screen();// clears drawing buffers                //J NOTE: ALL YOUR DRAW CALLS must be within Clear and Next_Frame
         // all drawing should happen betweem clear_screen and next_frame
-            //backgrounds drawn first
+            //backgrounds drawn first       
             //gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));    //don't need this background anymore
             
             

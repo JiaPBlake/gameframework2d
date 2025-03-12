@@ -131,7 +131,7 @@ int get_player_points(EntityType type) {
 	self = thePlayer;
 
 	if (!self) {
-		slog("something is seriously wrong,,,"); return;
+		slog("something is seriously wrong,,,"); return -1;
 	}
 
 	else {
@@ -162,6 +162,44 @@ int get_player_points(EntityType type) {
 	}
 	slog("uh oh. made it to the end of get points");
 	return -1;
+}
+
+void inc_player_points(EntityType type) {
+	Entity* self;
+	self = thePlayer;
+
+	if (!self) {
+		slog("something is seriously wrong,,,"); return;
+	}
+
+	else {
+		PlayerEntityData* data;
+		data = (PlayerEntityData*)self->data;
+		int total_points = 0;
+		//Alphe first since it will be all 3
+		/*if (type & ENT_fierce & ENT_docile & ENT_docile) {			//I'm.... an idiot :sob:  I DON'T EVEN NEED THIS LMFAOOO  this shit is flat out wrong.  if I tame an alpha then I just INCREMENT all 3!!!
+			slog("Returning ALL");
+			total_points = data->fierce_points + data->docile_points + data->cunning_points;
+			return data->fierce_points;
+		}
+
+		else*/
+		if (type & ENT_fierce) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning FIERCE");
+			data->fierce_points++;
+		}
+		if (type & ENT_docile) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning DOCILE");
+			data->docile_points++;
+		}
+		if (type & ENT_cunning) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning CUNNING");
+			data->cunning_points++;
+		}
+
+	}
+	slog("uh oh. made it to the end of get points");
+	return;
 }
 
 void player_think(Entity* self) {
@@ -247,7 +285,7 @@ void player_think(Entity* self) {
 	if (others) { //if I'm colliding with ANYTHING:
 		
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
-		if (other->team & ETT_monsters) {
+		if (other->team & ETT_monsters && other->firstCombat == 1) {
 			if (!_INBATTLE) {
 				if (health_frame == 0) { health_frame = 5; slog("Health reset"); }
 				else health_frame--;
@@ -259,6 +297,8 @@ void player_think(Entity* self) {
 			//Get the monster I'm colliding with
 			//other = gfc_list_get_nth(others, 0);
 			//battle_start(self, other);
+
+			other->firstCombat = 0;
 		}
 	
 		if (other->team & ETT_cave) {

@@ -15,6 +15,7 @@ typedef enum {
 	ENT_docile = 2,
 	ENT_cunning = 4,  //I really don't need a team for items.. lol  but I supposed I could implement it elsewhere
 	ENT_treasure = 8,
+	ENT_test = 16,
 	ENT_MAX = 15
 }EntityType;
 
@@ -78,6 +79,9 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 
 	float					speedMax;
 	//used to have float speedmax here, but since only my Player will be using it, I decided to make it a member of PlayerEntityData
+
+	Uint8					firstCombat;
+
 
 	//Time to set up the think function baby oh boy
 	void					(*think)(struct Entity_S* self);   /**<function to call to make decisions based on the world state*/  //The think function will take a pointer to an Entity

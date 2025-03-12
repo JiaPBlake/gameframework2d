@@ -20,8 +20,7 @@
 
 	],
 
-	"entity_List":
-	[
+	"entity_List": [
 		{
 			"name": "player"
 		},
@@ -34,8 +33,12 @@
 		{
 			"name": "cave_c",
 			"position": [ 2000, 550 ]
+		},
+		{
+			"name": "cave_t",
+			"position": [ 2600, 550 ]
 		}
-		
+
 	]
 
 }

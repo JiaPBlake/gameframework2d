@@ -57,7 +57,7 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 				//slog("The type of Cave \"%s\" is: %i", self->name, self->type);
 				slog("Are you sure?");
 				//Test cave first
-				if (self->type & ENT_MAX) { 
+				if (self->type & ENT_test) { 
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/testLevel.level", pos);
 				}

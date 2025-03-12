@@ -19,10 +19,16 @@ Entity* player_get_the();
 
 /*
  * @brief return the points of the type provided that the player currently has
+ * @param type - the ETT type of points to retrieve
  * @return the number of points the player has.  -1 if something went wrong
 */
 int get_player_points(EntityType type);
 
+/*
+ * @brief increment the points of the type provided that the player currently has
+ * @param type - the ETT type of points to increment
+*/
+void inc_player_points(EntityType type);
 
 /**
  * @brief player think function -- evaluate what decisions should be made based on the world state

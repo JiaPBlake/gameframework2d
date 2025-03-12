@@ -68,6 +68,7 @@ Entity* monster_new_entity(GFC_Vector2D position, const char* defFile) //Now tha
 	self->frame = 0;*/
 
 
+	self->firstCombat = 1;
 	//Me trying to implement data with monsters...  (from all the stuff that was first introduced on Feb 24:
 	self->data_free = monster_data_free;   //set the data free function   (y'know.. once I make one)
 

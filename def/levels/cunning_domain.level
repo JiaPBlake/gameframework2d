@@ -21,10 +21,9 @@
 		[ 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 ]
 	],
 
-	"entity_List":
-	[
+	"entity_List": [
 		{
-			"name": "cunning_drake"
+			"name": "cunning_drake",
 			"position": [ 950, 480 ]
 		},
 		{
@@ -34,6 +33,10 @@
 		{
 			"name": "cave_d",
 			"position": [ 2300, 480 ]
+		},
+		{
+			"name": "cave_t",
+			"position": [ 2600, 550 ]
 		},
 		{
 			"name": "player"

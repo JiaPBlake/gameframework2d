@@ -31,6 +31,10 @@
 			"name": "cave_f"
 		},
 		{
+			"name": "cave_t",
+			"position": [ 2600, 550 ]
+		},
+		{
 			"name": "player"
 		},
 		{

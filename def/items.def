@@ -1,65 +1,67 @@
 {
 	"items": [
 		{
-			"name": "item_resounding_artifact",
-			"sprite": "arti.png",
-			"sprite_size": [ 30, 30 ],
+			"name": "item_drumstick",
+			"sprite": "images/drumstick.png",
+			"sprite_size": [ 60, 64 ],
 			"spriteFPL": 1,
-			"bounds": [ 0, 0, 30, 30 ],
+			"bounds": [ -30, -32, 60, 64 ],
 
-			"spawn_Position": [ 60, 500 ]
+			"spawn_Position": [ 90, 600 ],
+			"inven_Position": [ 41, 40 ]
 
 		},
 		{
-			"name": "item_drumstick",
-			"sprite": "drumstick.png",
-			"sprite_size": [ 30, 30 ],
+			"name": "item_resounding_artifact",
+			"sprite": "images/arti.png",
+			"sprite_size": [ 50, 80 ],
 			"spriteFPL": 1,
-			"bounds": [ 0, 0, 30, 30 ],
+			"bounds": [ -25, -40, 50, 80 ],
 
-			"spawn_Position": [ 60, 500 ]
+			"spawn_Position": [ 140, 600 ],
+			"inven_Position": [ 150, 32 ]
 
 		},
 		{
 			"name": "item_black_orb",
-			"sprite": "orb.png",
-			"sprite_size": [ 30, 30 ],
+			"sprite": "images/orb.png",
+			"sprite_size": [ 68, 68 ],
 			"spriteFPL": 1,
-			"bounds": [ 0, 0, 30, 30 ],
+			"bounds": [ -34, -34, 68, 68 ],
 
 			"type": "fierce",
 
-			"spawn_Position": [ 65, 500 ]
+			"spawn_Position": [ 165, 600 ],
+			"inven_Position": [ 248, 36 ]
 
 
 		},
 		{
 			"name": "item_tectonic_stone",
-			"sprite": "stone.png",
-			"sprite_size": [ 30, 30 ],
+			"sprite": "images/stone.png",
+			"sprite_size": [ 78, 58 ],
 			"spriteFPL": 1,
-			"bounds": [ 0, 0, 30, 30 ],
+			"bounds": [ -39, -29, 78, 58 ],
 
 			"type": "cunning",
 
-			"spawn_Position": [ 70, 500 ],
+			"spawn_Position": [ 220, 600 ],
+			"inven_Position": [ 350, 40 ]
 
-			"bounds": 0
 		},
 		{
 			"name": "item_trident",
-			"sprite": "trident.png",
-			"sprite_size": [ 30, 30 ],
+			"sprite": "images/trident.png",
+			"sprite_size": [ 78, 84 ],
 			"spriteFPL": 1,
-			"bounds": [ 0, 0, 30, 30 ],
+			"bounds": [ -39, -42, 78, 84 ],
 
 			"type": "docile",
 
-			"spawn_Position": [ 75, 500 ],
+			"spawn_Position": [ 75, 600 ],
+			"inven_Position": [ 455, 35 ]
 
-			"bounds": 0
 		}
 
 	]
-  
 }

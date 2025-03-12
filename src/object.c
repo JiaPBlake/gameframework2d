@@ -51,26 +51,36 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
 		if (other->team & ETT_player) {
-			if (_NEWENCOUNTER) {
+			if (_NEWENCOUNTER) {  //IF I press Up
 				//World* new;	
 				GFC_Vector2D pos = gfc_vector2d(60, 400);
 				//slog("The type of Cave \"%s\" is: %i", self->name, self->type);
 				slog("Are you sure?");
-				if (self->type & ENT_fierce) {   //... :|  for some reason this always equates to 1..
+				//Test cave first
+				if (self->type & ENT_MAX) { 
+					slog("The type of %s is: %i", self->name, self->type);
+					world_transition(world_get_active(), "def/levels/testLevel.level", pos);
+				}
+				else if (self->type & ENT_fierce) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/fierce_domain.level", pos);
 				}
 				
-				else if (self->type & ENT_docile) {   //... :|  for some reason this always equates to 1..
+				else if (self->type & ENT_docile) {   
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/docile_domain.level", pos);
 				}
 				
-				else if (self->type & ENT_cunning) {   //... :|  for some reason this always equates to 1..
+				else if (self->type & ENT_cunning) {   
 					slog("The type of %s is: %i", self->name, self->type);
 					world_transition(world_get_active(), "def/levels/cunning_domain.level", pos);
 				}
+				else if (self->type & ENT_treasure) {   
+					slog("The type of %s is: %i", self->name, self->type);
+					world_transition(world_get_active(), "def/levels/treasure_trove.level", pos);
+				}
 
+				
 				//slog("Active world's name SHOULD BE LEVELS and it is: %s",new->name);
 
 				SDL_Delay(1000);

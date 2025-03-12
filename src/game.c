@@ -13,18 +13,20 @@
 #include "camera.h"
 #include "spawn.h"
 //#include "ui.h" //J TO BE ADDED
-#include "text.h"
-#include "window.h"  //J TESTING
+#include "window.h"
+#include "items.h" //J TESTING
+#include "text.h" //J TO BE TESTED
 
 
 Uint8 _DRAWBOUNDS = 1;          //.... I need to think of a better way to implement these paths but.  Later..
 //Uint8 _CHANCE1 = 1;        //A change flag (or 3)  that will be initialized as some number,  and will increment repeatedly  (from 0 to 9) as the game loop goes
-//extern Uint8 _INVENTORY_FLAG = 0;
+extern Uint8 _INVENTORY_FLAG;
 extern Uint8 _INBATTLE;
 Entity* otherEnt;
 Uint32 _MOUSEBUTTON;
 Uint8 _PRESSED = 0;
 extern Uint8 health_frame;
+int mouseClickTimer = 0; //10 frames
 
 //void parse_args(int argc, char* argv[]);
 
@@ -72,18 +74,19 @@ int main(int argc, char * argv[])
     gf2d_graphics_set_frame_delay(16);          //It will wait 16 ms  before each frame - AT MINIMUM.
     gf2d_sprite_init(1024);
     entity_system_init( 100 );    //J ADDED - initalize our Entity system AFTER the sprite system.  Since it depends on the sprites
-    /*ui_system_init( 100 )*/     //J TO BE ADDED (UI)
+    font_init();          //J TO BE ADDED (FONTS)  please delete the other fonts down below
     
-    //window_system_init            //J TO BE ADDED (UI) (WINDOW)
     button_system_init(20);
-    window_system_init(4);      //J TESTING
+    window_system_init(10);
+    items_initialize("def/items.def");
 
     SDL_ShowCursor(SDL_DISABLE);
 
-    TTF_Init();          //J ADDED
+    //TTF_Init();          //J ADDED
     if (TTF_WasInit() == 0) slog("Text not initialized"); else slog("TTF system intialized");
 
-    SDL_Surface* surfaceMessage = NULL;
+    //Testing fonts
+    /*SDL_Surface* surfaceMessage = NULL;
     SDL_Texture* Message = NULL;
     SDL_Rect Message_rect; //create a rect 
 
@@ -118,7 +121,7 @@ int main(int argc, char * argv[])
         
 
         // Don't forget to free your surface and texture
-    }
+    }*/
 
 //--------------------------------
 
@@ -131,7 +134,7 @@ int main(int argc, char * argv[])
     //monster = monster_new_entity(/*monster_position*/ default_pos, "def/fierce.def" ); //artifact of old thinking
     //cave = object_new_entity(default_pos, "def/cave.def" );
     //player = player_new_entity(default_pos /*player_position */, "def/player.def");//artifact of old thinking
-    world = world_load("def/levels/docile_domain.level"); /*world_test_new();*/
+    world = world_load("def/levels/treasure_trove.level"); /*world_test_new();*/
     battle_alert = gf2d_sprite_load_all("images/border.png", 605, 74, 1, 0);
     health_bar = gf2d_sprite_load_all("images/healthbar_full.png", 320, 64, 6, 0);
     
@@ -172,10 +175,20 @@ int main(int argc, char * argv[])
         SDL_PumpEvents();   // update SDL's internal event structures   //J NOTE - must be called once a frame. If not called, nothing updates, then none of these conditions will ever set
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
+        
+        font_cleanup(); //to periodically clean up out fonts  //J ADDED (TEXT)
         _MOUSEBUTTON = SDL_GetMouseState(&mx,&my);  //HAHAAA  MY MOUSEBUTTON VARIABLE WORKS!! YIPPEEE works for clicks AND holds!!  although that being said a human "click" runs like 5 times in this loop lmao
         mf+=0.1;
         if (mf >= 16.0)mf = 0;
-            
+        if (mouseClickTimer <= 0) { //We can click the mouse (leave it 1). And Reset the cooldown
+            mouseClickTimer = 10;
+        }
+        else if (mouseClickTimer > 0) {  //On cooldown.  Do not register the click
+            _MOUSEBUTTON = 0;
+            mouseClickTimer--;
+        }  
+        
+
         entity_system_think_all();   //THINK FIRST   //J ADDED
         entity_system_update_all();  //then update shit  //J ADDED
         camera_bounds_check(); //Feb 26: J Added
@@ -188,8 +201,12 @@ int main(int argc, char * argv[])
             _PRESSED = 1;
         }*/
         //slog("HERE");
-        if (_MOUSEBUTTON) { slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y); //player_show_inven(thePlayer);
+        if (_MOUSEBUTTON) {
+            //slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y);
+            slog("click detected. Enabling flag to draw the item");
+            _INVENTORY_FLAG = 1;
         }
+
 
         gf2d_graphics_clear_screen();// clears drawing buffers                //J NOTE: ALL YOUR DRAW CALLS must be within Clear and Next_Frame
         // all drawing should happen betweem clear_screen and next_frame
@@ -206,31 +223,7 @@ int main(int argc, char * argv[])
             entity_system_draw_all();    //draw shit -- I want my entities to exist in front of the background, but drawn before the mouse  //J TO BE ADDED
             
             //draw all items.. ?
-
-            gf2d_sprite_draw(
-                health_bar,
-                gfc_vector2d(200, 580),
-                NULL,
-                &h_center,
-                NULL,
-                NULL,
-                NULL,
-                health_frame);
-            //draw_stats(stats_screen, health_frame);  //J TO BE ADDED (UI)
-            //SDL_RenderCopy(gf2d_graphics_get_renderer(), Message, NULL, &Message_rect);
-            text_rndr(Message, Message_rect);
-            //slog("Button's turn");
-            /*gf2d_sprite_draw(
-                attack,
-                but1->position,
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                NULL,
-                0);*/
             
-
             //Maybe I should have a extern flag in here? _INBATTLE.  so that I can start drawing the Battle UI when need-be
             if (_INBATTLE) {
                 //slog("in battle");
@@ -248,13 +241,43 @@ int main(int argc, char * argv[])
                     NULL,
                     0);*/
             }
-
-            /*same thing for showing hte inventory at the push of a button I suppose
+            //slog("Button's turn");
+            /*gf2d_sprite_draw(
+                attack,
+                but1->position,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                NULL,
+                0);*/
+            
             if (_INVENTORY_FLAG) {
-                slog("Inventory should actively be on screen");
-            }*/
+                player_show_inven(thePlayer);
+                stats_draw("Fierce:", FS_medium, GFC_COLOR_RED, gfc_vector2d(50, 120), get_player_points(ENT_fierce)); //we'll just try it with Fierce first
+                stats_draw("Docile:", FS_medium, GFC_COLOR_CYAN, gfc_vector2d(50, 185), get_player_points(ENT_docile)); //we'll just try it with Fierce first
+                stats_draw("Cunning:", FS_medium, GFC_COLOR_GREEN, gfc_vector2d(50, 250), get_player_points(ENT_cunning)); //we'll just try it with Fierce first
+            }
+            gf2d_sprite_draw(
+                health_bar,
+                gfc_vector2d(300, 650),
+                NULL,
+                &h_center,
+                NULL,
+                NULL,
+                NULL,
+                health_frame);
 
+            //draw_stats(stats_screen, health_frame);  //J TO BE ADDED (UI)
 
+            //SDL_RenderCopy(gf2d_graphics_get_renderer(), Message, NULL, &Message_rect);
+            //text_rndr(Message, Message_rect);
+            
+     //------------ tEXT     
+            
+            font_draw("Press 'ESC' to quit", FS_small, GFC_COLOR_WHITE, gfc_vector2d(940,5));
+            
+            
 
             //UI elements last
             gf2d_sprite_draw(
@@ -278,9 +301,12 @@ int main(int argc, char * argv[])
     
     //slog( "Button 2's position: %f", but2->position.x);  //just testing to make sure the Button list of a given window was properly accessible
     //window_free(win);
-    TTF_CloseFont(test_font);
-    SDL_FreeSurface(surfaceMessage);
-    SDL_DestroyTexture(Message);
+    //TTF_CloseFont(test_font);     //J FONT
+    //SDL_FreeSurface(surfaceMessage);
+    //SDL_DestroyTexture(Message);
+
+    //TTF_Quit();       //J FONT
+    slog("Text system de-initialized");
 
     slog("---==== END ====---");
     return 0;

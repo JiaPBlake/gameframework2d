@@ -8,13 +8,20 @@
 #include "gfc_shape.h"
 #include "gf2d_sprite.h"
 
-typedef enum {
+typedef enum { //How the text would be used (when it should be drawn)
 	TT_Always = 1,
 	TT_Inven = 2,
-	TT_Stats = 4,		//RIPPED STRAIGHT FROM ENTITY.  THIS IS FOR EXAMPLE. DELETE THIS LATER LMAO
+	TT_Stats = 4,
 	TT_Dialogue = 8
 }TextType;
 
+typedef enum {
+	FS_small,
+	FS_medium,
+	FS_big,
+	FS_really_big,
+	FS_MAX
+}FontStyles;
 
 typedef struct Font_S{		
 		//wait fuck I lied. maybe I ALSO should have an _inuse flag..?? :|     I'M THINKING TOO HIGH. I'm thinkin' too large .
@@ -37,10 +44,35 @@ typedef struct Font_S{
 
 }Font;
 
+
+/*
+ * @brief purely for testing purposes, try to SDL_Render_Copy through another function.
+ * auto closes on exit
+*/
+void font_init();
+
+/*
+ * @brief periodically call this to clean up any internal text cache
+ * 
+*/
+void font_cleanup();
+
 /*
  * @brief purely for testing purposes, try to SDL_Render_Copy through another function.
 	Works
 */
 void text_rndr(SDL_Texture* txt, SDL_Rect rect);
+
+/*
+ * @brief render text to the screen
+ * @param text - what to render
+ * @param style - what style of font to render with
+ * @param color - the color of the text
+ * @param position - where on the screen to draw to
+*/
+void font_draw(const char* text, FontStyles style, GFC_Color color, GFC_Vector2D position);
+
+//Literally does the same thing as font  but this is SPECIFICALYL for the stat screen :salute:
+void stats_draw(const char* text, FontStyles style, GFC_Color color, GFC_Vector2D position, int value);
 
 #endif

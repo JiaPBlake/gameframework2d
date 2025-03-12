@@ -16,6 +16,14 @@ Entity* player_new_entity(GFC_Vector2D position, const char* defFile);
  * @return NULL on error,  or a pointer to the player entity
 */
 Entity* player_get_the();
+
+/*
+ * @brief return the points of the type provided that the player currently has
+ * @return the number of points the player has.  -1 if something went wrong
+*/
+int get_player_points(EntityType type);
+
+
 /**
  * @brief player think function -- evaluate what decisions should be made based on the world state
  * @param self, pointer to the entity to be thinking

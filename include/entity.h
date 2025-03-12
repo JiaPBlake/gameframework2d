@@ -14,6 +14,7 @@ typedef enum {
 	ENT_fierce = 1,
 	ENT_docile = 2,
 	ENT_cunning = 4,  //I really don't need a team for items.. lol  but I supposed I could implement it elsewhere
+	ENT_treasure = 8,
 	ENT_MAX = 15
 }EntityType;
 
@@ -74,6 +75,8 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	GFC_Vector2D			center;
 	float					rotation;		
 	
+
+	float					speedMax;
 	//used to have float speedmax here, but since only my Player will be using it, I decided to make it a member of PlayerEntityData
 
 	//Time to set up the think function baby oh boy

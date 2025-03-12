@@ -372,5 +372,23 @@
     <None Include="..\def\ui_window_converse.def">
       <Filter>Def Files</Filter>
     </None>
+    <None Include="..\def\testitems.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\levels\treasure_trove.level">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\docile_wyvern.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cunning2.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\alpha.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cave_test.def">
+      <Filter>Def Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

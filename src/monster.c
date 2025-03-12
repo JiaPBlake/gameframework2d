@@ -104,7 +104,7 @@ void monster_think(Entity *self) {
 	//if (self->position.x + self->bounds.x <= 0) self->velocity.x = 1;		//this was for when I had it bouncing back and forth on the screen
 	//if (self->position.x - self->bounds.x >= 1200) self->velocity.x = -1;
 	gfc_vector2d_normalize(&self->velocity);
-	gfc_vector2d_scale(self->velocity, self->velocity, 2);
+	gfc_vector2d_scale(self->velocity, self->velocity, 1);
 	/*
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
 		self->velocity.x = 1.0;

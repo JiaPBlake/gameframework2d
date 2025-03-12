@@ -6,17 +6,17 @@
 	"spriteFPL": 1,
 
 	"spawn_Position": [ 950, 550 ],
-	"velocity": [ 0, 0 ],
+	"velocity": [ 1, 0 ],
 	"acceleration": 0,
 
 	"type": "cunning",
 
-	"speed_Max": 0,
+	"speed_Max": 1,
 	"moveList": [
 		{
 			"AttackList": [
 				{
-					"Attack1": "Razoredge",
+					"Attack1": "PiercingStone",
 					"move_sprite": "fire.png"
 				},
 				{

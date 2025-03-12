@@ -61,6 +61,11 @@ static SpawnPair spawn_list[] =
 		monster_new_entity //assign the spawn function
 	},
 	{
+		"alpha_dragon", //name
+		"def/alpha.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
 		"cave_f", //name
 		"def/cave_f.def", //name of the def file
 		object_new_entity //assign the spawn function
@@ -76,9 +81,39 @@ static SpawnPair spawn_list[] =
 		object_new_entity //assign the spawn function
 	},
 	{
+		"cave_t", //name
+		"def/cave_t.def", //name of the def file
+		object_new_entity //assign the spawn function
+	},
+	{
 		"item_resounding_artifact", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
-		"item_resounding_artifact", //name of the def file
+		"item_resounding_artifact", //name of the item again. To be used in the item search function
 		item_new_entity //assign the spawn function	
+	},
+	{
+		"item_drumstick", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
+		"item_drumstick", //name of the item again. To be used in the item search function
+		item_new_entity //assign the spawn function	
+	},
+	{
+		"item_black_orb", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
+		"item_black_orb", //name of the item again. To be used in the item search function
+		item_new_entity //assign the spawn function	
+	},
+	{
+		"item_tectonic_stone", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
+		"item_tectonic_stone", //name of the item again. To be used in the item search function
+		item_new_entity //assign the spawn function	
+	},
+	{
+		"item_trident", //name  (Name as listed in the .Level file for the World.  Since the WORLD is the one spawning us
+		"item_trident", //name of the item again. To be used in the item search function
+		item_new_entity //assign the spawn function	
+	},
+	{
+		"cave_test", //name
+		"def/cave_test.def", //name of the def file
+		object_new_entity //assign the spawn function
 	},
 	{0}
 };

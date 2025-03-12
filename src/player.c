@@ -17,7 +17,10 @@ Uint8 _INBATTLE = 0;
 Uint8 _NEWENCOUNTER = 0;
 extern Uint32 _MOUSEBUTTON;
 Uint8 health_frame = 5;
-int keySelectTimer = 0; //50 frames
+int keySelectTimer = 0; //10 frames
+Uint8 _INVENTORY_FLAG = 0;
+
+
 
 //void player_think(Entity* self);
 //void player_update(Entity* self);  //I decided to declare them in player.h instead  Haven't test ran this lmao but it should work fine
@@ -84,17 +87,18 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 	self->data_free = player_data_free;
 	//Feb 24:   Polymorphism --  our Player IS an Entity, but we're adding more to it
 //And I don't have to worry about trying to implement this into entity_configure,  because all this upcoming info is SPECIFIC to the player
-	/*data = gfc_allocate_array(sizeof(PlayerEntityData), 1);
+	data = gfc_allocate_array(sizeof(PlayerEntityData), 1);
 	if (data) {
 		data->fierce_points = 0;
 		data->docile_points = 0;
 		data->cunning_points = 0;
 
-	
+		slog("Trying to initialize the player's inventory");
 		inventory_init(&data->inventory); //Player Entity Data's inventory
 
+		//inventory_add_item(&data->inventory, "item_resounding_artifact");  //Just did this for testing purposes
 		self->data = data;   //"data" is the type-associated version.
-	}*/
+	}
 	
 
 	//Set my global variable. So others can find me with the player_get_the() function
@@ -104,7 +108,7 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 }
 
 void player_data_free(Entity* self) {
-	slog("Made it to the player_data_free function even though it's a void pointer");
+	//slog("Made it to the player_data_free function even though it's a void pointer");
 	if ((!self) || (!self->data)) return;
 	
 	PlayerEntityData* data;
@@ -113,7 +117,7 @@ void player_data_free(Entity* self) {
 	//other cleanup goes here
 	//gf2d_sprite_Free(data->profilePicture);  //for example.  if I had a sprite for profilePicture
 	slog("In the Player data free function. About to free up the inventory");
-	//inventory_cleanup(&data->inventory);
+	inventory_cleanup(&data->inventory);
 
 
 //free the data once we're done with it
@@ -122,14 +126,51 @@ void player_data_free(Entity* self) {
 
 }
 
+int get_player_points(EntityType type) {
+	Entity* self;
+	self = thePlayer;
+
+	if (!self) {
+		slog("something is seriously wrong,,,"); return;
+	}
+
+	else {
+		PlayerEntityData* data;
+		data = (PlayerEntityData*)self->data;
+		int total_points = 0;
+		//Alphe first since it will be all 3
+		/*if (type & ENT_fierce & ENT_docile & ENT_docile) {			//I'm.... an idiot :sob:  I DON'T EVEN NEED THIS LMFAOOO  this shit is flat out wrong.  if I tame an alpha then I just INCREMENT all 3!!!
+			slog("Returning ALL");
+			total_points = data->fierce_points + data->docile_points + data->cunning_points;
+			return data->fierce_points;
+		}
+
+		else*/
+		if (type & ENT_fierce) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning FIERCE");
+			return data->fierce_points;
+		}
+		else if (type & ENT_docile) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning DOCILE");
+			return data->docile_points;
+		}
+		else if (type & ENT_cunning) {   //... :|  for some reason this always equates to 1..
+			//slog("Returning CUNNING");
+			return data->cunning_points;
+		}
+		
+	}
+	slog("uh oh. made it to the end of get points");
+	return -1;
+}
 
 void player_think(Entity* self) {
 	
 	if (!self) return;  //if I no am, then can not think!
 	
-	PlayerEntityData* data;
+	PlayerEntityData* data = {0};
 
-
+//---------------------------------------------------------------------------  PLAYER INPUT MOVEMENT
 	gfc_input_update();
 	/*GFC_Vector2D dir = {0};		Video code just to be sure this works upon compiling.  It does
 	int mx = 0, my = 0;
@@ -157,7 +198,6 @@ void player_think(Entity* self) {
 		self->velocity.y = -1.0;
 	}
 	else { self->velocity.y = 0; }	//stop movement if we're not holding down a button
-	
 
 	/* This was for diagonal screen bouncing
 	if (self->position.x <= 0) self->velocity.x = 1;
@@ -167,6 +207,17 @@ void player_think(Entity* self) {
 
 	gfc_vector2d_normalize(&self->velocity);  //takes a pointer
 	gfc_vector2d_scale(self->velocity, self->velocity, 3);  //Scale the velocity
+	
+//---------------------------------------------------------------------------  PLAYER INVENTORY
+
+	if (gfc_input_command_down("inventory")) {
+		_INVENTORY_FLAG = 1;
+	}
+	else {
+		_INVENTORY_FLAG = 0;
+	}
+
+//---------------------------------------------------------------------------  INVENTORY  &  COLLISION
 
 	//slog("Printing out something about the Other Entity in the Player_new function. to make sure we can see it: Position.x = %f", otherEnt->position.x);
 	/*//this is the collision function I tried to make myself, but uhhhh.   Yeah that's not fleshed out much at all lol
@@ -180,6 +231,11 @@ void player_think(Entity* self) {
 		_INBATTLE = 1;
 	}
 	else { _INBATTLE = 0; }*/
+
+	//Feb 24:
+	if (self->data) {
+		data = (PlayerEntityData*)self->data;
+	}
 
 	//Collision in class:    (Works !)
 	Entity* other;
@@ -211,22 +267,26 @@ void player_think(Entity* self) {
 				_NEWENCOUNTER = 1;  //figure out when to set this to 0. probably in the World funciton ONCE the world is loaded
 			}
 		}
+
+		if (other->team & ETT_item) {
+			if (keySelectTimer <= 0) { //Perform Action.  Then reset timer
+				slog("Pick up item");
+				if(data) inventory_add_item(&data->inventory, other->name);//update the player's INVENTORY  and free the ENTITY
+				entity_free(other); 
+				keySelectTimer = 10;
+			}
+			else if (keySelectTimer > 0) {  //No aciton. Just wait
+				keySelectTimer--;
+			}
+
+		}
 	}
 	else {
 		_INBATTLE = 0;
 	}
 	gfc_list_delete(others);
 	//slog("collision list deleted");
-
-
-	//Feb 24:
-	if (self->data) {
-		data = (PlayerEntityData*)self->data; 
-		
-		//Do stuff with data
-		//Player tried to use an item !
-	}
-
+	
 }
 
 void player_think_battle(Entity* self) {
@@ -383,13 +443,17 @@ void player_update(Entity* self) {
 
 
 //Using this to try and draw the sprite of any 1 item just to see what purpose I could give that
-void player_show_inven(Entity* self) {
+void player_show_inven(Entity* self) {	//This is essentially a draw() function
 	PlayerEntityData* data;
 	data = self->data;
 	data->inventory;
 
-	slog("Trying to display Resounding Artifact from the player inventory");
-	display_item(&data->inventory, "item_resounding_artifact");
+	//I think I wanna make this an entire surface.  To make it look nice, y'know?   little boxes  nice and neat for things to fit in :)  and then whenever I pick it up be sure to draw it to the surface alongside adding it to the inventory.
+	//Matter of fact,  maybe Inventory could have it's own sprite. So I draw Inven then Items on top.  like Window then Buttons on top.  (my ass will NOT be making the Inventory a UI_Window...   MUCH easier to keep the 2 separate).
+
+	//slog("Trying to display Resounding Artifact from the player inventory");
+	//display_item(&data->inventory, "item_resounding_artifact");
+	inventory_draw(&data->inventory);  //not finished just yet but use this instead
 
 
 }

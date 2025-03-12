@@ -242,12 +242,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\config\my_input.cfg" />
+    <None Include="..\def\alpha.def" />
     <None Include="..\def\cave_c.def" />
     <None Include="..\def\cave_d.def" />
     <None Include="..\def\cave_f.def" />
+    <None Include="..\def\cave_test.def" />
     <None Include="..\def\cunning1.def" />
+    <None Include="..\def\cunning2.def" />
     <None Include="..\def\docile.def" />
     <None Include="..\def\docile_amphi.def" />
+    <None Include="..\def\docile_wyvern.def" />
     <None Include="..\def\fierce1.def" />
     <None Include="..\def\fierce2.def" />
     <None Include="..\def\items.def" />
@@ -255,7 +259,9 @@
     <None Include="..\def\levels\docile_domain.level" />
     <None Include="..\def\levels\fierce_domain.level" />
     <None Include="..\def\levels\testLevel.level" />
+    <None Include="..\def\levels\treasure_trove.level" />
     <None Include="..\def\player.def" />
+    <None Include="..\def\testitems.def" />
     <None Include="..\def\testWindow.def" />
     <None Include="..\def\ui_window_attack.def" />
     <None Include="..\def\ui_window_battle.def" />

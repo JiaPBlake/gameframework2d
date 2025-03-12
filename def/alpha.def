@@ -1,26 +1,25 @@
 {
-	"name": "cunning_wyvern",
-	"sprite": "images/cunning_wyvern.png",
-	"sprite_size": [ 244, 143 ],
-	"bounds": [ -122, -72, 244, 143 ],
+	"name": "alpha_dragon",
+	"sprite": "images/alpha.png",
+	"sprite_size": [ 370, 410 ],
+	"bounds": [ -135, -205, 370, 410 ],
 	"spriteFPL": 1,
 
-	"spawn_Position": [ 950, 550 ],
+	"spawn_Position": [ 1200, 530 ],
 	"velocity": [ 0, 0 ],
 	"acceleration": 0,
 
-	"type": "cunning",
+	"type": "all",
 
-	"speed_Max": 1,
 	"moveList": [
 		{
 			"AttackList": [
 				{
-					"Attack1": "Razoredge",
+					"Attack1": "TornAsunder",
 					"move_sprite": "fire.png"
 				},
 				{
-					"Attack2": "Zippyzoom",
+					"Attack2": "TestofCourage",
 					"move_sprite": "fire.png"
 				}
 			]

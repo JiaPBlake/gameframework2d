@@ -75,19 +75,20 @@ void entity_system_free_all(Entity *ignore) {  //JUST iterates and calls  entity
 }
 
 void entity_free(Entity *self) {
-	if (!self) return;			//NEVER TRUST A POINTER.   Always check in case it doesn't exist.  and if it doesn't exist,  Stop. Return. END
+	if (!self || !self->_inuse) return;			//NEVER TRUST A POINTER.   Always check in case it doesn't exist.  and if it doesn't exist,  Stop. Return. END
 	//So far, the entity class that I have ONLY has one dynamically allocated member, the sprite.
 	if (self->sprite) { //if the entity has a sprite.  Free the sprite  -- function yoikned from Sprite.c  bc sprites are managed by the Sprite Manager.
 		gf2d_sprite_free(self->sprite); //frees the spot IN the masterlist of Sprites.   gf2d_sprite.h takes care of actually deleting things.
 	}
-
+	slog("Freeing Entity %s",self->name);
 	//  If I add anything else, I will need this funciton to free that specifically as well
 	if (self->data_free) {
 		slog("Calling Entity %s's data free function.",self->name);
 		
 		if (self->team == ETT_item) {
+			//I will most likely NEVER use this branch .   but just in case
 			slog("The entity I'm freeing is an item.  Casting self to be an item Pointer");
-			self->data_free( (void*)self); //I hope this works..
+			self->data_free( (void*)self); //This SHOULD work.  I apparently don't even need to cast it back  ??
 		}
 		else {
 			slog("About to enter Data Free function for Entity name: %s",self->name);
@@ -196,6 +197,7 @@ void entity_configure(Entity* self, SJson* json) {
 			0
 		);
 		//if (!self->sprite->surface) { slog("Entity has no sprite surface"); }  //for Window comparison... these don't have surfaces
+		if (!self->sprite) { slog("Sprite did not load for Entity %s",self->name); }
 		self->sprite_size = sp_sz;
 		self->center = gfc_vector2d(sp_sz.x*0.5, sp_sz.y*0.5);
 		self->framesPerLine = framesPerLine;
@@ -215,6 +217,13 @@ void entity_configure(Entity* self, SJson* json) {
 	sj_object_get_vector2d(json, "velocity", &vel);
 	self->velocity = vel;
 	gfc_vector2d_normalize(&self->velocity);
+
+	float speedMax;
+	sj_object_get_float(json, "speed_Max", &speedMax);
+
+	if (speedMax) {
+		self->speedMax = speedMax;
+	}
 	
 	self->type = ENT_none;
 	//slog("Entity %s Configured to have type none",self->name);
@@ -234,8 +243,28 @@ void entity_configure(Entity* self, SJson* json) {
 			//slog("Cunning entity found");
 			self->type = ENT_cunning;
 		}
+		else if (gfc_strlcmp(ent_type, "item") == 0) {
+			//slog("Treasure entity found");
+			self->type = ENT_treasure;
+		}
+		else if (gfc_strlcmp(ent_type, "all") == 0) {
+			slog("Alpha entity found");
+			self->type = ENT_fierce | ENT_docile | ENT_cunning;
+
+		}
+		else if (gfc_strlcmp(ent_type, "test") == 0) {
+			slog("Test cave found");
+			self->type = ENT_MAX;
+
+		}
 		//gfc_line_cpy(self->name, ent_name);
 	}
+
+	/*  Just realized I added a "domain" key in my cave def files.   I coulddd configure this,  but truth be told I'd much rather have the next domains hard-coded FOR NOW at least .  Once we get to procedural generation....... yeah .
+	const char* domain = sj_object_get_string(json, "domain");
+	if (domain) {
+
+	}*/
 
 	//sj_object_get_float(json, "speedMax", &self->speedMax);
 }

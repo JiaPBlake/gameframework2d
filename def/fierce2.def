@@ -1,11 +1,11 @@
 {
 	"name": "fierce_wyvern2",
 	"sprite": "images/fierce2.png",
-	"sprite_size": [ 214, 200 ],
-	"bounds": [ -107, -100, 214, 200 ],
+	"sprite_size": [ 374, 200 ],
+	"bounds": [ -187, -175, 374, 350 ],
 	"spriteFPL": 1,
 
-	"spawn_Position": [ 950, 550 ],
+	"spawn_Position": [ 1120, 520 ],
 	"velocity": [ 0, 0 ],
 	"acceleration": 0,
 

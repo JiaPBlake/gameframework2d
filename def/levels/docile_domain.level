@@ -32,6 +32,9 @@
 		},
 		{
 			"name": "player"
+		},
+		{
+			"name": "item_resounding_artifact"
 		}
 	]
 

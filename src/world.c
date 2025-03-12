@@ -276,6 +276,7 @@ void world_draw(World* world) {
 	//Now, instead of the for loop we have down there,  if we have a tileLayer, we can just
 	gf2d_sprite_draw_image(world->tileLayer, position);
 
+
 	/*
 	int i, j;
 	int index;

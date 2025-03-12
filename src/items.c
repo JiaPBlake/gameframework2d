@@ -6,6 +6,7 @@
 
 static SJson* _itemJson = NULL; //Global variable to store the entire JSon file 'items.def'
 static SJson* _itemDefs = NULL; //Global variable to store the JSon list of 'items':
+static int numItems;
 
 void items_close();
 
@@ -21,31 +22,34 @@ void items_initialize(const char* filename) {
 	}
 	
 	_itemDefs = sj_object_get_value(_itemJson, "items"); //A JSon object/list containing our masterlist of Item Objects
-	if (_itemDefs) {
-		slog("Item Def file '%' does not contain a list of items", filename);
+	if (!_itemDefs) {
+		slog("Item Def file '%s' does not contain a list of items", filename);
 		sj_free(_itemJson);
 		_itemJson = NULL;
 		return;
 	}
 
+	numItems = sj_array_get_count(_itemDefs);
 
+	slog("Items initialized");
 	atexit(items_close);
 }
-
+// * NOTE abuot BOTH of these ^ \|/,  dynamically allocated Items are cleaned up BY inventory.   I don't have a system in this file to do it. So any Item I create through means of an Entity should EXPLCITLY be cleaned up by Entity
 void items_close() {
 	if (_itemJson) {
 		sj_free(_itemJson);
 	}
 	_itemJson = NULL;
 	_itemDefs = NULL;
-
+	slog("Item Lists successfully closed");
 }
+
 
 SJson* items_get_def_by_name(const char* name) {
 	if (!name) return NULL;
 	if (!_itemDefs) {	//since this is our static variable,  once this is intialized TO BEGIN WITH. We will continuously refer back to it
 		slog("no item definitions loaded");
-		return;
+		return NULL;
 	}
 
 	int i, c;
@@ -60,15 +64,17 @@ SJson* items_get_def_by_name(const char* name) {
 		itemName = sj_object_get_value_as_string(item, "name"); //get the Name of each Item object
 		if (!itemName) continue; //if no name, continue
 		if ( gfc_strlcmp(name,itemName) == 0 ) { //Length compare to forgo matching ONLY on a substring
+			//slog("Found the JSON object for item '%s' on iteration %i", name, i);	//Jlog
 			return item; //found it
 		}
 
 	}
 	slog("No item of name %s found in the list",name);
-	return;
+	return NULL;
 }
 
 
+//@brief return the configured Item object using the Definition object stored in the master list
 Item* item_new(const char* name) {
 	if (!name) { slog("No item name provided to make new item"); }
 	Item* item;
@@ -88,7 +94,7 @@ Item* item_new(const char* name) {
 	if (filename) { //if it has a sprite
 		GFC_Vector2D sp_sz = { 0 };
 		sj_object_get_vector2d(itemDef, "sprite_size", &sp_sz);  //which we grabbed from gfc_config.h
-		slog("Sprite Size vector fetched from json object's x: %f", (Uint32)sp_sz.x);
+		//slog("Sprite Size vector fetched from json object's x: %f", sp_sz.x);		//Jlog
 		//For some reason this slog prints 0... but the saving from the sj obviously worked bc it loaded the sprite properly...
 		Uint32 framesPerLine;
 		sj_object_get_int32(itemDef, "spriteFPL", &framesPerLine);
@@ -112,7 +118,7 @@ Item* item_new(const char* name) {
 		//This would, ideally be its position in the Inventory UI
 
 		GFC_Vector2D pos = { 0 };
-		sj_object_get_vector2d(itemDef, "spawn_Position", &pos);
+		sj_object_get_vector2d(itemDef, "inven_Position", &pos);
 		item->position = pos;
 	}
 
@@ -131,14 +137,17 @@ void item_free(Item* item) {
 	}
 
 	free(item); //free the dynamically allocated Item object variable 'item'
+	slog("Item freed");
 }
 
 
-//implement this after inventory specifically
+//implement this after inventory-specific Items
 					//where the defFile parameter instead serves as the name of the item as it's stored in items.def
 Entity* item_new_entity(GFC_Vector2D position, const char* defFile) { //matching the parameters in the definition JUST so that it can work with the spawn funciton..
 	Entity* self;		//This 'item' (I'll call it self to be consistent)  is an Entity now. It's being:
 	SJson* itemDef;
+
+	//slog("In my item new entity function trying to spawn Item name: '%s'",defFile);		//Jlog
 
 	self = entity_new();			//CREATED BY  the entity manager.  STORED in the entity manager.   and will be cleaned up by the entity manager
 	if (!self) {
@@ -151,12 +160,22 @@ Entity* item_new_entity(GFC_Vector2D position, const char* defFile) { //matching
 	if (position.x >= 0) { gfc_vector2d_copy(self->position, position); } //position override from the parameters
 
 	self->team = ETT_item; //set it to team Item
-	slog("Item Entity configured to have the following type: %i",self->team);
+	//slog("Item Entity configured to have the following type (should be 4): %i",self->team);
 
-	self->data_free = item_free; //Set this so that any Items created as Entities can clean up their  Item-specific related things
+
+	self->data_free = NULL;
+	//self->data_free = item_free; //Set this so that any Items created as Entities can clean up their  Item-specific related things
+	//wh-  wait a minute.  I highkey don't even need this. My purpose right new is to make an entity using a specific Def file.  which is what ALL entities have been doing !!
+	//this function RETURNS an Entity !!  That's all it is. It's not an Item at all. It has no Item-specific data to free!!!  The entity system can take care of its sprite
+
+	//if I ever NEED a thing on the groun to have data then... I mean sure. Yeah I'll need that but !! Not right now :triumph:
 
 	return self;
 }
 
+////Just so that I don't have to override anything about my entity spawn system.  I'll change ITEM to fit IT.
+//Entity* item_new_spawn(GFC_Vector2D position, const char* defFile) {
+//
+//}
 
 

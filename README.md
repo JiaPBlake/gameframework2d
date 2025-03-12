@@ -36,3 +36,11 @@ Linux Setup: https://www.youtube.com/watch?v=0Znnv5C4mCo
 
 Windows Setup: https://www.youtube.com/watch?v=zj_egJ4sw3I
 
+
+Personal Deliverables List:
+- Branching path world  (A world with branching paths. Methinks - as opposed to being one, linear path)      ✔
+- Monster interaction ["Battle"] screen -- Branching Menu screen.                                            ✔  (OH WE BRANCHIN' !!!)
+- 10 different dragons to interact with                                                                    (8/10)
+- Stats view                                                                                                 ✔
+- 5 items that can be collected.                                                                             ✔
+

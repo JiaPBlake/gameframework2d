@@ -9,7 +9,7 @@
 #include "gf2d_sprite.h"
 #include "items.h"
 
-typedef enum { //because I can count the amount of numbers I have on 2 hands, enumeration would be a shout
+typedef enum { //because I can count the amount of items I have on 2 hands, enumeration would be a shout
 	II_Arti,
 	II_Drum,
 	II_Orb,
@@ -24,6 +24,10 @@ typedef struct {
 
 	//Sprite				*layer;			/**where this will be a single layer that holds all the individual Sprites drawn onto it*/
 		//nvm. I can't use a layer for the same reason I can't use a layer for UI.  the stuff is always changing and I don't think I'm allowed to render smthing to the surface AFTER creating the texture ://
+	
+	//NOTE TO PAST SELF ABOUT THIS ^^  I could.  I could!  But I'd have to update the layer evrytime..  and the thing about THIS is that it's probably just NOT that resource intensive so don't worry about it
+		//But updating a tileLayer IS an option
+
 	Sprite				*sprite;		/**<Background sprite OF the player inventory*/
 	GFC_Vector2D		sprite_size;	/**<Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
 	float				frame;			/**<for drawing the sprite*/

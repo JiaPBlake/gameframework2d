@@ -3,19 +3,26 @@
 #include "simple_logger.h"
 
 #include "gfc_input.h"
+#include "gfc_audio.h"      //J TO BE ADDED
+#include "gfc_config_def.h" //J TO BE ADDED
+
 #include "gf2d_graphics.h"
 #include "gf2d_sprite.h"
+
+//Start  //J ADDED:
 #include "entity.h"
-#include "player.h"  //J ADDED:
+#include "player.h"
 #include "monster.h"
 #include "object.h"
 #include "world.h"
 #include "camera.h"
 #include "spawn.h"
 //#include "ui.h" //J TO BE ADDED
-#include "window.h"
-#include "items.h" //J TESTING
-#include "text.h" //J TO BE TESTED
+#include "window.h" //includes ui.h
+#include "items.h" //J TESTING (should be good honestly
+#include "text.h" //J TESTING.  Works as a basic thing. Gotta optimize and move things around         **ALSO INCLUDED IN WINDOW --> UI
+#include "particles.h"  //J TO BE TESTED (CLASS)
+
 
 
 Uint8 _DRAWBOUNDS = 1;          //.... I need to think of a better way to implement these paths but.  Later..
@@ -56,7 +63,7 @@ int main(int argc, char * argv[])
     //Uint32 mouseButton;  //making this a global flag instead to let any file see the Mouse state
     //UI_Element* stats_screen;  //J TO BE ADDED (UI)
     //UI_Window* battleWin;
-
+    Text* testText;
 
     /*program initializtion*/
     init_logger("gf2d.log",0);
@@ -70,20 +77,46 @@ int main(int argc, char * argv[])
         720,
         gfc_vector4d(0,0,0,255),
         0);
-    //do NOT INITIALIZE  gfc input here.   gfc_update()  is per class.  So if you want to update in PLAYER, initalizing it n game wouldn't work.
+    //slog("Initializing Config File");  //Jlog
+    gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
+    //That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
     gf2d_graphics_set_frame_delay(16);          //It will wait 16 ms  before each frame - AT MINIMUM.
+    //J TO BE ADDED (AUDIO):
+   /* gfc_audio_init(
+        1000,
+        128,
+        4,
+        1,
+        1,
+        1);*/
+        
     gf2d_sprite_init(1024);
     entity_system_init( 100 );    //J ADDED - initalize our Entity system AFTER the sprite system.  Since it depends on the sprites
-    font_init();          //J TO BE ADDED (FONTS)  please delete the other fonts down below
     
-    button_system_init(20);
+    //font_init();          //J TO BE ADDED (FONTS)  please delete the other fonts down below
+    // YEOOO IMPORTANT:   since I separated  font_init() and text_init()  I wonder what the order of operations is there.
+        //For example, is what I have in text.c equivalent to calling font_init()  THEN text_init() on the next line??
+    text_init(50);  //J CURRENTLY TESTING
+
+
+    //button_system_init(20);
+    ui_system_init(100);
     window_system_init(10);
     items_initialize("def/items.def");
+  
+    //uncomment this once your Windows are in a working state
+
+    //particle_system_init(1000);  //J TO BE ADDED particles
+    ////what the FUCK
+    //gfc_config_def_init();
+    //gfc_config_def_load("config/particleList.cfg");   //Cheks what the resource nam
+
+
 
     SDL_ShowCursor(SDL_DISABLE);
 
     //TTF_Init();          //J ADDED
-    if (TTF_WasInit() == 0) slog("Text not initialized"); else slog("TTF system intialized");
+    //if (TTF_WasInit() == 0) slog("Text not initialized"); else slog("TTF system intialized");
 
     //Testing fonts
     /*SDL_Surface* surfaceMessage = NULL;
@@ -144,7 +177,12 @@ int main(int argc, char * argv[])
     UI_Window* starting_win = window_new();
     window_configure_from_file(starting_win, "def/testWindow.def");
     
-    
+
+    //J testing text:
+    slog("Configuring Test TEXTTTTTTTT");
+    testText = text_new();
+    text_configure_from_file(testText, "def/text/testText.texty");
+    slog("testText configured??");
     //battleWin = window_configure("def/testWindow.def");
     //if (!battleWin) { slog("Shit. no window"); }
     ////else { slog("Name of the window, to prove I got it to Configure: %s",battleWin->name); }
@@ -166,18 +204,24 @@ int main(int argc, char * argv[])
     //otherEnt = monster; //artifact of old thinking (collision check)
     camera_set_size(gf2d_graphics_get_resolution());  //Feb 26: J added
 
+    //MAKE  the main menu.   (For his 3D game - the second picture.   his gf2d_windows_draw_all();  draws the World as well
+       //main_menu_start()
+    //Once the game starts   we don't even need the Main Menu
 
     /*main game loop*/
     while(!done)
     {
         //world = world_get_active();
         //_CHANCE1++;
-        SDL_PumpEvents();   // update SDL's internal event structures   //J NOTE - must be called once a frame. If not called, nothing updates, then none of these conditions will ever set
+        gfc_input_update(); // update SDL's internal event structures   //J NOTE - must be called once a frame. If not called, nothing updates, then none of these conditions will ever set
+        
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
         
-        font_cleanup(); //to periodically clean up out fonts  //J ADDED (TEXT)
+        cache_cleanup(); //to periodically clean up out fonts  //J ADDED (TEXT)
         _MOUSEBUTTON = SDL_GetMouseState(&mx,&my);  //HAHAAA  MY MOUSEBUTTON VARIABLE WORKS!! YIPPEEE works for clicks AND holds!!  although that being said a human "click" runs like 5 times in this loop lmao
+        //This is true if  ANY mouse button is pressed!!
+        
         mf+=0.1;
         if (mf >= 16.0)mf = 0;
         if (mouseClickTimer <= 0) { //We can click the mouse (leave it 1). And Reset the cooldown
@@ -188,6 +232,22 @@ int main(int argc, char * argv[])
             mouseClickTimer--;
         }  
         
+        //J TO BE ADDED particles
+        /*if (_MOUSEBUTTON) {   //he had  JUST "blood_spray" here.  Because of the loading def thingy he showed us. NO .particle extension
+            particles_from_def("spray_water.particle", 100, gfc_vector2d(mx, my), gfc_vector2d(5, 6), gfc_vector2d(2,1) );
+
+            //Yeah lemme try this
+            particles_from_def("spray", 100, gfc_vector2d(mx, my), gfc_vector2d(5, 6), gfc_vector2d(2,1) );
+        }*/
+
+
+        //For demonstration:  Level editor 
+        //if (_MOUSEBUTTON) { //  he called it "mb", but I alr had this variable
+        //    camera = camera_get_position();                 //bc _MB is true for ANY mouse button. We gotta check that it's the LEFT
+        //    world_set_tile(world, gfc_vector2d(mx + camera.x, my + camera.y), (_MOUSEBUTTON & SDL_BUTTON(1) ) ? 1 : 0);  //IF the Left mouse button is being pressed, 1. Else 0
+        //    
+        //}
+
 
         entity_system_think_all();   //THINK FIRST   //J ADDED
         entity_system_update_all();  //then update shit  //J ADDED
@@ -214,7 +274,7 @@ int main(int argc, char * argv[])
         // all drawing should happen betweem clear_screen and next_frame
             //backgrounds drawn first       
             //gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));    //don't need this background anymore
-            
+        
             
             if (world) {
                 //slog("oh bitch we drawin");
@@ -224,6 +284,17 @@ int main(int argc, char * argv[])
             }
             entity_system_draw_all();    //draw shit -- I want my entities to exist in front of the background, but drawn before the mouse  //J TO BE ADDED
             
+            //J TO BE ADDED:  particles
+            /*particle_system_draw();*/
+
+
+            //Hellooo  Jia after Break here:   In terms of maybe cleaning up the Main Game loop. (BATTLE)
+                // What i could do is, just have a   window_draw_active()  function call here. And this would be the ONLY draw call for ANY UI window (discounting inventory. My god)
+                //Whether it be Battle... Loading Screen, Home Screen, Win Screen. Whatever !  and ofc within window.c the active window would be swapped around and used internally as needed
+                //2 WEEKS after Break Jia here:    ideally _draw_active() would cycle through ALL the worlds that have the _active   flag on.
+
+    //========================================================
+
             //draw all items.. ?
             
             //Maybe I should have a extern flag in here? _INBATTLE.  so that I can start drawing the Battle UI when need-be
@@ -254,6 +325,8 @@ int main(int argc, char * argv[])
                 NULL,
                 0);*/
             
+
+            //draw_stats(stats_screen, health_frame);  //J TO BE ADDED (UI)
             if (_INVENTORY_FLAG) {
                 player_show_inven(thePlayer);
                 stats_draw("Fierce:", FS_medium, GFC_COLOR_RED, gfc_vector2d(50, 120), get_player_points(ENT_fierce)); //we'll just try it with Fierce first
@@ -270,7 +343,6 @@ int main(int argc, char * argv[])
                 NULL,
                 health_frame);
 
-            //draw_stats(stats_screen, health_frame);  //J TO BE ADDED (UI)
 
             //SDL_RenderCopy(gf2d_graphics_get_renderer(), Message, NULL, &Message_rect);
             //text_rndr(Message, Message_rect);
@@ -279,7 +351,8 @@ int main(int argc, char * argv[])
             
             font_draw("Press 'ESC' to quit", FS_small, GFC_COLOR_WHITE, gfc_vector2d(940,5));
             
-            
+            //J Testing:
+            text_draw(testText, gfc_vector2d(100,200));
 
             //UI elements last
             gf2d_sprite_draw(

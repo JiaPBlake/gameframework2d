@@ -71,9 +71,19 @@ void world_draw(World* world);
 /**
  * @brief Test to see if shape is colliding with active world tiles
  * @param world = pointer to the world, shape - shape that would be colliding
- * @return 1 if colliding with a tile, 0 if not
-*/
-int world_test_shape(World* world, GFC_Shape shape);
+ * @return NULL if no collision,  Pointer to the vector that describes the direction I collided. y=1 if player is going Down INTO a tile. x=1 if player is going right INTO a tile.
+
+	I think I want to swap things..   return the Tile,  send the Direction vector as a pointer parameter..
+
+ */
+GFC_Rect world_test_shape(World* world, GFC_Shape shape, GFC_Vector4D* direction);
+
+void world_collision_handle(Entity* player, GFC_Shape shape, GFC_Vector4D* dir);
+
+//these two .  are NOT working brooo
+GFC_List* world_get_collided(World* world, GFC_Shape shape);
+void tile_collide_check(GFC_Rect* rect, GFC_Shape shape, GFC_Vector4D* direction);
+
 
 /**
  * @brief Get the active world (bc activeWorld is static)

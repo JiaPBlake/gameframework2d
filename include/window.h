@@ -6,47 +6,19 @@
 #include "gfc_shape.h"
 #include "gf2d_sprite.h"
 
-typedef enum {
-	BT_none = 0,
-	BT_NewWindow = 1,
-	BT_CloseWindow = 2,
-	BT_MAX = 4, 
-}ButtonType;
+#include "ui.h"
 
-
-typedef struct Button_S {
-	Uint8				_inuse;
-	Uint8				_selected;    //to change frame and highlight
-
-	Sprite				*sprite;		/**<graphical representation of the UI element*/
-	GFC_Vector2D		sprite_size;	/**<Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
-	float				frame;			/**<current frame of the sprite for drawing the sprite*/
-	Uint32				framesPerLine; 
-	GFC_Rect			bounds;			//x,y  Top left corner
-	GFC_Vector2D		center;
-	GFC_Vector2D		position;		/**<where to draw it*/
-
-	float				rotation;	 //deadass DO NOT know how rotation works 
-
-	//MAYBE FONT??   it'll all be hand-drawn anyway
-
-
-	// Implement the Collision in player.c   JUST like world [write the function here, include it].  That's an order.
-	//wait .  no fuck you we're operating on Enters.   YUP YUP!!  WASD AND ENTERS
-	ButtonType			actionType;
-	void				(*action)(struct Button_S* but);
-	GFC_TextLine		windowToOpen;
-
-
-}Button;
+//Yeah  plop this into UI Element once that's done	esp since Window to Open is just a textline
+	//Button has since been plopped into ui.h
 
 
 typedef struct Window_S {
 	//wait fuck I lied. maybe I ALSO should have an _inuse flag..?? :|     I'M THINKING TOO HIGH. I'm thinkin' too large .
 	Uint8				_inuse;
 	Uint8				_drawn;			/**<Equivalent of an inuse flag. But for a given piece of UI, if it's in use, it would ideally be drawn to the screen!*/
-	
-	struct Window_S		*prev;  /**<Pointer to a previous window*/
+	Uint32				winid;			/**<Unique ID number for the Window*/
+	struct Window_S		*prev;			/**<Pointer to a parent window*/
+	struct Window_S		*next;			/**<Pointer to a child window*/
 
 	Sprite				*layer; //where this will be a single layer that holds all the individual Sprites drawn onto it
 
@@ -60,11 +32,16 @@ typedef struct Window_S {
 	GFC_Vector2D		position;		/**<where to draw it*/
 	float				rotation;	 //deadass DO NOT know how rotation works 
 
-	GFC_TextBlock		body;
+	//GFC_TextBlock		body;
 	//Font  //aha .  I'm making a Font type,,,,
 
-	GFC_List			*button_list; /**<List of button pointers*/
+	//Mayhaps I make this a list of Elements. Wherein Elements is a structure that's a union of.. however many different types of Widgets there are,, yippee !
+	//GFC_List			*button_list; /**<List of button pointers*/  //artifact of old thinking
 
+	GFC_List			*element_list; /**<List of button pointers*/
+	Uint8				labelCount;
+	Uint8				imageCount;
+	Uint8				buttonCount;
 
 	//To implement user interaction:
 	//int					(*collide)(struct Ui_S* self, struct Entity_S* other, EntityCollisionType type); //oh fuck me. I wanna do with using the cursor :SOB:
@@ -72,17 +49,33 @@ typedef struct Window_S {
 
 }UI_Window;
 
-void button_system_init(Uint32 maxButtons);
 
-void button_system_free_all();
 
-/**
- * @brief free a previously created button
- * #param Pointer to the button to free
- */
-void button_free(Button* self);
+//How he used the union operator in gfc_shape.h - Line 40   (just for reference)
+/*typedef struct
+{
+	GFC_ShapeTypes type;    //if we have a Rectangle,  we can ONLY ACCESS  .r  (well.. we COULD access any, but they'd be garbage values 'cause we never defined them)
+	union
+	{                   //Union lets us kinda like. CHOOSE which one of these members (s)  we wanna us for a given Shape.  We CHOOSE which one we want to use. Hence why we keep track of the type ^ above
+		GFC_Circle c;
+		GFC_Rect r;
+		GFC_Edge2D e;
+	}s;
+}GFC_Shape;
 
-Button* button_new();
+//And then as further example for how  the more general class of  Shape  is used in a more specific manner (like,  as a Rectangle):
+GFC_Shape gfc_shape_rect(float x, float y, float w, float h)
+{
+	GFC_Shape shape;
+	shape.type = ST_RECT;
+	shape.s.r.x = x;
+	shape.s.r.y = y;
+	shape.s.r.w = w;
+	shape.s.r.h = h;
+	return shape;
+}*/
+
+
 
 //-------------------------------------------
 
@@ -116,14 +109,16 @@ UI_Window* window_new();
  */
 int button_get_type(const char* action);
 
-Button* button_create(SJson* json);
+//J:To be deleted
+UI_Button* button_create(SJson* json);
 
 /**
- * @brief Configures all the data members of a Button
- * @param json - pointer to the JSon object that will be used to fill out the Button's data fields
- * @return NULL on error; pointer to the Button object that was made otherwise;
- */
-void button_configure(Button* self, SJson* json);
+ * @brief Configures all the data members of a UI_Button
+ * @param json - pointer to the JSon object that will be used to fill out the UI_Button's data fields
+ * @return NULL on error; pointer to the UI_Button object that was made otherwise;
+ */		//J:To be deleted
+void button_configure(UI_Button* self, SJson* json);
+
 
 void window_configure(UI_Window* self, SJson* json);
 //UI_Window* window_configure(const char* filename);
@@ -135,7 +130,7 @@ void window_draw(UI_Window* window);
 
 void window_layer_build(UI_Window* window);
 
-void window_transition(Button* self);
+void window_transition(UI_Button* self);
 void window_go_back();
 
 UI_Window* window_get_prev();
@@ -143,15 +138,6 @@ UI_Window* window_get_next();
 UI_Window* window_get_active();
 void window_set_active(UI_Window* windowToSet);
 
-
-//For selecting buttons
-void set_selected(int index);
-void inc_selected();
-void dec_selected();
-
-Uint8 get_selected();
-
-void reset_selected();
 /**
  * @brief Perform the action of the button selected
  * @param selected - the index of the selected button ; win - pointer to the window the button belongs to

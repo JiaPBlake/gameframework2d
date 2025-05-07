@@ -6,14 +6,15 @@
 #include "gfc_shape.h"
 #include "gf2d_sprite.h"
 
-//typedef enum {
-//	ECL_none = 1,
-//	ECL_World = 2,
-//	ECL_Entity = 4,		//RIPPED STRAIGHT FROM ENTITY.  THIS IS FOR EXAMPLE. DELETE THIS LATER LMAO
-//	ECL_Item = 8,
-//	ECL_ALL = 16
-//}EntityCollisionLayers;
 
+#include "text.h" //For UI Labels
+
+/*For example:
+* Layer 1 = 1							00001
+* Layer 2 = 2							00010
+* Layer 3 = 4							00100
+* Layer 4 = 8	which correspondes to:	01000  respectively.
+*/
 typedef enum {
 	//UIT_Border = 1,
 	UIT_Loading = 1,
@@ -22,47 +23,131 @@ typedef enum {
 	UIT_All = 8,
 	UIT_MAX
 }UI_Type;
-/*For example:
-* Layer 1 = 1							00001
-* Layer 2 = 2							00010
-* Layer 3 = 4							00100
-* Layer 4 = 8	which correspondes to:	01000  respectively.
-*/
 
-typedef struct Ui_S{		
-		//wait fuck I lied. maybe I ALSO should have an _inuse flag..?? :|     I'M THINKING TOO HIGH. I'm thinkin' too large .
-	Uint8				_inuse;
-	Uint8				_drawn;			/**<Equivalent of an inuse flag. But for a given piece of UI, if it's in use, it would ideally be drawn to the screen!*/
-	
-	Sprite				*sprite;		/**<graphical representation of the UI element*/
-	GFC_Vector2D		sprite_size;	/**<Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
-	float				frame;			/**<for drawing the sprite*/
-	Uint32				framesPerLine;		
-	GFC_Rect			bounds;		//x,y  Top left corner
+
+/*------------------------------------------------------------------ -
+		Let's start reworkin' shit		*/
+
+
+typedef struct Label_S {
+	Uint8				_selected;		/**< Flag for whetehr the button is selected (to change frame and highlight)*/
+	Text				*text;		//NEEDS TO BE FREED
+	//See..  I could do 2 things here with the Labels..  I COULD Have a flag. Which will tell me if the Label is dynamic. (Like my Dragon Point Stats).
+				//and based on that flag, the specific Font Draw function would be determined-  actually.  FUCK that's not even how function pointers WORK!! >:(  My 2 draw functions have a diff. set of parameters!!! >:((
+}UI_Label;
+
+
+typedef struct Image_S {
+	Uint8				_selected;		/**< Flag for whetehr the button is selected (to change frame and highlight)*/
+
+	Sprite				*sprite;		/**< graphical representation of the UI element*/			//NEEDS TO BE FREED
+	GFC_Vector2D		sprite_size;	/**< Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
+	float				frame;			/**< current frame of the sprite for drawing the sprite*/
+	Uint32				framesPerLine;
+	GFC_Rect			bounds;			//x,y  Top left corner
 	GFC_Vector2D		center;
-	float				rotation;		
-
-	GFC_Vector2D		position;		/**<where to draw it*/
-	
-	UI_Type				type;
-	GFC_TextBlock		body;
-	
-	//maybe a textline or whatever here for,,,  t e xt...
-	//Font  //aha .  I'm making a Font type,,,,
+	GFC_Vector2D		position;		/**< where to draw it*/
+	float				rotation;	 //deadass DO NOT know how rotation works 
 
 
-	//Don't think I need these at all but.  Here's the framework just in case  WAIT LIED MY ASS OFF LMAO this is how I'm going to click on shit.
-	void				(*think)(struct Ui_S* self);   /**< a */ 
-	void				(*update)(struct Ui_S* self);  /**< a */ 
-	//To implement user interaction:
-	//int					(*collide)(struct Ui_S* self, struct Entity_S* other, EntityCollisionType type); //oh fuck me. I wanna do with using the cursor :SOB:
+}UI_Image;
 
+typedef enum {
+	BT_none = 0,
+	BT_NewWindow = 1,
+	BT_CloseWindow = 2,
+	BT_Attack = 4,
+	BT_Converse = 8,
+	BT_Tame = 16,
+	BT_Flee = 32,
+	BT_MAX = 64
+}ButtonType;
+
+typedef struct Button_S {
+	Uint8				_selected;		/**< Flag for whetehr the button is selected (to change frame and highlight)*/
+	Uint8				index;			//to perform button actions in the battle menu. 
+
+
+	Sprite				*sprite;		/**< graphical representation of the UI element*/
+	GFC_Vector2D		sprite_size;	/**< Size of the sprite. Can be divided in half for the center to pass to the Sprite draw argument*/
+	float				frame;			/**< current frame of the sprite for drawing the sprite*/
+	Uint32				framesPerLine;
+	GFC_Rect			bounds;			//x,y  Top left corner
+	GFC_Vector2D		center;
+	GFC_Vector2D		position;		/**< where to draw it*/
+	float				rotation;	 //deadass DO NOT know how rotation works 
+
+	//MAYBE FONT?? [a.k.a Label ?]   it'll all be hand-drawn anyway
+
+
+	// Implement the Collision in player.c   JUST like world [write the function here, include it].  That's an order.
+	//wait .  no fuck you we're operating on Enters.   YUP YUP!!  WASD AND ENTERS			lmao - April 2nd (so, after the mideterm, whereas these 2 lines were before.  WINDOW is supposed to handle input
+	ButtonType			actionType;
+	void				(*action)(struct Button_S* but);
+	GFC_TextLine		windowToOpen;		//because this is allocated with a specific number of characters  a.k.a not malloc'd or anything.  No need to free().
+
+}UI_Button;
+
+typedef enum
+{
+	ELEMT_L = 1,
+	ELEMT_I = 2,
+	ELEMT_B = 4,
+	ELEMT_MAX = 7
+}ElemTypes;
+
+typedef struct
+{
+	Uint8				_inuse;
+	//  include EVERYTHING in this one thing :o
+		//... actually- ok. My thing is. I can do this 2 ways (Check the Google Doc)
+	ElemTypes		type;    //if we have a Rectangle,  we can ONLY ACCESS  .r  (well.. we COULD access any, but they'd be garbage values 'cause we never defined them)
+	union
+	{                   //Union lets us kinda like. CHOOSE which one of these members (s)  we wanna us for a given Shape.  We CHOOSE which one we want to use. Hence why we keep track of the type ^ above
+		UI_Label	label;			//And Labels will just overlyyyy use my text.c functions
+		UI_Image	image;
+		UI_Button	button;
+	}ui;
+
+	//Free function can be assigned BASED ON  a given object's->type  data member
+		//yeah no I did not do this ^   I don't PLAN on doing this.  I did all 3 possible cases in 1 Free function
+	void					(*data_free)(struct Entity_S* self); /**<function to call to free any Sub-class specific Entity data (e.g. Player or Caves/Exits)*/
+	void					(*elem_draw)(struct UI_Element* self, int selected);
 
 }UI_Element;
 
-		//hooohh fuck  do I want to do this using a SYSTEM???  ... maybe I should just start small first-
-//HOLD ON!!   yes.  I should make a System, JUST like Sprite, and just like Entity.  'cause the whole point of a system is to Create, allocate, and load alll the assets we know we're going to need.
-  //Every single encounter will have the exact same UI.  Save for the monster and it's respective attributes.  And,,, whatever I got going on with the Player-
+
+//----------------------------------------
+
+
+void button_system_init(Uint32 maxButtons);
+
+void button_system_free_all();
+
+/**
+ * @brief free a previously created button
+ * #param Pointer to the button to free
+ */
+void button_free(UI_Button* self);
+
+UI_Button* button_new();
+
+
+/**
+ * @brief configures a Button UI Element specifically - meaning sets all of its data members/parameters according to the def (json) file
+ * @param json - pointer to the json object. (Created through use of the  sj_load(filename) function )
+ */
+void ui_button_configure(UI_Button* self, SJson* json);
+
+/**
+ * @brief Create (and configure)  a UI_Element
+ * @param element - pointer to the json object - which should be a list of a certain UI Element (i.e. a list of Buttons)
+ */
+UI_Element*	ui_elem_create(SJson* element);
+//I actually dk which of these I wanna use..   I think I'm going to stick with the resource maanger.  Thus: Create it with ui_element_new,  THEN configure it with this void function
+void ui_element_configure(UI_Element * self, SJson * json);
+
+//	----------	------------	---------------	---------------
 
 
 /**
@@ -73,8 +158,8 @@ void ui_system_init(Uint32 maxElems);
 
 /**
  * @brief free all UI Elements in the manager;
- */						// \|/no idea if I wanna make this a List
-void ui_system_free_all(UI_Element* ignore); //J SPECIFIC:  adding an entity to ignore when cleaning up
+ */
+void ui_system_free_all();
 
 /**
 * @brief draw all inuse entities, if they have a sprite
@@ -112,7 +197,21 @@ void ui_element_configure_from_file(UI_Element* self, const char* filename);
 
 void adjust_health(Sprite* healthbar);
 
-UI_Element* ui_make();
+//UI_Element* ui_make();
+
+
+void button_draw(UI_Element* self);
+
+//For selecting buttons
+void set_selected(int index);
+void inc_selected();
+void dec_selected();
+
+Uint8 get_selected();
+
+void reset_selected();
+
+
 
 void draw_health_stat(UI_Element* self, float frame);
 

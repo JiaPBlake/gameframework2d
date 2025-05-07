@@ -15,8 +15,9 @@ typedef enum {
 	ENT_docile = 2,
 	ENT_cunning = 4,  //I really don't need a team for items.. lol  but I supposed I could implement it elsewhere
 	ENT_treasure = 8,
-	ENT_test = 16,
-	ENT_MAX = 15
+	ENT_npc = 16,
+	ENT_MAX = 31,
+	ENT_test = 32
 }EntityType;
 
 typedef enum {
@@ -25,7 +26,8 @@ typedef enum {
 	ETT_monsters = 2,
 	ETT_item = 4,  //I really don't need a team for items.. lol  but I supposed I could implement it elsewhere
 	ETT_cave = 8,
-	ETT_MAX = 15
+	ETT_NPC = 16,
+	ETT_MAX = 31
 }EntityTeamType;
 
 //I actually don't really need the type of collision to this level of detail..  Most I'd need is to know if it's tha player, which I'm using TeamType for
@@ -70,15 +72,15 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	Uint32					framesPerLine;
 	GFC_Vector2D			position;		/**<where to draw it*/
 	GFC_Vector2D			velocity;		/**<how we are moving*/
-	GFC_Vector2D			acceleration;	/**Whether we should change our speed ? */
+	GFC_Vector2D			speedMax;		/**<maximum speed*/
+	GFC_Vector2D			acceleration;	/**Acceleration of the entity*/
+	GFC_Vector2D			gravity;		/**<The gravity (acceleration in the y direction) the entity should face. It's a vector because the x component will serve as the boosting force a player feels as they jump*/
 	
 	GFC_Rect				bounds;		//x,y  Top left corner
 	GFC_Vector2D			center;
-	float					rotation;		
+	float					rotation;	
+	GFC_Vector2D			flip;			//To flip the entity sprite - either x or y axis
 	
-
-	float					speedMax;
-	//used to have float speedmax here, but since only my Player will be using it, I decided to make it a member of PlayerEntityData
 
 	Uint8					firstCombat;
 
@@ -120,8 +122,9 @@ void entity_system_init(Uint32 maxEnts);
 
 /**
  * @brief free all entities in the manager;
+ * @param ignore - a pointer to the entity that should not be free'd
  */
-void entity_system_free_all(Entity *ignore); //J SPECIFIC:  adding an entity to ignore when cleaning up
+void entity_system_free_all(Entity *ignore);
 
  /**
  * @brief draw all inuse entities, if they have a sprite
@@ -174,6 +177,13 @@ void entity_configure(Entity* self, SJson* json);
  * @param self - pointer to the [position of the] entity created, filename - the name of the file as a string
  */
 void entity_configure_from_file(Entity* self, const char* filename);
+
+/**
+ * @brief Get the type of the entity based on it's Name
+ * @param name [string] - the name of the entity
+ * @return  the corresponding ETT (enumerated type),  else -1 if no match was found
+ */
+int get_entity_type_by_name(const char* name);
 
 
 int entity_collision_check(Entity* self, Entity* other);

@@ -8,7 +8,6 @@
 #include "collision.h"
 #include "world.h"
 #include "camera.h"
-//#include "battle.h"
 #include "window.h" //to set selected
 #include "inventory.h"
 
@@ -18,12 +17,13 @@ Uint8 _NEWENCOUNTER = 0;
 extern Uint32 _MOUSEBUTTON;
 Uint8 health_frame = 5;
 int keySelectTimer = 0; //10 frames
+int jumpKeyTimer = 0; //Can only hold for 300 frames
 Uint8 _INVENTORY_FLAG = 0;
+Uint8 rightKey = 0;
+Uint8 leftKey = 0;
 
 
 
-//void player_think(Entity* self);
-//void player_update(Entity* self);  //I decided to declare them in player.h instead  Haven't test ran this lmao but it should work fine
 void player_damage(Entity* self, Entity* other, Entity* creit, float damage, Uint8 damageType);
 
 //if you want to make the player a global entity for other files to access
@@ -39,6 +39,7 @@ typedef struct {
 	int		cunning_points;															//WAIT I LIED I COULD TOTALLY MAKE PICK-UPABLE ITEMS ENTITIES !! THAT WOULD MAKE COLLISSION SO MUCH EASIER LMAOO
 			//Something important to think about.  INVENTORY is something only a player will have.  Inventory has its OWN *itemsList.  and the World will have its own as well - for the purpose of drawing them for pickup
 	Inventory inventory;  //   this.. this should be a pointer . 'cause our init function takes a pointer. (I mean yeah I could just pass &)  but like I feel like... a pointer here makes things easier..?
+	
 	/*int orb;
 	int stone;		Don't need these here. each item in inventory->itemsList has its own count. and that's what the inventory_add_item() functions are for
 	int trident;
@@ -68,13 +69,14 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 		slog("failed to spawn a new player entity");
 		return NULL;
 	}
-	//slog("Initializing Config File");  //Jlog
-	gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
-	//That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
-
 	entity_configure_from_file(self, defFile);  //Configure the entity (Loading the sprite and setting spawn position)
 	if (position.x >= 0) { gfc_vector2d_copy(self->position, position); } //position override from the parameters
 	//if position is a negative vector, don't override, just use the one from the def file
+
+	//Gravity is a constant.
+	self->gravity.x = self->acceleration.x;  //X I will use to give the player that upward boost in initial velocity while they hold Up
+	self->gravity.y = self->acceleration.y;  //Y is normal gravity. which should only start taking place after the key is released
+	self->acceleration.x = 0;
 
 	self->layer = ECL_Entity;
 	self->layer |= ECL_ALL; //The Player should collide with all possible things. Other Entities, the World, AND Items
@@ -209,7 +211,8 @@ void player_think(Entity* self) {
 	PlayerEntityData* data = {0};
 
 //---------------------------------------------------------------------------  PLAYER INPUT MOVEMENT
-	gfc_input_update();
+	//gfc_input_update();  //I have since learned that gfc_input_init being in game.c WAS the correct place.  And the reason it didn't work off the bat was because there was a specific SDL update function call and not gfc_input_update().
+			//This has since been moved.
 	/*GFC_Vector2D dir = {0};		Video code just to be sure this works upon compiling.  It does
 	int mx = 0, my = 0;
 	SDL_GetMouseState(&mx, &my);
@@ -221,21 +224,37 @@ void player_think(Entity* self) {
 	gfc_vector2d_normalize(&dir);
 	gfc_vector2d_scale(self->velocity, dir, 2); */
 	
+	
+	self->acceleration.y = self->gravity.y;
+
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
-		self->velocity.x = 1.0;
+		//self->velocity.x = 1.0;
+		self->acceleration.x = 0.5;
+		self->flip.x = 1;
 	}
 	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
-		self->velocity.x = -1.0;
+		//self->velocity.x = -1.0;
+		self->acceleration.x = -0.5;
+		self->flip.x = 0;
 	}
-	else { self->velocity.x = 0; }
+	else { self->velocity.x = 0; self->acceleration.x = 0; }
 
 	if (gfc_input_command_down("down")) {  //if I'm pressin'  down
-		self->velocity.y = 1.0;
+		//self->velocity.y = 1.0;
+		self->acceleration.y = 2;
 	}
-	else if (gfc_input_command_down("up")) {  //if I'm pressin'  up
-		self->velocity.y = -1.0;
+	else if ( (gfc_input_command_down("up") || gfc_input_command_down("jump")) && jumpKeyTimer < 20 ) {  //if I'm pressin'  up
+		//self->velocity.y = -5.0;
+		self->acceleration.y = self->gravity.x; //go up!
+		jumpKeyTimer++; //WHILE holding UP.  You can only jump for a max amount of time
 	}
-	else { self->velocity.y = 0; }	//stop movement if we're not holding down a button
+	else { self->velocity.y = 0; self->acceleration.y = self->gravity.y;  }	//stop movement if we're not holding down a button
+
+	//if ( gfc_input_command_down("jump") && jumpKeyTimer < 300  ) {  //if I'm pressin'  down
+	//	self->acceleration.y = self->gravity.x; //go up!
+	//	jumpKeyTimer++; //WHILE holding UP.  You can only jump for a max amount of time
+	//}
+	//else { self->velocity.y = 0; self->acceleration.y = self->gravity.y; }
 
 	/* This was for diagonal screen bouncing
 	if (self->position.x <= 0) self->velocity.x = 1;
@@ -243,8 +262,6 @@ void player_think(Entity* self) {
 	if (self->position.x > 800) self->velocity.x = -1;
 	if (self->position.y > 650) self->velocity.y = -1;*/
 
-	gfc_vector2d_normalize(&self->velocity);  //takes a pointer
-	gfc_vector2d_scale(self->velocity, self->velocity, 3);  //Scale the velocity
 	
 //---------------------------------------------------------------------------  PLAYER INVENTORY
 
@@ -254,8 +271,13 @@ void player_think(Entity* self) {
 	else {
 		_INVENTORY_FLAG = 0;
 	}
+	//Feb 24:
+	if (self->data) {  //for Point handling.  amongst other things ofc
+		data = (PlayerEntityData*)self->data;
+	}
 
-//---------------------------------------------------------------------------  INVENTORY  &  COLLISION
+
+//---------------------------------------------------------------------------  COLLISION
 
 	//slog("Printing out something about the Other Entity in the Player_new function. to make sure we can see it: Position.x = %f", otherEnt->position.x);
 	/*//this is the collision function I tried to make myself, but uhhhh.   Yeah that's not fleshed out much at all lol
@@ -270,11 +292,7 @@ void player_think(Entity* self) {
 	}
 	else { _INBATTLE = 0; }*/
 
-	//Feb 24:
-	if (self->data) {
-		data = (PlayerEntityData*)self->data;
-	}
-
+	
 	//Collision in class:    (Works !)
 	Entity* other;
 	GFC_List* others;
@@ -294,9 +312,9 @@ void player_think(Entity* self) {
 			_INBATTLE = 1;  //I only want health to decrease ONCE PER collision.  not while I'm colliding
 			//self->velocity.x = 0;
 			self->think = player_think_battle;
+			reset_selected();
 			//Get the monster I'm colliding with
 			//other = gfc_list_get_nth(others, 0);
-			//battle_start(self, other);
 
 			other->firstCombat = 0;
 		}
@@ -329,6 +347,176 @@ void player_think(Entity* self) {
 	
 }
 
+void player_update(Entity* self) {
+	if (!self) return;
+	//GFC_Vector2D screen; //instead of the screen = gf2d_graphics_get_resolution(); //should be 1200 by 720... I'm gonna make it the camera a.k.a world
+	float speed = 0;
+	GFC_Rect screen;
+	GFC_Rect rect = { 0 };
+	GFC_Rect* tile = { 0 };
+	GFC_List* tiles;
+	int i, c;
+	GFC_Vector2D ground = { 0 };
+	GFC_Vector4D direction = { 0 };
+	float distInGround = 0;
+	GFC_Vector2D center;
+	Uint8 tileIndex;
+
+//==========================================================================================  ANIMATION & MOVEMENT
+
+	self->frame += 0.1;
+	if (self->frame >= self->framesPerLine) self->frame = 0;
+
+	//Update position using the velocity that was determined through Think()ing  'cause what is velocity?? METERS per unit second [frame] :D
+	//if (self->velocity.y != 0) slog("My y velocity is: %f",self->velocity.y);
+	
+	//What happens here is that acceleration (Y ONLY)   decreases my velocity in the Y.
+	//slog("My acceleration is: %f , %f", self->acceleration.x, self->acceleration.y);
+	//slog("My X velocity is: %f", self->velocity.x);
+	//slog("My Y velocity is: %f", self->velocity.y);
+	gfc_vector2d_add(self->velocity, self->velocity, self->acceleration);   //GRAVITY
+	//slog("\nMy velocity is NOW: X: %f  Y: %f\n", self->velocity.x, self->velocity.y);
+
+	//slog("Velocity is: %f", self->velocity.x);
+	if (fabs(self->velocity.x) > self->speedMax.x) {
+		
+		if(self->velocity.x > 0) self->velocity.x = self->speedMax.x;
+		
+		if (self->velocity.x < 0) {
+			self->velocity.x = 0 - self->speedMax.x;
+		}
+	}
+
+	if (fabs(self->velocity.y) > self->speedMax.y) {
+
+		if (self->velocity.y > 0) self->velocity.y = self->speedMax.y;
+
+		if (self->velocity.y < 0) {
+			self->velocity.y = 0 - self->speedMax.y;
+		}
+	}
+
+	//speed = gfc_vector2d_magnitude(self->velocity);
+	
+
+	//  LMAO  HELP   IT DOESN'T DROP ME ONCE I SPAWN  BECAUSE WHEN I SPAWN MY X VEL == 0
+	//speed = self->velocity.x;  //Because my speed on the GROUND   is the speed stored in my x component..   the addition of acceleration is gonna 'cause that horizontal component to FEEL less than it actually is.
+	//	//so SAVE IT in this varaible !.  and scale the normalized vector so I can feel as fast as I normally am! :D
+	//slog("My speed is: %f", speed);
+	//gfc_vector2d_normalize(&self->velocity);  //takes a pointer 
+	//gfc_vector2d_scale(self->velocity, self->velocity, fabs(speed));  //Scale the velocity
+
+	//Before  !  I update my position,,  in the event I'm falling downward too fast..  run the world_Test_shape with a dummy shape to see if I WOULD be colliding into that tile
+	gfc_vector2d_add(self->position, self->position, self->velocity);
+	// ...  I actually wanna do this on different axises  explicitly
+	//self->position.x += self->velocity.x
+
+
+//==========================================================================================  SCREEN BOUNDS
+
+	screen = camera_get_bounds();
+	//WORLD Bounds.  So that when I'm updating,  I don't update to a position where I'm offscreen. instead I will not cross that border
+	if (self->position.x + self->bounds.x < 0) self->position.x = 0 - self->bounds.x;
+	if (self->position.y + self->bounds.y < 0) self->position.y = 0 - self->bounds.y;
+	if (self->position.x - self->bounds.x > screen.w) self->position.x = screen.w + self->bounds.x;
+	if (self->position.y - self->bounds.y > screen.h) self->position.y = screen.h + self->bounds.y;
+
+
+//==========================================================================================  WORLD BOUNDS
+
+	//Testing World bounds:
+	gfc_rect_copy(rect, self->bounds); //copy our bounds rectangle into our new rect
+	gfc_vector2d_add(rect, rect, self->position); //ALL OF MY ENTITIES.  have their position determined with the camera offset included, because that's how I'm. DRAWING them.
+	//now, rect serves as the Player's moving Bounds rectangle
+	
+	direction.z = self->velocity.x;
+	direction.w = 0;
+	world_collision_handle(self, gfc_shape_from_rect(rect), &direction);
+	if (direction.w) { jumpKeyTimer = 0; }
+	/*tiles = world_get_collided(world_get_active(), gfc_shape_from_rect(rect));
+	
+	if (tiles) {
+		c = gfc_list_count(tiles);
+		//For every tile in the list of collisions.  Do the EXTRA WORK  of figuring out the direction  USING that tile.
+		
+		for (i = 0; i < c; i++) {
+			/*distInGround = (rect.y + rect.h) - tile.y;
+			slog("I am %f pixels into the ground", distInGround);  //At my current speed, this number doesn't seem to go over 3.0
+
+			//idea.   IF I'm colliding.  Get the direction I collided FROM.
+			  //Player collides on the Left of a Tile.   Conidering I'm already overlapping:  my Right edge JUST barely became > tile's Left edge
+			if ((rect.x + rect.w) > (tile.x)) {
+				slog(" (R) PLAYER RIGHT EDGE collision ON tile's Left");
+				direction.x = 1;
+			}
+			else if ((rect.x) < (tile.x + tile.w)) {
+				slog(" (L) PLAYER LEFT EDGE collision ON tile's Right");
+				direction.x = -1;
+			}
+
+
+			direction.x = 0;
+			direction.y = 0;
+			direction.z = self->velocity.x;
+			direction.w = self->velocity.y;  //this will always be down UNLESS I am jumping.
+
+			tile = gfc_list_get_nth(tiles, i);
+			
+			if (tile) {
+				tile_collide_check(tile, gfc_shape_from_rect(rect), &direction);
+				slog("Tile's x position is: %f", tile->x);
+				slog(" MY x position is: %f", self->position.x);
+
+				if (direction.y != 0 || direction.x != 0) { //my y position (taking into account my bounds) should be 614 compared to ground's 640 
+					slog("Checkpoint 2");
+					//I have to handle collision here .   tile_collide_check tells me IF I am colliding.  AND the rect I'm colliding with. but only one at a time,,,
+
+					slog("Player's X position is: %f", self->position.x);
+
+					//I return BOTH x & y dimensions for direction.  I choose whether I want to act on them, tho.
+
+							//dir.z let's me know that I'm moving Right on the ground.
+					if (direction.x > 0 && direction.z != 0) {   //if I'm colliding right 
+						self->position.x = tile->x + self->bounds.x;
+						direction.y = 0;
+						slog("You have been stopped .");
+						//direction.z = self->velocity.x;
+					}
+
+					if (direction.y > 0 && direction.z == 0) {  //if I'm colliding top.  and top ONLY.  Don't let me go into the ground.
+						//We turned z off.  Because we don't want GROUND telporting me Left.
+						self->position.y = tile->y + self->bounds.y;
+						slog("You have been raised");
+					}
+
+					slog("Colliding");
+
+				}
+			}
+			else { slog("literally what the fuck are we doing."); }
+		}
+
+		gfc_list_delete(tiles);
+	}*/
+	//entity_update_position();  //he has this single function here.  I don't.. REALLY need to implement this since the dragons aren't doing any moving. 
+
+
+//slog("MY y position = %f",self->position.y); 
+	ground = world_get_ground();
+	//slog("Ground's y value is: %f", ground.y);
+	//slog("Player's y position is: %f", self->position.y);
+	//slog("Ground y position = %f", ground.y);
+	if (self->position.y > ground.y) { slog("what the FUCK WE'RE UNDERGROUND???"); self->position.y = ground.y - self->bounds.h; }
+
+
+
+//==========================================================================================  CAMERA CENTER
+	center = gfc_vector2d(self->position.x, self->position.y - 200);
+	camera_center_on(/*self->position*/ center);
+
+
+}
+
 void player_think_battle(Entity* self) {
 
 	//We should ONLY be in this function if the _INBATTLE flag is on.
@@ -338,24 +526,8 @@ void player_think_battle(Entity* self) {
 	}
 
 	//Select UI box
-	/*
-	I need to know what button I'm on.
-	 
-	
+
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
-		//go right UI
-	}
-	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
-		//go right UI
-	}
-	
-	if (gfc_input_command_down("enter")) {   //if I press enter,  I want to perform the action of that button... WHICH IS GOING TO VARY PER BUTTON FUCK
-		button.action();  //where action is a function pointer ??? BITCH!?!?
-	}
-	*/
-	gfc_input_update();
-	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
-		//self->velocity.x = 1.0;
 		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
 			//slog("Going right");
 			inc_selected();
@@ -366,7 +538,6 @@ void player_think_battle(Entity* self) {
 		}
 	}
 	else if (gfc_input_command_down("left")) {  //if I'm pressin'  left
-		//self->velocity.x = -1.0;
 		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
 			dec_selected();
 			keySelectTimer = 10;
@@ -375,30 +546,9 @@ void player_think_battle(Entity* self) {
 			keySelectTimer--;
 		}
 	}
-	else { self->velocity.x = 0; }
-	gfc_vector2d_normalize(&self->velocity);  //takes a pointer
-	gfc_vector2d_scale(self->velocity, self->velocity, 3);  //Scale the velocity
 
-	//GFC_Vector2D move = gfc_vector2d(850, 100);
-	//gfc_vector2d_sub(self->position, self->position, move);
+
 	self->position = gfc_vector2d(400, 620);
-
-	//Once collision is done  set _INBATTLE = 0,  but I need to change this for the actual battle function.
-	/*
-	Entity* other;
-	GFC_List* others;
-	int i, c; //i for iterating.   c for getting the  gfc_list_count(others);  so that we can iterate  i < c
-	others = entity_collide_all(self);  //BE SURE TO DELETE THIS LIST ONCE WE'RE DONE WITH IT
-	if (others) { //if I'm colliding with ANYTHING:
-		_INBATTLE = 1;
-	}
-	else {
-		_INBATTLE = 0;
-		self->think = player_think;
-	}
-	gfc_list_delete(others);
-	//slog("collision list deleted");
-	*/
 
 
 	if (gfc_input_command_down("down")) {  //if I'm pressin'  right
@@ -442,46 +592,6 @@ void player_think_battle(Entity* self) {
 
 }
 
-void player_update(Entity* self) {
-	if (!self) return;
-	//GFC_Vector2D screen; //instead of the screen = gf2d_graphics_get_resolution(); //should be 1200 by 720... I'm gonna make it the camera a.k.a world
-	GFC_Rect screen;
-	GFC_Rect rect = { 0 };
-	GFC_Vector2D ground = { 0 };
-
-	self->frame += 0.1;
-	if (self->frame >= self->framesPerLine) self->frame = 0;
-
-	//Update position using the velocity that was determined through Think()ing  'cause what is velocity?? METERS per unit second [frame] :D
-	gfc_vector2d_add(self->position, self->position, self->velocity);
-	
-	screen = camera_get_bounds();
-	//WORLD Bounds.  So that when I'm updating,  I don't update to a position where I'm offscreen. instead I will not cross that border
-	if (self->position.x + self->bounds.x < 0) self->position.x = 0 - self->bounds.x;
-	if (self->position.y + self->bounds.y < 0) self->position.y = 0 - self->bounds.y;
-	if (self->position.x - self->bounds.x > screen.w) self->position.x = screen.w + self->bounds.x;
-	if (self->position.y - self->bounds.y > screen.h) self->position.y = screen.h + self->bounds.y;
-
-
-	//Testing World bounds:  WORKS!!
-	gfc_rect_copy(rect, self->bounds); //copy our bounds rectangle into our new rect
-	gfc_vector2d_add(rect, rect, self->position); //ALL OF MY ENTITIES.  have their position determined with the camera offset included, because that's how I'm. DRAWING them.
-	
-	if (world_test_shape(world_get_active(), gfc_shape_from_rect(rect))) { //my y position (taking into account my bounds) should be 614 compared to ground's 640 
-		//slog("MY y position = %f",self->position.y); 
-		ground = world_get_ground();
-		//slog("Ground y position = %f", ground.y);
-		self->position.y = ground.y + self->bounds.y;
-	}
-
-	//entity_update_position();  //he has this single function here.  I don't.. REALLY need to implement this since the dragons aren't doing any moving. 
-	camera_center_on(self->position);
-
-	//chat I forget basic math  idk how to do bounds LMAO
-	//NVM WE FIGURED IT OUT !!  I could make a CheckBounds() function and plop it in entity..
-}
-
-
 //Using this to try and draw the sprite of any 1 item just to see what purpose I could give that
 void player_show_inven(Entity* self) {	//This is essentially a draw() function
 	PlayerEntityData* data;
@@ -494,6 +604,5 @@ void player_show_inven(Entity* self) {	//This is essentially a draw() function
 	//slog("Trying to display Resounding Artifact from the player inventory");
 	//display_item(&data->inventory, "item_resounding_artifact");
 	inventory_draw(&data->inventory);  //not finished just yet but use this instead
-
 
 }

@@ -7,9 +7,9 @@
 
 	"spawn_Position": [ 40, 400 ],
 	"velocity": [ 3, 0 ],
-	"acceleration": 0,
+	"acceleration": [ -3, 5 ],
 
-	"speed_Max": 3,
+	"speed_Max": [ 5, 8 ]
 	"moveList": [
 		{
 			"Attack": "Fireblast",

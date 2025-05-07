@@ -9,7 +9,6 @@ extern Uint8 _INBATTLE;
 //As a result.  The battle is going to need access to the Player's info.  And the Monster's info
 //#include "player.h"
 //#include "monster.h"   //I JUST PEEPED I DON'T EVEN NEED THESE
-#include "ui.h"
 
 void battle_start(Entity* player, Entity* monster) {
 	
@@ -21,7 +20,6 @@ void battle_start(Entity* player, Entity* monster) {
 
 
 	//Hmm  maybe I should split it into battle_think  and Draw ?  where Draw is essentially my update function  :o
-
 
 }
 

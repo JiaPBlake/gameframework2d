@@ -23,6 +23,10 @@ typedef struct {
 	GFC_List		*pathToPlayer; //list of world coordinates to the player  :0 woah
 	MonsterType		monsterType;   //specific to the monster.  and NO ONE outside the Monster world needs to know what these are
 
+	//List of Attacking Moves		should be configured with configure_attack
+	//List of possible dialogue options
+
+
 }MonsterEntityData;
 
 

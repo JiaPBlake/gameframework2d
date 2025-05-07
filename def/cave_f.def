@@ -10,5 +10,5 @@
 	"acceleration": 0,
 
 	"type": "fierce",
-	"domain": "def/levels/fierce_domain.level",
+	"domain": "def/levels/fierce_domain.level"
 }

@@ -169,12 +169,14 @@
     <ClCompile Include="..\gfc\src\gfc_types.c" />
     <ClCompile Include="..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\gfc\src\miniz.c" />
+    <ClCompile Include="..\src\attack.c" />
     <ClCompile Include="..\src\battle.c" />
     <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\collision.c" />
     <ClCompile Include="..\src\exit.c" />
     <ClCompile Include="..\src\inventory.c" />
     <ClCompile Include="..\src\items.c" />
+    <ClCompile Include="..\src\main_menu.c" />
     <ClCompile Include="..\src\monster.c" />
     <ClCompile Include="..\src\entity.c" />
     <ClCompile Include="..\src\game.c" />
@@ -182,6 +184,7 @@
     <ClCompile Include="..\src\gf2d_graphics.c" />
     <ClCompile Include="..\src\gf2d_sprite.c" />
     <ClCompile Include="..\src\object.c" />
+    <ClCompile Include="..\src\particles.c" />
     <ClCompile Include="..\src\player.c" />
     <ClCompile Include="..\src\spawn.c" />
     <ClCompile Include="..\src\text.c" />
@@ -220,6 +223,7 @@
     <ClInclude Include="..\gfc\simple_json\include\simple_json_types.h" />
     <ClInclude Include="..\gfc\simple_json\include\simple_json_value.h" />
     <ClInclude Include="..\gfc\simple_logger\include\simple_logger.h" />
+    <ClInclude Include="..\include\attack.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\collision.h" />
     <ClInclude Include="..\include\battle.h" />
@@ -232,6 +236,7 @@
     <ClInclude Include="..\include\gf2d_graphics.h" />
     <ClInclude Include="..\include\gf2d_sprite.h" />
     <ClInclude Include="..\include\object.h" />
+    <ClInclude Include="..\include\particles.h" />
     <ClInclude Include="..\include\player.h" />
     <ClInclude Include="..\include\spawn.h" />
     <ClInclude Include="..\include\text.h" />
@@ -242,6 +247,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\config\my_input.cfg" />
+    <None Include="..\config\particleList.cfg" />
+    <None Include="..\config\particleTestdef.particle" />
     <None Include="..\def\alpha.def" />
     <None Include="..\def\cave_c.def" />
     <None Include="..\def\cave_d.def" />
@@ -263,10 +270,14 @@
     <None Include="..\def\player.def" />
     <None Include="..\def\testitems.def" />
     <None Include="..\def\testWindow.def" />
+    <None Include="..\def\text\testText.texty" />
     <None Include="..\def\ui_window_attack.def" />
     <None Include="..\def\ui_window_battle.def" />
     <None Include="..\def\ui_window_converse.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\def\npc_skeleton1.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

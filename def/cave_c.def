@@ -10,5 +10,5 @@
 	"acceleration": 0,
 
 	"type": "cunning",
-	"domain": "def/levels/cunning_domain.level",
+	"domain": "def/levels/cunning_domain.level"
 }

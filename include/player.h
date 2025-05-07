@@ -36,6 +36,10 @@ void inc_player_points(EntityType type);
 */
 void player_think(Entity* self);
 
+/**
+ * @brief player think function (FOR BATTLE) -- a different think function for when the Player is in battl
+ * @param self, pointer to the entity to be thinking
+*/
 void player_think_battle(Entity* self);
 
 

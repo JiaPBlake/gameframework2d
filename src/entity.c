@@ -117,7 +117,7 @@ void entity_draw(Entity* self) {
 		NULL,			//scale
 		&self->center,		//center which is a 2D vector
 		&self->rotation,	//rotation
-		NULL,		//flip
+		&self->flip,		//flip
 		NULL,		//colorShift
 		(Uint32) self->frame);
 	//he's adding this for Bound-related things  Just as a means to give yourself some trace,  SEE the bounding box when you run the game
@@ -170,6 +170,34 @@ void entity_system_update_all() {  //up to date ??
 	}
 }
 
+
+int get_entity_type_by_name(const char *name) {
+//***  strcmp   -- the LONGER word  must be 2nd.  to match substrings.  So for shit like items  whose names are ALL gonna be prefixed with 'item_..'. ANYWAY !!
+		//lmfao  nvm.  Even if strcmp does it,  it returns a different value than expected.
+		//instead I will be using the lovely strNcmp  which takes a # of characters to look through before it stops (as opposed to being NULL terminated)
+
+	if (strncmp("fierce_", name, 7) == 0 || strncmp("cunning_", name, 8) == 0 || strncmp("docile_", name, 7) == 0 || strncmp("alpha_", name, 6) == 0 ) {
+		slog("When determining what Entity type, I found: Dragon!  of name %s",name);
+		return ETT_monsters;
+	}
+	else if (strncmp("item_", name, 5) == 0) {
+		slog("When determining what Entity type, I found: Item!");
+		return ETT_item;
+	}
+	else if (strncmp("cave_", name, 5) == 0) {
+		slog("When determining what Entity type, I found: Cave!");
+		return ETT_cave;
+	}
+	else if (strncmp("npc_", name, 4) == 0) {
+		slog("When determining what Entity type, I found: NPC!");
+		return ETT_NPC;
+	}
+
+	slog("Compared all possible names and did not find a corresponding Entity Type");
+	return -1;
+}
+
+
 //After we delved into the creation of Definition files:
 void entity_configure(Entity* self, SJson* json) {
 	if ((!self) || (!json)) return;
@@ -202,6 +230,7 @@ void entity_configure(Entity* self, SJson* json) {
 		self->center = gfc_vector2d(sp_sz.x*0.5, sp_sz.y*0.5);
 		self->framesPerLine = framesPerLine;
 		self->frame = 0; //Since frame 0 will be the default for every entity,  just et the first frame here in the configure function
+		self->flip = gfc_vector2d(0, 0);
 
 		GFC_Vector4D bounds; //Use this as a 4D vector to save the numbers from the json file. THEN uset he get Rect from 4D vector function to save it into the entity's bounds
 		sj_object_get_vector4d(json, "bounds", &bounds);
@@ -218,13 +247,30 @@ void entity_configure(Entity* self, SJson* json) {
 	self->velocity = vel;
 	gfc_vector2d_normalize(&self->velocity);
 
-	float speedMax;
-	sj_object_get_float(json, "speed_Max", &speedMax);
-
-	if (speedMax) {
+	GFC_Vector2D speedMax = { 0 };
+	sj_object_get_vector2d(json, "speed_Max", &speedMax);
+	if (speedMax.x) {
 		self->speedMax = speedMax;
 	}
 	
+	// Just.. don't normalize this vector. I don't want that, I'm not here for direction, I need magnitude
+	GFC_Vector2D accel = { 0 };
+	sj_object_get_vector2d(json, "acceleration", &accel);
+	if (accel.y != 0) {
+		//gfc_vector2d_copy(self->acceleration, (*accel));
+		self->acceleration = accel;
+		slog("Acceleration in the y direction for this entity: %s is: %f",self->name, accel.y);
+		//gfc_vector2d_normalize(&self->acceleration);
+	}
+	/*float accel;
+	sj_object_get_float(json, "acceleration", &accel);
+	if (accel) {
+		self->acceleration.y = accel;
+		slog("Acceleration in the y direction for this entity: %s is: %f", self->name, self->acceleration.y);
+	}*/
+
+
+	//Determine entity's type
 	self->type = ENT_none;
 	//slog("Entity %s Configured to have type none",self->name);
 	const char* ent_type = sj_object_get_string(json, "type");
@@ -247,6 +293,10 @@ void entity_configure(Entity* self, SJson* json) {
 			//slog("Treasure entity found");
 			self->type = ENT_treasure;
 		}
+		else if (gfc_strlcmp(ent_type, "npc") == 0) {
+			//slog("Treasure entity found");
+			self->type = ENT_npc;
+		}
 		else if (gfc_strlcmp(ent_type, "all") == 0) {
 			slog("Alpha entity found");
 			self->type = ENT_fierce | ENT_docile | ENT_cunning;
@@ -268,7 +318,7 @@ void entity_configure(Entity* self, SJson* json) {
 
 	}*/
 
-	//sj_object_get_float(json, "speedMax", &self->speedMax);
+
 }
 
 
@@ -368,8 +418,6 @@ GFC_List* entity_collide_all(Entity* self) {  //Works and up to date
 		return NULL;
 	}
 	return entities; //return the list. Please be sure to delete it after calling this function
-
-	return NULL;
 }
 
 entity_move(Entity* self) {

@@ -10,6 +10,6 @@
 	"acceleration": 0,
 
 	"type": "docile",
-	"domain": "def/levels/fierce_domain.level",
+	"domain": "def/levels/fierce_domain.level"
 
 }

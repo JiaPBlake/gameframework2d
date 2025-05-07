@@ -1,0 +1,11 @@
+{
+	"name":"water_spray",
+	"angleVariance":30,
+	"speed":3.5,
+	"speedVariance":1.5,
+	"drawColor":[0,20,200,200],
+	"colorVector":[0,0,0,0],
+	"colorVariance":[30,10,50,50],
+	"ttl":100,
+	"ttlVariance":50
+}

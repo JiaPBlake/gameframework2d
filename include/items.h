@@ -51,7 +51,10 @@ SJson* items_get_def_by_name(const char* name);
  */
 Item* item_new(const char* name);
 
-
+/**
+ * @brief free the item and its necessary data members (sprite)
+ * @param item - pointer to the item that should be freed
+ */
 void item_free(Item* item);
 
 /**

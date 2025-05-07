@@ -161,6 +161,15 @@
     <ClCompile Include="..\src\inventory.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\particles.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\main_menu.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\attack.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -310,6 +319,12 @@
     <ClInclude Include="..\include\inventory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\include\particles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\attack.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\def\player.def">
@@ -390,5 +405,19 @@
     <None Include="..\def\cave_test.def">
       <Filter>Def Files</Filter>
     </None>
+    <None Include="..\config\particleTestdef.particle">
+      <Filter>Config Files</Filter>
+    </None>
+    <None Include="..\def\text\testText.texty">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\config\particleList.cfg">
+      <Filter>Config Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\def\npc_skeleton1.txt">
+      <Filter>Def Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

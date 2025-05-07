@@ -49,6 +49,35 @@
 
 static World* activeWorld = NULL;
 
+//=======  Mon April 21.  a  Tile Layer CLEAR function
+Uint8 world_get_tile_index_by_pos(World* world, GFC_Vector2I position);
+
+void world_set_tile(World* world, GFC_Vector2D point, Uint8 tile) {
+	GFC_Vector2I location = { 0 };  //Integer space vector
+	if ((!world) || (!world->tileMap) || (!world->tileMapSize.x) || (!world->tileMapSize.y)) return;
+	//from World space (pixels) to tile space (tile index)
+	location.x = (float)point.x / world->tileMapSize.x;
+	location.y = (float)point.y / world->tileMapSize.y;
+
+	world->tileMap[world_get_tile_index_by_pos(world, location)] = tile;
+	//He makes a function to instead GET YOU the index   of the tile AT 'location':  world_get_tile_by_pos
+
+
+	//For the Level editor:
+	//*Mouse is in screen coordinates.  We want to put it into WORLD coords,  so we must now ADD our camera's offset
+
+}
+
+
+void world_tile_layer_clear(World* world) {
+	if (!world) return;
+	gf2d_sprite_free(world->tileLayer);
+	world->tileLayer = NULL;
+
+}
+
+// ==========
+
 void world_tile_layer_build(World* world) {
 	if (!world) return;
 	if (!world->tileSet) return;
@@ -65,7 +94,7 @@ void world_tile_layer_build(World* world) {
 	if (!world->tileLayer) slog("We didn't even make the damn tileLayer..");
 
 //slog("The x dimension for the create surface command is: %i", (int)world->tileMapSize.x * world->tileSet->frame_w);
-	//Creat the Surface OF the Sprite
+	//Create the Surface OF the Sprite
 	world->tileLayer->surface = gf2d_graphics_create_surface(
 		((int)world->tileMapSize.x*world->tileSet->frame_w),
 		((int)world->tileMapSize.y*world->tileSet->frame_h));
@@ -106,6 +135,40 @@ void world_tile_layer_build(World* world) {
 	//slog("Layer created");  //Jlog
 }
 
+
+//===============   Wednesday April 16  I actually dk what topic this is  he started off saying parallax but somebody OHHH OH  I think it's how to save a world a player makes through the Content Editor
+	//purely for proof of concept.  I'm probably never gonna use this	@brief save a world to a file
+void world_save(World* world, const char* filename) {
+	SJson* json;
+	if ((!filename) || (!world)) return;
+	json = sj_object_new();		//create a new JSon object
+	if (!json) { slog("failed ot make new json for world saving"); return; }
+
+	//Then fill out all the parameters that would NEED TO GO in a Def file for a Level/World
+
+	sj_object_insert(json, "name", sj_new_str(world->name) );  //Make sure it aligns with your convention
+
+	//*You could work to make a funciton that   Takes a Sprite,  and effectively converts it into all the info you'd need to be in a JSON file to create the sprite
+	if (world->background) {
+		sj_object_insert(json, "backgroundFile:", sj_new_str(world->background->filepath));  //where filepath is the data member of the Sprite structure 
+		sj_object_insert(json, "backgroundFrameW", sj_new_uint32(world->background->frame_w));
+		sj_object_insert(json, "backgroundFrameH", sj_new_uint32(world->background->frame_h));
+	}
+
+	//How to add another OBJECT to a json?
+
+
+
+
+
+	sj_save(json, filename);
+	sj_free(json);  //once it's saved as a def file.   Free the JSon object.  I don't need the json object
+
+
+}
+
+//=========
+
 World* world_load(const char* filename) {
 	GFC_Vector2D frameSize = { 0 };
 	Uint32 framesPerLine = 0;
@@ -125,6 +188,9 @@ World* world_load(const char* filename) {
 	GFC_Vector2D default_pos;
 	
 
+	int spawnTileValue, tileValueForTesting;
+	GFC_Vector3D *spawnTilePosition = { 0 };		//be sure to try and make this  Horizontal Center.  But bottom of entity sprite
+	GFC_List *spawn_coords = gfc_list_new();
 	if (!filename) return NULL;
 	json = sj_load(filename);
 	if (!json) {
@@ -140,6 +206,27 @@ World* world_load(const char* filename) {
 	if (string) {
 		gfc_line_cpy(world->name, string);
 //slog("World name is: %s", world->name);  //Jlog
+	}
+
+	string = sj_object_get_string(json, "background");
+	if (string) {
+		world->background = gf2d_sprite_load_image(string);
+		//slog("The size of the background sprite is: %i",world->background->frame_w);  //Jlog
+		//slog("World %s's BACKGROUND sprite loaded.", world->name);	//Jlog
+	}
+	//determine systematically  which I think is that giant block above name
+	string = sj_object_get_string(json, "tileSet");
+	if (string) {
+		sj_object_get_vector2d(json, "tileSetSize", &frameSize);
+		sj_object_get_uint32(json, "tileSetFPL", &framesPerLine);
+		//slog("Loading world sprite...");
+		world->tileSet = gf2d_sprite_load_all(
+			string,
+			(Uint32)frameSize.x,
+			(Uint32)frameSize.y,
+			framesPerLine,
+			1);
+		//slog("World %s's TileSET Sprite loaded.", world->name); //Jlog
 	}
 
 	rows = sj_object_get_value(json, "tileMap"); //rows is the 2D array == tileMap
@@ -179,31 +266,33 @@ World* world_load(const char* filename) {
 				if (!column) continue;	//THE REASON I had world->tileMap[] as the 2nd parameter was 'cause that's where I needed to store it!!! silly. I just hadn't input the index, 'cause I didn't realize what we were talking abouttt [2d array, index it smartly, not just i]
 				sj_get_uint8_value(column, &world->tileMap[j * columnCount + i]); //We need to give it the tileMap.  But which one ?.  Since we're saving the 2d array into a 1D array with gfc_allocate.. how do we determine stuff?
 				//When j is 0: 0*my width  then add i (which is the # of columns). And it does this for each row, j. So when j = 1, we're in the next row. 1D ARRAY indexing baybee
+				spawnTileValue = world->tileMap[j * columnCount + i];
+				
+				// *It might also be worth it to consider changing this 4 TO my value of "framesPerLine"  incase I ever make for than 4 frames for a tileSet
+				if (spawnTileValue > 4) {
+					spawnTilePosition = gfc_vector3d_new();		//AHA!!  THIS is how I create a new vecor,  instead of constantly re-writing One.
+					
+					slog("The tile at i: %i; j: %i  is the number %i", i, j, spawnTileValue);
+					spawnTilePosition->x = i * world->tileSet->frame_w;  //corner of the tile
+					spawnTilePosition->y = j * world->tileSet->frame_h;
+					spawnTilePosition->z = spawnTileValue;
+					gfc_list_append(spawn_coords, spawnTilePosition);
+					//slog("Address of spawnTilePosition is %p", spawnTilePosition);   //Jlog
+				}
 			}
 		}
 	}
+	//slog("after configuring the map. The number of SpawnPoints in my list is: %i, %p, x: %f", spawn_coords->count, spawn_coords[0], gfc_list_get_nth(0).x);
+	/*if (spawn_coords->count > 1) {		//J test.  Works! I can add more than 1 distinct vector now, thanks to gfc_vector3d_new()
+		GFC_Vector3D *test1, *test2;
+		test1 = gfc_list_get_nth(spawn_coords, 0);
+		test2 = gfc_list_get_nth(spawn_coords, 1);
+		slog("First spawn point is at x:%f  y:%f\n", test1->x, test1->y);
+		slog("Second spawn point is at x:%f  y:%f\n", test2->x, test2->y);
+	}*/
+
 //slog("World '%s's tileMap initialized.", world->name);	//Jlog
 
-	string = sj_object_get_string(json, "background");
-	if (string) {
-		world->background = gf2d_sprite_load_image(string);
-//slog("The size of the background sprite is: %i",world->background->frame_w);  //Jlog
-//slog("World %s's BACKGROUND sprite loaded.", world->name);	//Jlog
-	}
-	//determine systematically  which I think is that giant block above name
-	string = sj_object_get_string(json, "tileSet");
-	if (string) {
-		sj_object_get_vector2d(json, "tileSetSize", &frameSize);
-		sj_object_get_uint32(json, "tileSetFPL", &framesPerLine);
-		//slog("Loading world sprite...");
-		world->tileSet = gf2d_sprite_load_all(
-			string,
-			(Uint32)frameSize.x,
-			(Uint32)frameSize.y,
-			framesPerLine,
-			1);
-//slog("World %s's TileSET Sprite loaded.", world->name); //Jlog
-	}
 	activeWorld = world; //set the active world to the one we just loaded
 	//Still need to handle the entity_list	--OKAY!  I think !!  I think this works!!
 	world->entity_list = gfc_list_new();
@@ -220,10 +309,18 @@ World* world_load(const char* filename) {
 			ent_name = sj_object_get_string(enty, "name");    //Get the name of the entity/JSon object
 			sj_object_get_vector2d(enty, "position", &default_pos); //if the position argument does not exist, it doesn't change the values of default_pos at all
 			//Spawn the entity using its name in the Spawn list & its position in the World def file
-
-
+			
+			//hmmmm  maybe I SHOULD make a list.  bit a List of 3D vectors.  so that I can also save the value AT that tile.  So I can make
+				//5 = Dragon spawn points.   6  = Cave spawn points.   and 7 = item spawn points ?  Saving those values as the 3d vector's .z value
+			
+			if (spawnTilePosition && spawnTilePosition->x > 0) {
+				default_pos.x = spawnTilePosition->x;
+				default_pos.y = spawnTilePosition->y;
+				//Jlog   is default_pos is being overriden by any spawn tile Value
+				//slog("Spawning entity at the position indicated BY the Map def file's tileSet, x position: %f",spawnTilePosition->x);
+			}
 			//Spawn in the entity.  THIS adds them into the Entity Manager
-			ent = spawn_entity(ent_name, default_pos);
+			ent = spawn_entity(ent_name, default_pos, spawn_coords);
 			if (ent) {	
 //slog("Spawning and appending entity %s to the list", ent->name); //Jlog
 				gfc_list_append(world->entity_list, ent); //yeah,  I nearly appended just the names, but I suppose it's easier to appent the Entity object itself
@@ -237,6 +334,9 @@ World* world_load(const char* filename) {
 
 	world_tile_layer_build(world); //J ADDED -  create the tileLayer so that it can be drawn
 
+
+	//Once we've spawned in all the entities in their proper place.  Delete the List of Spawn_coords:
+	gfc_list_delete(spawn_coords);
 	
 	camera_set_bounds(gfc_rect(0,0,frameSize.x*world->tileMapSize.x, frameSize.y*world->tileMapSize.y)); //set the bounds of our camera to be the bounds of the current world
 	camera_set_position(gfc_vector2d(0,0));
@@ -250,11 +350,24 @@ void world_set_active(World* worldToSet) {
 	activeWorld = worldToSet;
 }
 
-Uint8 world_get_tile_at(World* world, GFC_Vector2D position) //position will actually, more often then not.. BE the tile index. So dw about converting screen-space
+//=== Mon April 21
+//Get the index number of the tile based on its  i, j position.  (1D array index is returned from a 2D representation)
+Uint8 world_get_tile_index_by_pos(World* world, GFC_Vector2I position)
+{
+	if ((!world) || (!world->tileMap)) return 0;
+	//I need to convert screen-space coords to my tileMap index.
+	return ( ((Uint32)position.y * (Uint32)world->tileMapSize.x) + (Uint32)position.x ); //AHA position, but like. *Tile height. and then add x position
+
+}
+
+//=====
+
+//Returns the the value of the tile that is AT the index provided.  (This essentially just traverses through the 1D array in a 2D manner:   C*i + j
+Uint8 world_get_tile_value(World* world, GFC_Vector2D index) //position will actually, more often then not.. BE the tile index. So dw about converting screen-space
 {
 	if ((!world) || (!world->tileMap)) return 0;
 	//I need to convert screen-space coords to my tileMap index.  Which means I need to INTEGER divideee   (int)(position.x / world->tileMapSize.x)  + (int)(position.y / world->tileMapSize.y)
-	return world->tileMap[ ((Uint32)position.y * (Uint32)world->tileMapSize.x) + (Uint32)position.x  ]; //AHA position, but like. *Tile height. and then add x position
+	return world->tileMap[ ((Uint32)index.y * (Uint32)world->tileMapSize.x) + (Uint32)index.x  ]; //AHA position, but like. *Tile height. and then add x position
 	
 }
 
@@ -381,7 +494,6 @@ void world_draw_bounds(World* world) {
 	int i, j;
 	Uint8 tileIndex;
 	GFC_Rect rect = { 0 }; //w and h of EACH tile.  I think mine are 240 by 80  his are 64 by 64
-	GFC_Shape test;
 	GFC_Vector2D camera;
 	camera = camera_get_offset();
 	rect.w = world->tileSet->frame_w; //actually, let's just determine the width and height of my rectangle in a Data driven manner
@@ -389,7 +501,7 @@ void world_draw_bounds(World* world) {
 
 	for (j = 0; j < world->tileMapSize.y; j++) {
 		for (i = 0; i < world->tileMapSize.x; i++) {
-			tileIndex = world_get_tile_at(world, gfc_vector2d(i, j));
+			tileIndex = world_get_tile_value(world, gfc_vector2d(i, j));
 			if (!tileIndex) continue;
 
 			//make a rectangle based on the tile position
@@ -402,6 +514,7 @@ void world_draw_bounds(World* world) {
 	return; //if we went through the entire Loop and found nothing. Return nothing
 }
 
+//I'm still going to use this function as a means of finding the absolute lowest point in the map. So that I never go past that
 GFC_Vector2D world_get_ground() {
 	World* world = activeWorld;
 	GFC_Vector2D ground = {0};
@@ -410,15 +523,18 @@ GFC_Vector2D world_get_ground() {
 	Uint8 tileIndex;
 	//*Do NOT include camerae offset here :salute:   This is supposed to return position in WORLD space,  not on my screen
 
-	//iterate through the world's tiles
-	for (j = 0; j < world->tileMapSize.y; j++) {
-		for (i = 0; i < world->tileMapSize.x; i++) {
-			tileIndex = world_get_tile_at(world, gfc_vector2d(i, j));
-			if (!tileIndex) continue;
-			//The moment I hit my first 1 -- because of the way my maps are just surfaces.
+	//iterate through the world's tiles  BACKWARDS
+	for (j = world->tileMapSize.y - 1; j >=0 ; j--) {   //j is the row
+		for (i = world->tileMapSize.x  -1; i >=0; i--) {  //i is the column..   from Left--> Right  (x)
+			tileIndex = world_get_tile_value(world, gfc_vector2d(i, j));
+			if (tileIndex) continue;
+
+			//The moment I hit my FIRST 1 -- because of the way my maps are just surfaces.
+
+			// Ignore that ^  I'm doing this differently.  The moment I hit my first 0. That level UNDERNEATH it is my absolute ground. (i-1)
 //slog("tileIndex issss %i,%i",i,j);
-			ground.x = (i * world->tileSet->frame_w) /* + camera.x*/;
-			ground.y = (j * world->tileSet->frame_h) /* + camera.y */ ;
+			//ground.x = (i * world->tileSet->frame_w) /* + camera.x*/;   //mmmmmm yeah bc I look for the FIRST 1 in the map.. this x is always the same.. gotta change this
+			ground.y = ( (j+1) * world->tileSet->frame_h) /* + camera.y */ ;
 			//return the vector of the ground
 			return ground;
 		}
@@ -426,40 +542,332 @@ GFC_Vector2D world_get_ground() {
 	return ground;
 }
 
-//so we can include world.h  IN entity.c  so that our Entity_update  can call this function to ask the world : we good ? ? Where the shape in
-//wait nvm (Feb 26)  I think this is called in game..?			This one is so I don't collide with any of the tiles in my world
-//(Feb 28 - myself, at home)  hehe nah I'm calling it in player.c  'cause I included world.h  and it works out this way
-int world_test_shape(World* world, GFC_Shape shape) {
-	if ( (!world) || (!world->tileSet) ) return 0;
+
+//Do NOT include camera offset here :salute:   This is supposed to be based off positions in WORLD space,  since my Player's position is ALSO only ever in world space
+/*GFC_List* world_get_collided(World* world, GFC_Shape shape) {
+	//See .   half of my problem is the fact that this only returns the FIRST time I'm colliding with... from the top of the map down. 
+	//I suppose I..  COULD?? return a list.  But i still have to fix the underlying problem of handling x and y collision at appropriate times..
+		//Which !! I think I;m really on to something with the distInGround thing..   honestly !? That has ALREADY solved my problem !! That's the way to go.
+		//Now I just need to make sure that:  me running face first into a wall doesn't cause me to IGNORE the ground beneath me LOL
+	
+	if ((!world) || (!world->tileSet)) return NULL; //for the List implementation
+	//fuck it.
+	GFC_List* tiles;				//For list implementation
+	tiles = gfc_list_new();
+	//Let's make a list.  and start appending
 
 	int i, j;
-	Uint8 tileIndex;
+	Uint8 tileValue;
 	GFC_Rect rect = { 0 }; //w and h of EACH tile.  I think mine are 240 by 80
-	GFC_Shape test;
-//*Do NOT include camerae offset here :salute:   This is supposed to be based off positions in WORLD space,  since my Player's position is ALSO only ever in world space
+	GFC_Shape test_shape;
+	GFC_Rect* tile;
 
 	rect.w = world->tileSet->frame_w; //actually, let's just determine the width and height of my rectangle in a Data driven manner
 	rect.h = world->tileSet->frame_h; //
 	//gfc_rect_slog(rect);
 
-	for (j = 0; j < world->tileMapSize.y; j++) { //iterate through every tile .
+//iterate through every tile .
+	for (j = 0; j < world->tileMapSize.y; j++) {		
 		for (i = 0; i < world->tileMapSize.x; i++) {
-			tileIndex = world_get_tile_at(world, gfc_vector2d(i,j));
-			
-			if (!tileIndex) continue;	
-//slog("tileIndex is %i,%i", i, j);
-			//make a rectangle based on the tile position
-			rect.x = (i * rect.w) /* + camera.x*/;
-			rect.y = (j * rect.h) /* + camera.y*/;
-			test = gfc_shape_from_rect(rect);
-			if (gfc_shape_overlap(test, shape)) return 1; //thissss is how we do world bounds
+			tileValue = world_get_tile_value(world, gfc_vector2d(i, j));
 
+			if (!tileValue) continue;	  //if the tile here isn't ON (not 1)
+			//slog("tileValue is %i,%i", i, j);
+
+		//make a rectangle based on the tile position
+			rect.x = (i * rect.w);
+			rect.y = (j * rect.h);
+			test_shape = gfc_shape_from_rect(rect);
+			//create the Shape from the tile.
+
+		//IF and ONLY IF I am colliding.  Get the direction and return it
+			if (gfc_shape_overlap(test_shape, shape)) {  //IF I am colliding with this given rectangle:
+				tile = &rect;
+				gfc_list_append(tiles, tile);  //For list implementation
+				slog("Tile appended");
+				slog("Rectangle's X is: %f",rect.x);
+				slog("WHAT THE FUCK:  %f",tile->x);
+			}
 		}
 	}
 
-	return 0; //if we went through the entire Loop and found nothing. Return nothing
+
+	//For list implementation
+	if (!gfc_list_count(tiles)) { //if, by the end of my for loop, I never collided with anything:
+		gfc_list_delete(tiles);
+		return NULL;
+	}
+	//slog("Checkpoint 3");
+
+	return tiles;
+}*/
+
+
+//fuck this function and fuck GFC_Lists   there's a disconnect between what I'm SUPPOSEDLY appending .  and what I'm retrieving.
+
+/*void tile_collide_check(GFC_Rect* rect, GFC_Shape shape, GFC_Vector4D* direction) {
+
+	GFC_Rect tile = { 0 };
+	gfc_rect_copy(tile, (*rect));
+	//These are both rectangles.  and they SHOULD be overlapping.. but in the event they're not for some reason 'cause the list fucked up,  check and exit prematurely when needed
+	GFC_Shape test_shape;
+	test_shape = gfc_shape_from_rect(tile);
+	if (gfc_shape_overlap(test_shape, shape)) { slog("Bro we aren't even colliding. What's going on"); return; }
+
+	float distInGround = 0;
+	//Back when I returned one tile  (tile)  at a time.
+	distInGround = (shape.s.r.y + shape.s.r.h) - tile.y;
+	//slog("I am %f pixels into the ground", distInGround);  //At my current speed, this number doesn't seem to go over 3.0
+
+	//idea.   IF I'm colliding.  Get the direction I collided FROM.
+		//Player collides on the Left of a Tile.   Conidering I'm already overlapping:  my Right edge JUST barely became > tile's Left edge
+	if ((shape.s.r.x + shape.s.r.w) > (tile.x)) {
+		slog(" (R) PLAYER RIGHT EDGE collision ON tile's Left");
+		direction->x = 1;
+	}
+	else if ((shape.s.r.x) < (tile.x + tile.w)) {
+		slog(" (L) PLAYER LEFT EDGE collision ON tile's Right");
+		direction->x = -1;
+	}
+
+	slog("Checkoint 1");
+	// IF  !  AND ONLY IF  I am moving Left or Right .  my Y should not take place
+	//if (direction->z == 0) {
+	if (distInGround < 4.0) {
+		slog("Checkpoint 1.5");
+		if (((shape.s.r.y + shape.s.r.h) > tile.y) && (shape.s.r.y < tile.y)) {
+			slog(" G R O U N D -- PLAYER BOTTOM EDGE collision ON tile's Top");
+			direction->y = 1;
+			direction->z = 0;  //This needs to be here
+		}
+		else if (shape.s.r.y < (tile.y + tile.h)) {
+			slog("PLAYER TOP EDGE collision ON tile's Bottom");
+			direction->y = -1;
+		}
+	}
+	return;
+}*/
+
+
+
+
+//so we can include world.h  IN entity.c  so that our Entity_update  can call this function to ask the world : we good ? ? Where the shape in
+//wait nvm (Feb 26)  I think this is called in game..?			This one is so I don't collide with any of the tiles in my world
+//(Feb 28 - myself, at home)  hehe nah I'm calling it in player.c  'cause I included world.h  and it works out this way
+GFC_Rect world_test_shape(World* world, GFC_Shape shape, GFC_Vector4D* direction) {
+	int i, j;
+	Uint8 tileValue;
+	GFC_Rect rect = { 0 }; //w and h of EACH tile.  I think mine are 240 by 80
+	GFC_Shape test_shape;
+	float distInGround = 0;
+	//GFC_Vector4D direction = { 0 };
+	//if ((!world) || (!world->tileSet)) return rect;
+
+
+//*Do NOT include camera offset here :salute:   This is supposed to be based off positions in WORLD space,  since my Player's position is ALSO only ever in world space
+
+	rect.w = world->tileSet->frame_w; //actually, let's just determine the width and height of my rectangle in a Data driven manner
+	rect.h = world->tileSet->frame_h; 
+	//gfc_rect_slog(rect);
+	for (j = 0; j < world->tileMapSize.y; j++) {		//iterate through every tile .
+		for (i = 0; i < world->tileMapSize.x; i++) {
+			tileValue = world_get_tile_value(world, gfc_vector2d(i, j));
+
+			if (!tileValue) continue;	  //if the tile here isn't ON (not 1)
+		//make a rectangle based on the tile position
+			rect.x = (i * rect.w) /* + camera.x*/;
+			rect.y = (j * rect.h) /* + camera.y*/;
+			test_shape = gfc_shape_from_rect(rect);
+			//create the Shape from the tile.
+
+		//IF and ONLY IF I am colliding.  Get the direction and return it
+			if (gfc_shape_overlap(test_shape, shape)) {  //IF I am colliding with this given rectangle:
+
+						//Back when I returned one rect  (tile)  at a time.
+				distInGround =  (shape.s.r.y + shape.s.r.h) - rect.y;
+				slog("I am %f pixels into the ground", distInGround);  //At my current speed, this number doesn't seem to go over 3.0
+
+				//idea.   IF I'm colliding.  Get the direction I collided FROM.
+					//Player collides on the Left of a Tile.   Conidering I'm already overlapping:  my Right edge JUST barely became > tile's Left edge
+				if ( (shape.s.r.x + shape.s.r.w) > ( rect.x ) ) {
+					slog(" (R) PLAYER RIGHT EDGE collision ON tile's Left");
+					direction->x = 1;
+				}
+				else if ( (shape.s.r.x) < (rect.x + rect.w)) {
+					slog(" (L) PLAYER LEFT EDGE collision ON tile's Right");
+					direction->x = -1;
+				}
+
+				// IF  !  AND ONLY IF  I am moving Left or Right .  my Y should not take place
+				//if (direction->z == 0) {
+				if (distInGround < 4.0) {
+					if ( ((shape.s.r.y + shape.s.r.h) > rect.y) && (shape.s.r.y < rect.y) ) {
+						slog(" G R O U N D -- PLAYER BOTTOM EDGE collision ON tile's Top");
+						direction->y = 1;
+						direction->z = 0;  //This needs to be here
+					}
+					else if ( shape.s.r.y < (rect.y + rect.h) ) {
+						slog("PLAYER TOP EDGE collision ON tile's Bottom");
+						direction->y = -1;
+					}
+				}
+
+				//This is when I returned the Tile through parameters
+				/*if (tile->x) slog("Tile's x is: %f", tile->x);
+				gfc_rect_copy( (*tile), rect);
+				slog("Tile's x is NOW: %f", tile->x);*/
+
+
+				return rect; //remember.  the tileValue (used to be called 'tileIndex') is JUST the value of the tile...
+			}
+		}
+	}
+
+	//This worked before.   Before when I returned the TILE I collided with.  However, I need to factor in more than just 1 tile.. can't return as soon as I reach the first one, 'cause then that messes up ground collision
+	rect.x = 0;
+	rect.y = 0;
+	return rect; //if we went through the entire Loop and found nothing. Return nothing 
 }
 
+//Just move the damn player yourself bro.  For every tile
+void world_collision_handle(Entity* player, GFC_Shape shape, GFC_Vector4D* dir) {
+	if (!player) return;
+	
+
+	//holy fucking shit there's an edge case where:   I can overlap while being  ZERO pixels into the GRound.... and thus I will also be moved LEFT INSTEAD OF  up.
+
+
+	World* world = world_get_active();
+	if ((!world) || (!world->tileSet)) return;
+	int i, j, index;
+	Uint8 tileValue;
+	GFC_Rect rect = { 0 };
+	GFC_Shape test_shape;
+	float distInGround = 0;
+	float distInCeiling = 0;
+	GFC_Vector4D direction = (*dir);
+
+	GFC_Vector2I pos = {0};
+
+	rect.w = world->tileSet->frame_w;
+	rect.h = world->tileSet->frame_h;
+
+	for (j = 0; j < world->tileMapSize.y; j++) {		//iterate through every tile .
+		for (i = 0; i < world->tileMapSize.x; i++) {
+			tileValue = world_get_tile_value(world, gfc_vector2d(i, j));
+
+			if (!tileValue) continue;	  //if the tile here isn't ON (not 1)
+			//make a rectangle based on the tile position
+			rect.x = (i * rect.w);
+			rect.y = (j * rect.h);
+			test_shape = gfc_shape_from_rect(rect);
+			//create the Shape from the tile.
+
+		//IF and ONLY IF I am colliding.  Use the direction to determine how the player should move
+			if (gfc_shape_overlap(test_shape, shape)) {  //IF I am colliding with this given rectangle:
+
+				//Back when I returned one rect  (tile)  at a time.
+				distInGround = (shape.s.r.y + shape.s.r.h) - rect.y;
+				//slog("I am %f pixels into the ground", distInGround);  //At my current speed, this number doesn't seem to go over 3.0
+				distInCeiling = (rect.y + rect.h) - shape.s.r.y;  //tile's bottom  minus my top
+
+				//idea.   IF I'm colliding.  Get the direction I collided FROM.
+			// AHA!  and now that I'm just giving the Player as a paramter. I can directly exract the direction of their velocity
+				//slog("Player's angle of velocity is: %f", gfc_vector2d_angle(player->velocity));
+				pos.x = i;
+				pos.y = j;
+				index = world_get_tile_index_by_pos(world, pos);
+					//Player collides on the Left of a Tile.   Conidering I'm already overlapping:  my Right edge JUST barely became > tile's Left edge
+				if ( ((shape.s.r.x + shape.s.r.w) > rect.x) && (shape.s.r.x < rect.x) ) {
+					//slog(" (R) PLAYER RIGHT EDGE collision ON tile's Left.  On Tile index: %i", index);
+					direction.x = 1;
+				}
+				else if ( (shape.s.r.x < (rect.x + rect.w)) && ((shape.s.r.x + shape.s.r.w) > (rect.x + rect.w)) ) {
+					//slog(" (L) PLAYER LEFT EDGE collision ON tile's Right.  On Tile index: %i", index);
+					direction.x = -1;
+				}
+
+
+		// ***Sometimes when I jump.  This disInGround if never occurs.  So it doesn't realize that I'm on the ground  and instead "You have been stopped."s me, pushing me left
+			//NO!! NO  the dist if DOES happen.   neither of the inner Conditionals do.  Because I am NOT overlapping my edge. I am == to it. (distInGround == 0 !!)
+
+				// IF  !  AND ONLY IF  I am moving Left or Right .  my Y should not take place  nvm. This is like 2/3 casses.
+				if (distInGround < 12.0 ) {
+					direction.z = 0;  //This needs to be here
+					if (((shape.s.r.y + shape.s.r.h) > rect.y) && (shape.s.r.y < rect.y)) {
+						//slog(" G R O U N D -- PLAYER BOTTOM EDGE collision ON tile's Top.  On Tile index: %i", index);
+						direction.y = 1;
+					}
+					//else { slog("wait this is awkward... I'm very much so a large distance into the ground and yet..."); }
+					
+				}
+				//if dist  is  GREATER  that most likely means I want to do  L / R Collission first  sooo!!! 
+				else {
+					if (distInCeiling < 12.0 && (shape.s.r.y < (rect.y + rect.h)) && ((shape.s.r.y + shape.s.r.h) > (rect.y + rect.h))) {
+						slog("PLAYER TOP EDGE collision ON tile's Bottom.  On Tile index: %i", index);
+						direction.y = -1;
+						direction.z = 0;  //This needs to be here 
+					}
+					
+					//else slog("Too far into ground on Tile Index: %i (suggests Side).  Speed responsible is:   X %f,  Y%f", index, player->velocity.x, player->velocity.y);
+				}
+
+//	PLAYER MOVEMENT ====================================================
+				if (direction.y != 0 || direction.x != 0) { //my y position (taking into account my bounds) should be 614 compared to ground's 640 
+					//slog("Checkpoint 2");
+					//I have to handle collision here .   tile_collide_check tells me IF I am colliding.  AND the rect I'm colliding with. but only one at a time,,,
+
+					//slog("Player's X position is: %f", player->position.x);
+
+					//I return BOTH x & y dimensions for direction.  I choose whether I want to act on them, tho.
+
+							//dir.z let's me know that I'm moving Right on the ground.
+					if (direction.z != 0) {   //if I'm colliding right 
+						if (direction.x > 0) {
+							player->position.x = rect.x + player->bounds.x;
+							direction.y = 0;
+							//slog("You have been stopped .");
+							//direction.z = player->velocity.x;
+						}
+
+						else if (direction.x < 0) {
+							player->position.x = rect.x + rect.w - player->bounds.x;
+							direction.y = 0;
+							//slog("You have been stopped LEFT EDITION!!!");
+							//direction.z = player->velocity.x;
+						}
+					}
+
+					if (direction.z == 0) {  //if I'm colliding top.  and top ONLY.  Don't let me go into the ground.
+						if (direction.y > 0) {
+							//We turned z off.  Because we don't want GROUND telporting me Left.
+							player->position.y = rect.y + player->bounds.y;
+							dir->w = 1;
+							//slog("You have been raised");
+						}
+						else if (direction.y < 0) {
+							//We turned z off.  Because we don't want GROUND telporting me Left.
+							player->position.y = rect.y + rect.h - player->bounds.y;
+							dir->w = -1;
+							slog("You have been lowered");
+						}
+					}
+
+					//slog("Colliding");
+
+				}
+
+
+
+
+			//end of for loops
+			}
+		}
+	}
+	return;
+}
+
+//
 
 //---------------------------------
 //ENTITY LIST SECTION
@@ -507,7 +915,7 @@ void world_transition(World* old, const char* newWorld, GFC_Vector2D targetPlaye
 		slog("Uh oh. newWorld failed to load");
 		return;
 	}
-	else { slog("New world LOADED: %s", world->name); }
+	else { slog("New world LOADED: %s.  TILESET sprite size: %i", world->name, world->tileSet->frame_w); }
 	
 	activeWorld = world;
 	//and move the player's position to the target spawn point for the new world

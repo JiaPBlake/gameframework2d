@@ -1,10 +1,15 @@
 {
-	"name": "battle_screen",
-	"window_sprite": "images/ui/battle_window.png",
-	"window_sprite_size": [ 1200, 720 ],
-	"window_bounds": [ 0, 0, 1200, 720 ],
-	"window_position": [ 0, 0 ],
-	"buttons": [
+  "name": "battle_screen",
+  "window_sprite": "images/ui/battle_window.png",
+  "window_sprite_size": [ 1200, 720 ],
+  "window_bounds": [ 0, 0, 1200, 720 ],
+  "window_position": [ 0, 0 ],
+  "labels": [
+    {
+      "text": "Hellooo!"
+    }
+  ],
+  "buttons": [
     {
       "sprite": "images/ui/attack_button.png",
       "button_position": [ 120, 350 ],
@@ -34,6 +39,6 @@
       "text": "Yes"
     }
 
-	]
+  ]
 
 }

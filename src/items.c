@@ -40,7 +40,7 @@ void items_close() {
 		sj_free(_itemJson);
 	}
 	_itemJson = NULL;
-	_itemDefs = NULL;
+	_itemDefs = NULL; //Defs is only a POINTER to a JSON object I sj_load'ed.  And thus, it needn't be sj_free'd
 	slog("Item Lists successfully closed");
 }
 

@@ -63,7 +63,7 @@ int main(int argc, char * argv[])
     //Uint32 mouseButton;  //making this a global flag instead to let any file see the Mouse state
     //UI_Element* stats_screen;  //J TO BE ADDED (UI)
     //UI_Window* battleWin;
-    Text* testText;
+    //Text* testText;  //Jtested  works!
 
     /*program initializtion*/
     init_logger("gf2d.log",0);
@@ -167,7 +167,7 @@ int main(int argc, char * argv[])
     //monster = monster_new_entity(/*monster_position*/ default_pos, "def/fierce.def" ); //artifact of old thinking
     //cave = object_new_entity(default_pos, "def/cave.def" );
     //player = player_new_entity(default_pos /*player_position */, "def/player.def");//artifact of old thinking
-    world = world_load("def/levels/treasure_trove.level"); /*world_test_new();*/
+    world = world_load("def/levels/testLevel.level"); /*world_test_new();*/
     battle_alert = gf2d_sprite_load_all("images/border.png", 605, 74, 1, 0);
     health_bar = gf2d_sprite_load_all("images/healthbar_full.png", 320, 64, 6, 0);
     
@@ -175,14 +175,14 @@ int main(int argc, char * argv[])
     //stats_screen = ui_make();     //J TO BE ADDED (UI)
     
     UI_Window* starting_win = window_new();
-    window_configure_from_file(starting_win, "def/testWindow.def");
+    window_configure_from_file(starting_win, "def/ui/testWindow.def");
     
 
     //J testing text:
-    slog("Configuring Test TEXTTTTTTTT");
+    /*slog("Configuring Test TEXTTTTTTTT");
     testText = text_new();
     text_configure_from_file(testText, "def/text/testText.texty");
-    slog("testText configured??");
+    slog("testText configured??");*/
     //battleWin = window_configure("def/testWindow.def");
     //if (!battleWin) { slog("Shit. no window"); }
     ////else { slog("Name of the window, to prove I got it to Configure: %s",battleWin->name); }
@@ -351,8 +351,8 @@ int main(int argc, char * argv[])
             
             font_draw("Press 'ESC' to quit", FS_small, GFC_COLOR_WHITE, gfc_vector2d(940,5));
             
-            //J Testing:
-            text_draw(testText, gfc_vector2d(100,200));
+            //Works.  no longer testing.
+            //text_draw(testText, gfc_vector2d(100,200));
 
             //UI elements last
             gf2d_sprite_draw(

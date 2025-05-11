@@ -90,6 +90,17 @@ void text_free(Text* self);
 Text* text_new();
 
 /*
+ * @brief Create ^  AND configure a Text object with the entered parameters.
+ * @param text --	The content of the object.
+ * @param font_size --	The font size
+ * @param color --	The color of the text/font
+ * @param position -- Where the Text should be drawn the to screen
+ * @param tag --	the TextType that this Text Object should have
+ * @returns a pointer to the newly created Text object (fully configured).
+*/
+Text* create_text_raw(const char* text, FontSizes font_size, GFC_Color color, GFC_Vector2D position, TextType tag);
+
+/*
  * @brief: ADD (through the use of |= ) a tag to a given Text object
  * @param: self - pointer to the Text object whose tag should be set
  * @param: tag - the integer equivalent of the TextType tag
@@ -97,7 +108,14 @@ Text* text_new();
 void text_obj_set_tag(Text* self, int tag);
 
 /*
- * @brief: Initialize the sub system responsible for keeping track of struct Text objects.
+ * @brief: Configure a Text object using a JSon object  (Mainly to be used by UI.c's label_configure() function)
+ * @param: self - pointer to the Text object that needs to be configured
+ * @param: json - pointer to the Json object
+*/
+void text_configure(Text* self, SJson* json);
+
+/*
+ * @brief: Configure a Text object from a filename [calls text_configure()]
  * @param: self - pointer to the Text object that needs to be configured
  * @param: filename - name of the (JSON) file to configure from
 */

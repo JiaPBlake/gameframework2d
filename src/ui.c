@@ -7,6 +7,7 @@
 #include "camera.h"
 
 #include "ui.h"
+#include "text.h"   //J testing   for Labels..
 
 
 Uint8 selected_button_index = 0; //global variable that I can Set() and Get()  - primarily is use through the Player_think_battle function
@@ -117,6 +118,30 @@ UI_Element* ui_element_new() {
 }
 
 //========================
+
+
+void label_configure(UI_Label* self, SJson* json) {
+	if ((!self) || (!json)) { slog("No JSON object (OR BUTTON) provided to create the button"); return; }
+
+	//yeah, highkey ?  Just  text_create() the object and send the json to  text_configure anyway...
+		//Since !  EACH Label JSON object will be formatted the same way Text def files are. (really.. Text def files shouldn't really exist on their own unless they're.. some Fancy ass text ig)
+	/*const char* string = {0};
+	string = sj_object_get_string(json, "text");  //in text.c, for def files to contain Text I have it the key named 'print'
+	if (!string) {
+		slog("Could not get UI_Label's text from the json object");
+	}
+	GFC_Vector2D pos = { 0 };
+	sj_object_get_vector2d(json, "button_position", &pos);*/
+	//self->text = create_text_raw(string, FontSizes font_size, GFC_Color color, GFC_Vector2D position, TextType tag);
+
+	self->text = text_new();
+	text_configure(self->text, json);
+	slog("The text for the Label should be configure");
+
+}
+
+
+//=================================	Button
 
 int button_get_type(const char* action) {
 	if (!action) { slog("No button action String provided"); return 0; }
@@ -240,6 +265,8 @@ void ui_element_configure(UI_Element* self, SJson* json) {
 	//Get the TYPE  first.  then depending on the type,  call either  Label_configure  or button configure
 	if (self->type == ELEMT_L) {
 		slog("This UI Element is a Label");
+		label_configure(&self->ui.label, json);
+		self->elem_draw = label_draw;
 	}
 
 	if (self->type == ELEMT_I) {
@@ -305,14 +332,19 @@ void ui_system_draw_all();  //**********I MIGHT!!  want a parameter here for the
 //=============================
 //Draw functions
 
-void button_draw(UI_Element* self, int selected) {
+void label_draw(UI_Element* self) {
+	//this should just call text_draw and that's it, really
+	text_draw(self->ui.label.text, self->ui.label.text->position);
+}
+
+void button_draw(UI_Element* self) {
 	int frame;
 	
 	UI_Button* button = &(self->ui.button);
 	frame = 0;
 
 	//when drawing the elements, I want to know WHICH one is selected. So that I can make THIS specific iteration's frame = 1
-	if (selected == selected_button_index) {
+	if (self->ui.button._selected == selected_button_index) {
 		frame = 1;
 		//slog("Selected_Button_index == %i ; SELECTED == %i", selected_button_index, selected);
 	}  //and first frame selected SHOULD be 0 so !  this works actually

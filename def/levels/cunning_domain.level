@@ -3,7 +3,9 @@
 	"tileSet": "images/backgrounds/tile_cunning.png",
 	"tileSetSize": [ 256, 64 ],
 	"tileSetFPL": 1,
-	"background": "images/backgrounds/cave_bg.png",
+	"background": "images/backgrounds/cave_bg_c_smaller.png",
+	"midground": "images/backgrounds/midground_smaller.png",
+	"foreground": "images/backgrounds/foreground_smaller.png",
 	"tileMap": [
 		[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
 		[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],

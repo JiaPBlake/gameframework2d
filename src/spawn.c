@@ -150,7 +150,7 @@ GFC_List* spawn_entity_list(SJson* entityList) {
 
 }*/
 
-
+//I believe ! This is finally done.  Now I just gotta make all the maps,, and place said coordinates..
 GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords) {
 	//raaaghhghg  how do I do this
 	int i, c;
@@ -173,9 +173,9 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 	for (i = 0; i < c; i++) {
 		coord = gfc_list_get_nth(spawn_coords, i);
 		if (type == ETT_monsters) {
-			slog("Monster Found.");		//Jlog
+			//slog("Monster Found.");		//Jlog
 			if (coord->z == 5) { 
-				slog("\n\nCoordinate IS  5\n\n"); 
+				//slog("Coordinate IS 5"); 
 				
 				//Remember to return the location as soon as  (??)   
 					//ooooooorrrr  I could make :skull:  YET ANOTHER list..  because of procedural generation . ?  wait wai.  nonono Proced. is just gonna place a SINGLE 5 randomly in my map for me.
@@ -187,18 +187,18 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 			
 		}
 		else if (type == ETT_item) {
-			slog("Item found");		//Jlog
+			//slog("Item found");		//Jlog
 			if (coord->z == 6) {
-				slog("\n\nCoordinate IS  \t6\n\n");
+				//slog("Coordinate IS 6");
 
 				ret_vec = gfc_vector3dxy((*coord)); 
-				slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
+				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
 ;				gfc_list_delete_nth(spawn_coords, i);
 				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
 				c = spawn_coords->count;
-				slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
+				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
 
-		//IT WORKED!  BY ARCEUS I AM SO GOOD AT MY JOB
+	//IT WORKED!  BY ARCEUS I AM SO GOOD AT MY JOB
 
 				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
 
@@ -207,25 +207,44 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 		}
 
 		else if (type == ETT_cave) {
-			slog("Cave found");		//Jlog
-			if (coord->z == 6) {
-				slog("\n\nCoordinate IS  \t6\n\n");
+			//slog("Cave found");		//Jlog
+			if (coord->z == 7) {
+				//slog("Coordinate IS 7");
 
 				ret_vec = gfc_vector3dxy((*coord)); 
-				slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
+				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
 ;				gfc_list_delete_nth(spawn_coords, i);
 				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
 				c = spawn_coords->count;
-				slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
+				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
 
 		//IT WORKED!  BY ARCEUS I AM SO GOOD AT MY JOB
 
 				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
 
 			}
-			else { slog("What the fuck coord is NOT equal to 5... it is instead: %f", coord->z); }
+			else { slog("What the fuck coord is NOT equal to 7... it is instead: %f", coord->z); }
 		}
 
+		else if (type == ETT_NPC) {
+			//slog("NPC found");		//Jlog
+			if (coord->z == 8) {
+				//slog("Coordinate IS 8");
+
+				ret_vec = gfc_vector3dxy((*coord));
+				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
+				;				gfc_list_delete_nth(spawn_coords, i);
+				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
+				c = spawn_coords->count;
+				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
+
+		//IT WORKED!  BY ARCEUS I AM SO GOOD AT MY JOB
+
+				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
+
+			}
+			else { slog("What the fuck coord is NOT equal to 8... it is instead: %f", coord->z); }
+		}
 
 	}
 	

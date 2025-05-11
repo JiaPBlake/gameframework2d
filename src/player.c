@@ -10,10 +10,11 @@
 #include "camera.h"
 #include "window.h" //to set selected
 #include "inventory.h"
+#include "battle.h"
 
 //extern Entity *otherEnt;  //artifact of old thinking (me trying to implement collision before we went over it in class
 Uint8 _INBATTLE = 0;
-Uint8 _NEWENCOUNTER = 0;
+//Uint8 _NEWENCOUNTER = 0;  //I can now take care of this fully within Object.c
 extern Uint32 _MOUSEBUTTON;
 Uint8 health_frame = 5;
 int keySelectTimer = 0; //10 frames
@@ -309,6 +310,12 @@ void player_think(Entity* self) {
 				else health_frame--;
 					
 			}
+			
+			//instead, I would like to just:   
+			battle_start(self, other);
+			
+			
+			
 			_INBATTLE = 1;  //I only want health to decrease ONCE PER collision.  not while I'm colliding
 			//self->velocity.x = 0;
 			self->think = player_think_battle;
@@ -319,12 +326,12 @@ void player_think(Entity* self) {
 			other->firstCombat = 0;
 		}
 	
-		if (other->team & ETT_cave) {
+		/*if (other->team & ETT_cave) {		//Aha ! I don't need to take care of gfc_input  here in player.c ONLY. I can do it anywhere :)
 			if (gfc_input_command_down("proceed") && !_NEWENCOUNTER) { //no idea why the fuck gfc_input_command_pressed isn't working .
 				if(other->name) slog("Entering cave: %s",other->name);
 				_NEWENCOUNTER = 1;  //figure out when to set this to 0. probably in the World funciton ONCE the world is loaded
 			}
-		}
+		}*/
 
 		if (other->team & ETT_item) {
 			if (keySelectTimer <= 0) { //Perform Action.  Then reset timer
@@ -364,8 +371,20 @@ void player_update(Entity* self) {
 
 //==========================================================================================  ANIMATION & MOVEMENT
 
-	self->frame += 0.1;
-	if (self->frame >= self->framesPerLine) self->frame = 0;
+	if(self->velocity.x != 0) {
+		//Move forward animation
+		self->frame += 0.5;
+		//if I'm slowing down,,,  frame should be decreasing ?  (Perhaps From a set point ?)
+		if (((self->velocity.x > 0) && (self->acceleration.x < 0)) || ((self->velocity.x < 0) && (self->acceleration.x > 0))) {
+			self->frame -= 0.5;
+			//or should I split the FPL in half to see if I'm closer to the End or Beginning of my anim cycle..?
+		}
+		if (self->frame >= self->framesPerLine) self->frame = 0;
+	}
+
+	if (self->velocity.y < 0) {
+		self->frame = 0;
+	}
 
 	//Update position using the velocity that was determined through Think()ing  'cause what is velocity?? METERS per unit second [frame] :D
 	//if (self->velocity.y != 0) slog("My y velocity is: %f",self->velocity.y);

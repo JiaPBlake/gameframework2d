@@ -3,7 +3,9 @@
 	"tileSet": "images/backgrounds/ts2.png",
 	"tileSetSize": [ 64, 64 ],
 	"tileSetFPL": 4,
-	"background": "images/backgrounds/cave_bg.png",
+	"background": "images/backgrounds/cave_bg_t_smaller.png",
+	"midground": "images/backgrounds/midground_smaller.png",
+	"foreground": "images/backgrounds/foreground_smaller.png",
 	"tileMap": [
 		[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
 		[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],

@@ -1,6 +1,6 @@
 {
 	"name" : "Test Box",
-	"print" : "HAHAHA haaa heheheeee \nfuck you",
+	"text" : "HAHAHA haaa heheheeee \nfuck you",
 	"tag" : 1,
 	"font_size" : 3,
 	"color" : [200, 0, 0, 255],

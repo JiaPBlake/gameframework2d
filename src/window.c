@@ -11,6 +11,16 @@ static UI_Window* activeWindow = NULL;
 static UI_Window* previousWindow = NULL;     //I can keep this global for now... because hopefully I can get away with JUST 2 windows.. and not have to worry about the Text-box / Dialogue based windows I will inevitably need..
 static UI_Window* nextWindow = NULL;		//'cause ideally  EACH window would have a pointer to a previous window.
 
+
+
+
+//  bro.  Textboxes  are about to be a WHOLE 'nother thing.   My window will be the background UI (Black box)   and the Textbox and it's functions are about to be a DIFFERENT widget entirely .
+		// And by Widget I really do mean Widget and not UI.  a UI label is shit like  "Exit" at the top of my exit window,,, oh LORDD
+//  ! Maybe. For the Textbook/Dialogue window.  I can have an Image (once I implement those LMFAO)  to act as the "Continue triangle"  and frame 0 will make it invisible.
+		//  and it will alternate between  frame 1 and 2 (or however many frames i have)  to do the Up and Down animation!! :D   when the player can click to bring up the next wall of text
+
+
+
 //Same design pattern as what's in gf2dSprite.c  and entity.c
 
 
@@ -123,7 +133,7 @@ void window_free(UI_Window* self) {
 		gfc_list_delete(self->element_list); //delete the GFC_List itself
 	}
 
-////BUTTON FREE-ing
+//// OLDD BUTTON FREE-ing
 //	int i, c;
 //	UI_Button* button;
 //	if (self->button_list) {
@@ -453,7 +463,6 @@ void window_set_active(UI_Window* windowToSet) {
 //}
 
 
-//Still need to update to match with UI...  This is OLD rn
 void window_draw(UI_Window* window) {
 	GFC_Vector2D pos = gfc_vector2d(0, 0);
 	
@@ -489,8 +498,9 @@ void window_draw(UI_Window* window) {
 			//Call the element's draw function
 			if (element->type & ELEMT_B) {
 				b = i - button_index; //Because i iterates through ALL elements.  but I need Buttons to start from 0.  Subtract the difference
+				element->ui.button._selected = b;
 			}
-			element->elem_draw(element, b);
+			element->elem_draw(element/*, b*/);
 		
 		}
 	}

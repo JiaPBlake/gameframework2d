@@ -214,6 +214,19 @@ World* world_load(const char* filename) {
 		//slog("The size of the background sprite is: %i",world->background->frame_w);  //Jlog
 		//slog("World %s's BACKGROUND sprite loaded.", world->name);	//Jlog
 	}
+	string = sj_object_get_string(json, "midground");
+	if (string) {
+		world->midground = gf2d_sprite_load_image(string);
+		//slog("The size of the background sprite is: %i",world->background->frame_w);  //Jlog
+		//slog("World %s's BACKGROUND sprite loaded.", world->name);	//Jlog
+	}
+	string = sj_object_get_string(json, "foreground");
+	if (string) {
+		world->foreground = gf2d_sprite_load_image(string);
+		//slog("The size of the background sprite is: %i",world->background->frame_w);  //Jlog
+		//slog("World %s's BACKGROUND sprite loaded.", world->name);	//Jlog
+	}
+
 	//determine systematically  which I think is that giant block above name
 	string = sj_object_get_string(json, "tileSet");
 	if (string) {
@@ -311,7 +324,7 @@ World* world_load(const char* filename) {
 			//Spawn the entity using its name in the Spawn list & its position in the World def file
 			
 			//hmmmm  maybe I SHOULD make a list.  bit a List of 3D vectors.  so that I can also save the value AT that tile.  So I can make
-				//5 = Dragon spawn points.   6  = Cave spawn points.   and 7 = item spawn points ?  Saving those values as the 3d vector's .z value
+				//5 = Dragon spawn points.   6  = item spawn points.    7 =  Cave spawn points.  8 = NPCs. Saving those values as the 3d vector's .z value
 			
 			if (spawnTilePosition && spawnTilePosition->x > 0) {
 				default_pos.x = spawnTilePosition->x;
@@ -382,13 +395,23 @@ void world_draw(World* world) {
 
 	if (!world) return;
 	//also maybe the background ?
-	gf2d_sprite_draw_image(world->background, position); //So, to incorporate my camera offset. Instead of a 0,0 vector using gfc_vector2d(0, 0)    I use position the variable
+	gf2d_sprite_draw_image(world->background, gfc_vector2d((position.x / 5), position.y)); //So, to incorporate my camera offset. Instead of a 0,0 vector using gfc_vector2d(0, 0)    I use position the variable
 
-	
+	if (world->midground) {
+		gf2d_sprite_draw_image(world->midground, gfc_vector2d( (position.x / 2.5), position.y ));		//for some reason,,, the png is not png'ing..
+	}
+
 	if (!world->tileSet) return; //I can also get rid of this check here, since we check it in the creation of tileLayer
 	//Now, instead of the for loop we have down there,  if we have a tileLayer, we can just
 	gf2d_sprite_draw_image(world->tileLayer, position);
+	
 
+
+	//Jnote:   gotta draw this on top of all my entities
+
+	if (world->foreground) {
+		gf2d_sprite_draw_image(world->foreground, position);
+	}
 
 	/*
 	int i, j;

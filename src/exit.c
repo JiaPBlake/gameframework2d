@@ -8,7 +8,7 @@
 //I should have exit include player,   since player shouldn't have anything to do with exit
 
 
-extern Uint8 _NEWENCOUNTER;
+Uint8 _NEWENCOUNTER;
 //Entity* player = player_get_the();
 
 typedef struct {

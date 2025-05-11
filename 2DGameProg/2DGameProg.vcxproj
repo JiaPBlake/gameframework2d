@@ -183,6 +183,7 @@
     <ClCompile Include="..\src\gf2d_draw.c" />
     <ClCompile Include="..\src\gf2d_graphics.c" />
     <ClCompile Include="..\src\gf2d_sprite.c" />
+    <ClCompile Include="..\src\npc.c" />
     <ClCompile Include="..\src\object.c" />
     <ClCompile Include="..\src\particles.c" />
     <ClCompile Include="..\src\player.c" />
@@ -230,11 +231,13 @@
     <ClInclude Include="..\include\exit.h" />
     <ClInclude Include="..\include\inventory.h" />
     <ClInclude Include="..\include\items.h" />
+    <ClInclude Include="..\include\mainmenu.h" />
     <ClInclude Include="..\include\monster.h" />
     <ClInclude Include="..\include\entity.h" />
     <ClInclude Include="..\include\gf2d_draw.h" />
     <ClInclude Include="..\include\gf2d_graphics.h" />
     <ClInclude Include="..\include\gf2d_sprite.h" />
+    <ClInclude Include="..\include\npc.h" />
     <ClInclude Include="..\include\object.h" />
     <ClInclude Include="..\include\particles.h" />
     <ClInclude Include="..\include\player.h" />
@@ -269,11 +272,11 @@
     <None Include="..\def\levels\treasure_trove.level" />
     <None Include="..\def\player.def" />
     <None Include="..\def\testitems.def" />
-    <None Include="..\def\testWindow.def" />
     <None Include="..\def\text\testText.texty" />
-    <None Include="..\def\ui_window_attack.def" />
-    <None Include="..\def\ui_window_battle.def" />
-    <None Include="..\def\ui_window_converse.def" />
+    <None Include="..\def\ui\testWindow.def" />
+    <None Include="..\def\ui\window_attack.def" />
+    <None Include="..\def\ui\window_battle.def" />
+    <None Include="..\def\ui\window_converse.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>
   <ItemGroup>

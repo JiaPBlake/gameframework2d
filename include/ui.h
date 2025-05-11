@@ -112,7 +112,7 @@ typedef struct
 	//Free function can be assigned BASED ON  a given object's->type  data member
 		//yeah no I did not do this ^   I don't PLAN on doing this.  I did all 3 possible cases in 1 Free function
 	void					(*data_free)(struct Entity_S* self); /**<function to call to free any Sub-class specific Entity data (e.g. Player or Caves/Exits)*/
-	void					(*elem_draw)(struct UI_Element* self, int selected);
+	void					(*elem_draw)(struct UI_Element* self/*, int selected*/);		//J note: I have since made use of the _selected flag for buttons lmao
 
 }UI_Element;
 
@@ -199,7 +199,7 @@ void adjust_health(Sprite* healthbar);
 
 //UI_Element* ui_make();
 
-
+void label_draw(UI_Element* self);
 void button_draw(UI_Element* self);
 
 //For selecting buttons

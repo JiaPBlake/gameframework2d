@@ -4,9 +4,9 @@
 
 #include "object.h"
 #include "player.h"
-#include "world.h"
+#include "world.h"		//The only reason I need world is to do the World transitions .   but If I handle everything inside the World code,,,
 
-extern Uint8 _NEWENCOUNTER;
+/*extern Uint8 _NEWENCOUNTER;*/
 static Entity* player;
 World* active;
 
@@ -29,7 +29,7 @@ Entity* object_new_entity(GFC_Vector2D position, const char* defFile) {
 
 	//position override from the parameters:
 	if (position.x >= 0) { gfc_vector2d_copy(self->position, position); } //if position is a negative vector, don't override, just use the one from the def file
-	//ohhhh fuck me I literally forgot to RETURN the entities here... no wonder only the caves would mess up with printing names and being freed .
+
 
 	//I tried to get the player but completely forgot the player is spawned in LAST because of Entity draw orderrrr raghh
 	player = player_get_the(); //get the player so we know where it is  and DON'T have to re-get it in the thinking for loop
@@ -51,7 +51,8 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
 		if (other->team & ETT_player) {
-			if (_NEWENCOUNTER) {  //IF I press Up
+			if (gfc_input_command_down("proceed") /*_NEWENCOUNTER*/) {  //IF I press Up
+				//_NEWENCOUNTER = 1;
 				//World* new;	
 				GFC_Vector2D pos = gfc_vector2d(60, 400);
 				//slog("The type of Cave \"%s\" is: %i", self->name, self->type);
@@ -85,7 +86,7 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 
 				SDL_Delay(1000);
 				//world_set_active(active);
-				_NEWENCOUNTER = 0;
+				//_NEWENCOUNTER = 0;
 			}
 		}
 	}

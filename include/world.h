@@ -9,6 +9,9 @@
 typedef struct {
 	GFC_TextLine	name;
 	Sprite			*background;
+	Sprite			*midground;
+	Sprite			*foreground;
+
 	Sprite			*tileLayer; /**<prerendered tile layer*/
 	Sprite			*tileSet;	/**<Sprite image of the Tiles. In my def file for the given World, tileSet would be the name of the image file for the Sprite*/
 	Uint8			*tileMap;	/**<The "2D array"/map of Which tiles will be On or Off*/

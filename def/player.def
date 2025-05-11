@@ -7,7 +7,7 @@
 
 	"spawn_Position": [ 40, 400 ],
 	"velocity": [ 3, 0 ],
-	"acceleration": [ -3, 5 ],
+	"acceleration": [ -3, 4.5 ],
 
 	"speed_Max": [ 5, 8 ]
 	"moveList": [

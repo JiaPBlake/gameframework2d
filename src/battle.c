@@ -3,6 +3,12 @@
 
 
 #include "battle.h"
+//and ofc include  Player & Monster.    those 2 will include Attack
+
+//Personally I think it makes more sense to include window here in battle,,  well-   actually yeah.  Only if I make all the necessarily button_related functions available in the Header.. which,, I SHOULD. that'd be great
+
+
+
 
 extern Uint8 _INBATTLE;
 
@@ -13,7 +19,9 @@ extern Uint8 _INBATTLE;
 void battle_start(Entity* player, Entity* monster) {
 	
 	slog("BATTLE START");
-	
+	//player
+
+
 	GFC_Vector2D newposition = gfc_vector2d(monster->bounds.w*2, 0); // Move the player  2* the monster frame size over to the right
 	gfc_vector2d_scale(newposition, newposition, -1);
 	gfc_vector2d_add(player->position, player->position, newposition);
@@ -22,6 +30,7 @@ void battle_start(Entity* player, Entity* monster) {
 	//Hmm  maybe I should split it into battle_think  and Draw ?  where Draw is essentially my update function  :o
 
 }
+
 
 void battle_end() {
 	//player->think = player_think;

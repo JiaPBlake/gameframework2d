@@ -257,15 +257,17 @@ void text_obj_set_tag(Text* self, int tag) {
 	}
 }
 
-//configure a new() textObj you just made/allocated into the list.
-void create_text_raw(Text *self, const char* text, FontSizes font_size, GFC_Color color, GFC_Vector2D position, TextType tag) {
+//Create AND configure a new() textObj [takes care of the making/allocating into the list.]
+Text* create_text_raw(const char* text, FontSizes font_size, GFC_Color color, GFC_Vector2D position, TextType tag) {
+	Text* self = text_new();
+	
 	gfc_block_cpy(self->text, text); //copy text into the Text object's text field
 
 	//Create the font member FOR the Text object.  (just selecting font_size, really).
 	self->font = gfc_list_get_nth(font_manager.fontSizes, font_size);
 	if (!self->font) {
 		slog("Failed to render text '%s', missing font font_size %i", text, font_size);
-		return;
+		return NULL;
 	}
 
 	//Set the color
@@ -277,7 +279,7 @@ void create_text_raw(Text *self, const char* text, FontSizes font_size, GFC_Colo
 	surface = TTF_RenderUTF8_Blended_Wrapped(self->font, self->text, self->color, 0);
 	if (!surface) {
 		slog("Surface not rendered from text properly");
-		return;
+		return NULL;
 	}
 
 
@@ -285,13 +287,14 @@ void create_text_raw(Text *self, const char* text, FontSizes font_size, GFC_Colo
 	if (!self->surface) {
 		slog("Text's surface was not converted to gf2d convention");
 		SDL_FreeSurface(surface);
-		return;
+		return NULL;
 	}
 
 	texture = SDL_CreateTextureFromSurface(gf2d_graphics_get_renderer(), surface);
 	if (!texture) {
 		SDL_FreeSurface(surface);
 		slog("Texture was not created from surface");
+		text_free(self); //Jnote:  This COULD cause a crash...  like- it SHOULDN'T!! it really really shouldn't but.. idk I've never done this before, just be weary
 		return;
 	}
 	self->rect.x = position.x;
@@ -299,16 +302,12 @@ void create_text_raw(Text *self, const char* text, FontSizes font_size, GFC_Colo
 	self->rect.w = self->surface->w;
 	self->rect.h = self->surface->h;
 
-	//Render it [draw it to the screen]
-	SDL_RenderCopy(gf2d_graphics_get_renderer(), texture, NULL, &self->rect);
+	//no need to render it. This is not the draw function. Let the draw function take care of that
+	//SDL_RenderCopy(gf2d_graphics_get_renderer(), texture, NULL, &self->rect);
 
-	//Now that we've rendered the text  (into our rectangle),  we can free the Surface and Texture
 	SDL_FreeSurface(surface);
-	//SDL_DestroyTexture(texture);  //no longer destroying the Texture here since we're caching the pieces of Text that we make
 
-
-
-
+	return self;
 }
 
 //create text from JSon object
@@ -330,7 +329,7 @@ void text_configure(Text* self, SJson* json) {
 
 
 	slog("Checkpoint 1");
-	string = sj_object_get_string(json, "print");
+	string = sj_object_get_string(json, "text");
 	if (string) {
 		//length = strlen(string) + 1;
 		gfc_block_cpy(self->text, string);		//RAAAAHH  STR COPY DOESN'T WORK  because a  const char * is a POINTERRR  IT CANNOT HOLD DATA !!! you cannot COPY characters INTO it!!!
@@ -502,7 +501,7 @@ void text_add_recent(Text *text) {
 	//Finally,  append the cache to the list
 	gfc_list_append(text_manager.recents, cache);
 	slog("Text Cache created");
-	slog("Text appended to Cache list, with text field: %s", cache->text);
+	slog("Text appended to Cache list, with text field: %s", cache->words);
 
 }
 

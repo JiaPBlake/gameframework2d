@@ -6,7 +6,12 @@
   "window_position": [ 0, 0 ],
   "labels": [
     {
-      "text": "Hellooo!"
+      "name": "Test Box",
+      "text": "HAHAHA haaa heheheeee \nfuck you",
+      "tag": 1,
+      "font_size": 3,
+      "color": [ 100, 170, 30, 255 ],
+      "position": [ 600, 500 ]
     }
   ],
   "buttons": [
@@ -15,14 +20,14 @@
       "button_position": [ 120, 350 ],
       "sprite_size": [ 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "def/ui_window_attack.def"
+      "nextWindow": "def/ui/window_attack.def"
     },
     {
       "sprite": "images/ui/converse_button.png",
       "button_position": [ 200, 230 ],
       "sprite_size": [ 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "def/ui_window_converse.def"
+      "nextWindow": "def/window_converse.def"
     },
     {
       "sprite": "images/ui/tame_button.png",

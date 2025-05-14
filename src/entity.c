@@ -1,12 +1,12 @@
 //J START - Entity c file  for the .h file
 #include "simple_logger.h"
 //#include "gfc_config.h"
-#include "gfc_shape.h"
 #include "gf2d_graphics.h"
 #include "gf2d_draw.h"
  
 #include "entity.h"
 #include "camera.h"
+#include "moves.h"			//So that I can call  ent_configure_moves  or whatever it's called.  DURING the entity_configure function while I have access to its def file (which will have the names of each move in a list)
 
 extern Uint8 _DRAWBOUNDS;
 
@@ -96,6 +96,9 @@ void entity_free(Entity *self) {
 		}
 	}  
 	
+	if (self->move_list) {
+		gfc_list_delete(self->move_list);
+	}
 	memset(self, 0, sizeof(Entity));
 	self->_inuse = 0; //Set its inuse flag to 0
 }
@@ -154,6 +157,10 @@ void entity_system_think_all() {  //up to date ??  Can't remember where the actu
 			continue;
 		//Skipped making a  think(Entity *self)  function in this file.  bc this is the only call we need
 		//if (gfc_strlcmp(entity_system.entity_list[i].name, "cave_f") == 0) { slog("What the fuck: %i", i); }
+		
+		//This was for testing. I put the Player Think Battle function in a file other than player.c  Turns out the only problem was that I didn't include  gfc_input in the battle.c code, so it kept triggering the "key == down" branch
+		//if (gfc_strlcmp(entity_system.entity_list[i].name, "player") == 0) { slog("Player's think function address is:  %p", entity_system.entity_list[i].think); }
+		
 		entity_system.entity_list[i].think(&entity_system.entity_list[i]);  //call the think funcion with ourselves as the argument
 	}
 }
@@ -177,23 +184,23 @@ int get_entity_type_by_name(const char *name) {
 		//instead I will be using the lovely strNcmp  which takes a # of characters to look through before it stops (as opposed to being NULL terminated)
 
 	if (strncmp("fierce_", name, 7) == 0 || strncmp("cunning_", name, 8) == 0 || strncmp("docile_", name, 7) == 0 || strncmp("alpha_", name, 6) == 0 ) {
-		slog("When determining what Entity type, I found: Dragon!  of name %s",name);
+		//slog("When determining what Entity type, I found: Dragon!  of name %s",name);
 		return ETT_monsters;
 	}
 	else if (strncmp("item_", name, 5) == 0) {
-		slog("When determining what Entity type, I found: Item!");
+		//slog("When determining what Entity type, I found: Item!");
 		return ETT_item;
 	}
 	else if (strncmp("cave_", name, 5) == 0) {
-		slog("When determining what Entity type, I found: Cave!");
+		//slog("When determining what Entity type, I found: Cave!");
 		return ETT_cave;
 	}
 	else if (strncmp("npc_", name, 4) == 0) {
-		slog("When determining what Entity type, I found: NPC!");
+		//slog("When determining what Entity type, I found: NPC!");
 		return ETT_NPC;
 	}
 
-	slog("Compared all possible names and did not find a corresponding Entity Type");
+	//slog("Compared all possible names and did not find a corresponding Entity Type");
 	return -1;
 }
 
@@ -319,6 +326,48 @@ void entity_configure(Entity* self, SJson* json) {
 	}*/
 
 
+//==============================	CONFIGURING MOVES
+
+	//I want to make a list of the strings we extract from the def file...   OR
+	self->move_list = gfc_list_new();
+	GFC_List* moveNames;
+	
+	SJson* moveList, *movy;
+	int i, c;
+
+
+	moveNames = gfc_list_new();
+	//Test this first,  but honestly I think I wanna use gfc_text_word for this..
+	const char* move_name = NULL;
+
+	//Extract the list of Move Names 
+	moveList = sj_object_get_value(json, "moveList"); //This is now a list/array of N objects
+	if (moveList) {
+		c = sj_array_get_count(moveList);
+		//slog("The number of entities that belong to this World's list is: %i",entCount);	//Jlog
+
+		for (i = 0; i < c; i++) {
+
+			movy = sj_array_get_nth(moveList, i); //Get the specific json object, which.. only contains the name for now
+			
+			//I  doo think I kinda wanna split it up into     key: AttackList    and key: ConverseList once I implement dialogue
+			
+			
+			if (movy) {
+				move_name = sj_object_get_string(movy, "name");    //Get the name of the entity/JSon object
+				if (move_name) {  //append the string to the list
+					slog("On iteration: %i,  the name for the move is: %s", i, move_name);
+					gfc_list_append(moveNames, move_name);
+				}
+
+			}
+		}
+
+		configure_moves_for_ent(moveNames, self->move_list);
+	}
+	else { slog("Entity name %s dose not have a moveList", self->name); }
+	gfc_list_delete(moveNames);
+
 }
 
 
@@ -350,8 +399,6 @@ void entity_configure_from_file(Entity* self, const char* filename) {
 	if (self->position.x + self->bounds.x < 0) self
 
 }*/
-
-
 
 	//This might highkey be useful, depending on how I implement collision.  If I implement ALL collisions to prevent clipping, a.k.a I can stand on my enemies. This might come in handy for my skeleton
 /*

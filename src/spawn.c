@@ -6,6 +6,8 @@
 #include "object.h"
 #include "items.h"
 
+#include "npc.h"
+
 typedef struct {
 	const char		*name;
 	const char		*defFile;
@@ -115,6 +117,11 @@ static SpawnPair spawn_list[] =
 		"def/cave_test.def", //name of the def file
 		object_new_entity //assign the spawn function
 	},
+	{
+		"npc_skeleton_1", //name
+		"def/npc_skeleton1.def", //name of the def file
+		npc_new_entity //assign the spawn function
+	},
 	{0}
 };
 //WAIT WAIT OHH NO  hold on.  THIS JSon file is NOT my def file.  It's ANOTHER JSON file that's essentially a LIST of things to spawn!!!!!! ohhh
@@ -183,7 +190,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 				return  gfc_vector3dxy((*coord)) ;
 
 			}
-			else { slog("What the fuck coord is NOT equal to 5... it is instead: %f",coord->z); }
+			//else { slog("What the fuck coord is NOT equal to 5... it is instead: %f",coord->z); }
 			
 		}
 		else if (type == ETT_item) {
@@ -193,7 +200,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 
 				ret_vec = gfc_vector3dxy((*coord)); 
 				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
-;				gfc_list_delete_nth(spawn_coords, i);
+				gfc_list_delete_nth(spawn_coords, i);
 				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
 				c = spawn_coords->count;
 				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
@@ -203,7 +210,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
 
 			}
-			else { slog("What the fuck coord is NOT equal to 5... it is instead: %f", coord->z); }
+			//else { slog("What the fuck coord is NOT equal to 5... it is instead: %f", coord->z); }
 		}
 
 		else if (type == ETT_cave) {
@@ -213,7 +220,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 
 				ret_vec = gfc_vector3dxy((*coord)); 
 				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
-;				gfc_list_delete_nth(spawn_coords, i);
+				gfc_list_delete_nth(spawn_coords, i);
 				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
 				c = spawn_coords->count;
 				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
@@ -223,7 +230,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
 
 			}
-			else { slog("What the fuck coord is NOT equal to 7... it is instead: %f", coord->z); }
+			//else { slog("What the fuck coord is NOT equal to 7... it is instead: %f", coord->z); }
 		}
 
 		else if (type == ETT_NPC) {
@@ -233,7 +240,7 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 
 				ret_vec = gfc_vector3dxy((*coord));
 				//slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
-				;				gfc_list_delete_nth(spawn_coords, i);
+				gfc_list_delete_nth(spawn_coords, i);
 				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
 				c = spawn_coords->count;
 				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
@@ -243,12 +250,11 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 				return ret_vec;		//hmmm.   play around with removing coords from the list once they've been spawned on ?
 
 			}
-			else { slog("What the fuck coord is NOT equal to 8... it is instead: %f", coord->z); }
+			//else { slog("What the fuck coord is NOT equal to 8... it is instead: %f", coord->z); }
 		}
 
 	}
 	
-
 
 	//else
 	return gfc_vector2d(-1, -1);   //maintain the way defualt_position  is (-1, -1)
@@ -266,8 +272,10 @@ Entity* spawn_entity(const char* name, GFC_Vector2D position, GFC_List* spawn_co
 			if (spawn_list[i].spawn) {
 				//slog("Spawning entity %s", name);   //Jlog
 
-				pos = find_entity_spawn_location(name, spawn_coords);
-				
+				if ( spawn_coords && spawn_coords->count > 0) {
+					pos = find_entity_spawn_location(name, spawn_coords);
+				}
+
 				return spawn_list[i].spawn(pos, spawn_list[i].defFile);  //calling the function AT the memory address of our (function) pointer :D
 			}
 		}

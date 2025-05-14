@@ -51,7 +51,10 @@ Entity* monster_new_entity(GFC_Vector2D position, const char* defFile) //Now tha
 //Def file section
 	entity_configure_from_file(self, defFile);  //INSTEAD OF this Sprite loading bock underneath
 	//position override from the parameters:
-	if (position.x >= 0) { slog("Position override for Monster %s",self->name); gfc_vector2d_copy(self->position, position); } //if position is a negative vector, don't override, just use the one from the def file
+	if (position.x >= 0) { //if position is a negative vector, don't override, just use the one from the def file
+		//slog("Position override for Monster %s",self->name);
+		gfc_vector2d_copy(self->position, position);
+	}
 /*Calling Sprite hard-coded
 	self->velocity = gfc_vector2d(1, 0);
 	self->sprite = gf2d_sprite_load_all(

@@ -167,7 +167,7 @@
     <ClCompile Include="..\src\main_menu.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\attack.c">
+    <ClCompile Include="..\src\moves.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\npc.c">
@@ -325,13 +325,16 @@
     <ClInclude Include="..\include\particles.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\attack.h">
+    <ClInclude Include="..\include\moves.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\npc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\include\mainmenu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\dialogue.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -384,9 +387,6 @@
     <None Include="..\def\levels\docile_domain.level">
       <Filter>Def Files</Filter>
     </None>
-    <None Include="..\def\testitems.def">
-      <Filter>Def Files</Filter>
-    </None>
     <None Include="..\def\levels\treasure_trove.level">
       <Filter>Def Files</Filter>
     </None>
@@ -417,15 +417,21 @@
     <None Include="..\def\ui\window_attack.def">
       <Filter>Def Files</Filter>
     </None>
-    <None Include="..\def\ui\window_battle.def">
+    <None Include="..\def\ui\window_converse.def">
       <Filter>Def Files</Filter>
     </None>
-    <None Include="..\def\ui\window_converse.def">
+    <None Include="..\def\moveList.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\ui_windows.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\ui\window_battle.def">
       <Filter>Def Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\def\npc_skeleton1.txt">
+    <Text Include="..\def\npc_skeleton1.def">
       <Filter>Def Files</Filter>
     </Text>
   </ItemGroup>

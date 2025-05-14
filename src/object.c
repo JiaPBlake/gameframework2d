@@ -9,6 +9,7 @@
 /*extern Uint8 _NEWENCOUNTER;*/
 static Entity* player;
 World* active;
+extern int keySelectTimer;
 
 Entity* object_new_entity(GFC_Vector2D position, const char* defFile) {
 	Entity* self;
@@ -43,7 +44,6 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 	if (!self) return;
 	
 	//check if player is colliding with me,  then transition to the next level  And then each entity should have its respective filename to load up the proper world !!!!!
-	//If I didn't make each individual cave check to MAKE SURE the player is currently colliding with IT.  then my global flag used to transition worls would cause the FIRST cave in my entity list to carry out its transition. And not the specific cave I clicked on
 	Entity* other;
 	GFC_List* others;
 	others = entity_collide_all(self);  //BE SURE TO DELETE THIS LIST ONCE WE'RE DONE WITH IT	
@@ -52,41 +52,50 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
 		if (other->team & ETT_player) {
 			if (gfc_input_command_down("proceed") /*_NEWENCOUNTER*/) {  //IF I press Up
-				//_NEWENCOUNTER = 1;
-				//World* new;	
-				GFC_Vector2D pos = gfc_vector2d(60, 400);
-				//slog("The type of Cave \"%s\" is: %i", self->name, self->type);
-				slog("Are you sure?");
-				//Test cave first
-				if (self->type & ENT_test) { 
-					slog("The type of %s is: %i", self->name, self->type);
-					world_transition(world_get_active(), "def/levels/testLevel.level", pos);
-				}
-				else if (self->type & ENT_fierce) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
-					slog("The type of %s is: %i", self->name, self->type);
-					world_transition(world_get_active(), "def/levels/fierce_domain.level", pos);
-				}
-				
-				else if (self->type & ENT_docile) {   
-					slog("The type of %s is: %i", self->name, self->type);
-					world_transition(world_get_active(), "def/levels/docile_domain.level", pos);
-				}
-				
-				else if (self->type & ENT_cunning) {   
-					slog("The type of %s is: %i", self->name, self->type);
-					world_transition(world_get_active(), "def/levels/cunning_domain.level", pos);
-				}
-				else if (self->type & ENT_treasure) {   
-					slog("The type of %s is: %i", self->name, self->type);
-					world_transition(world_get_active(), "def/levels/treasure_trove.level", pos);
+				if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
+
+					//_NEWENCOUNTER = 1;
+					//World* new;	
+					GFC_Vector2D pos = gfc_vector2d(60, 400);
+					//slog("The type of Cave \"%s\" is: %i", self->name, self->type);
+					slog("Are you sure?");
+					//Test cave first
+					if (self->type & ENT_test) {
+						slog("The type of %s is: %i", self->name, self->type);
+						world_transition(world_get_active(), "def/levels/testLevel.level", pos);
+					}
+					else if (self->type & ENT_fierce) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
+						slog("The type of %s is: %i", self->name, self->type);
+						world_transition(world_get_active(), "def/levels/fierce_domain.level", pos);
+					}
+
+					else if (self->type & ENT_docile) {
+						slog("The type of %s is: %i", self->name, self->type);
+						world_transition(world_get_active(), "def/levels/docile_domain.level", pos);
+					}
+
+					else if (self->type & ENT_cunning) {
+						slog("The type of %s is: %i", self->name, self->type);
+						world_transition(world_get_active(), "def/levels/cunning_domain.level", pos);
+					}
+					else if (self->type & ENT_treasure) {
+						slog("The type of %s is: %i", self->name, self->type);
+						world_transition(world_get_active(), "def/levels/treasure_trove.level", pos);
+					}
+
+
+					//slog("Active world's name SHOULD BE LEVELS and it is: %s",new->name);
+
+					SDL_Delay(100);		//delay.  so,, effectively pause the game state  (?)	AND you can't register an "Enter" press for another 10 frames thanks to my keySelectTimer.
+					//world_set_active(active);
+					//_NEWENCOUNTER = 0;
+
+					keySelectTimer = 10;
 				}
 
-				
-				//slog("Active world's name SHOULD BE LEVELS and it is: %s",new->name);
-
-				SDL_Delay(1000);
-				//world_set_active(active);
-				//_NEWENCOUNTER = 0;
+			}
+			if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
+				keySelectTimer--;	//just realized this decrementation should be happening regardless of if I'm pressing a key lmfao.  Try this
 			}
 		}
 	}
@@ -94,7 +103,6 @@ void object_think(Entity* self) {  //Because my point of exit will be the cave, 
 	gfc_list_delete(others);
 
 
-	//Once I get world_transition working  just stick it in here  and worry about making each cave do different things AND FOR FUCK'S SAKE JUST HARD CODE IT LMAOO
 		//also... think about when you can call exit_free()   .. might have to be at the end of the "Are you sure" confirmation when loading the world.   and!! before you call world_transition. bc that would free the Cave without freeing its exit data
 
 }

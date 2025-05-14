@@ -8,7 +8,7 @@
 #include "gf2d_sprite.h" //includes Types, Color, Vector, and Text
 #include "entity.h"
 
-//I just peeped what if I wanna make these entities...   hmmmm  inwiging.  Mayhaps the thing on the Map is an Entity
+//I just peeped what if I wanna make these entities...   hmmmm  .  Mayhaps the thing on the Map is an Entity
 		//and the thing in my inventory is the Item !   like quake ! ahhHHH!
 //SO perhaps I can leave the Sprite stuff up to the Entity version of Items ..?
 
@@ -48,6 +48,7 @@ SJson* items_get_def_by_name(const char* name);
 /**
  * @brief return the configured Item object using the Definition object stored in the list
  * @param name - the name of the object to create/configure
+ * @Note:  Dynamically allocates space for the Item Object in this function. NEEDS to be freed with the item_free() function.  Done in inventory
  */
 Item* item_new(const char* name);
 

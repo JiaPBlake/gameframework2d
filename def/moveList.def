@@ -1,0 +1,39 @@
+{
+	"moves": [
+		{
+			"type": "attack",
+			"name": "Attack1",
+			"sprite": "images/attacks/attack_1_sprite.png",
+			"sprite_size": [ 166, 292 ],
+			"spriteFPL": 1,
+			"bounds": [ -83, -146, 166, 292 ],
+
+			"attackPower":10
+
+		},
+		{
+			"type": "attack",
+			"name": "Attack2",
+			"sprite": "images/attacks/attack_2_sprite.png",
+			"sprite_size": [ 166, 292 ],
+			"spriteFPL": 1,
+			"bounds": [ -83, -146, 166, 292 ],
+
+			"attackPower": 10
+
+		},
+		{
+			"type": "attack",
+			"name": "Attack3",
+			"sprite": "images/attacks/attack_3_sprite.png",
+			"sprite_size": [ 166, 292 ],
+			"spriteFPL": 1,
+			"bounds": [ -83, -146, 166, 292 ],
+
+			"attackPower": 10
+
+
+		}
+
+	]
+}

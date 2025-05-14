@@ -76,6 +76,7 @@ GFC_Shape gfc_shape_rect(float x, float y, float w, float h)
 }*/
 
 
+void window_masterlist_initialize(const char* filename);
 
 //-------------------------------------------
 
@@ -102,22 +103,7 @@ void window_free(UI_Window*);
  */
 UI_Window* window_new();
 
-/**
- * @brief Get the ButtonType according to the action of the button
- * @param action - the string obtained from the json key "action"
- * @return 0 if no action was provided or did not match. Otherwise, returns the enumerated value for the corresponding ButtonType
- */
-int button_get_type(const char* action);
-
-//J:To be deleted
-UI_Button* button_create(SJson* json);
-
-/**
- * @brief Configures all the data members of a UI_Button
- * @param json - pointer to the JSon object that will be used to fill out the UI_Button's data fields
- * @return NULL on error; pointer to the UI_Button object that was made otherwise;
- */		//J:To be deleted
-void button_configure(UI_Button* self, SJson* json);
+//	===========================================
 
 
 void window_configure(UI_Window* self, SJson* json);
@@ -126,9 +112,9 @@ void window_configure(UI_Window* self, SJson* json);
 void window_configure_from_file(UI_Window* self, const char* filename);
 //UI_Window* window_configure_from_file(const char* filename);
 
-void window_draw(UI_Window* window);
 
-void window_layer_build(UI_Window* window);
+void configure_all_windows();
+
 
 void window_transition(UI_Button* self);
 void window_go_back();
@@ -139,9 +125,32 @@ UI_Window* window_get_active();
 void window_set_active(UI_Window* windowToSet);
 
 /**
+ * @brief Search for a window [to draw] by its name.
+ * @param windowName - the name of the window (string)
+ * @return NULL if no window with a matching name was found; otherwise: pointer to the window (its spot on the subsystem's list)
+ */
+UI_Window* window_search_by_name(const char* windowName);
+
+
+/**
+ * @brief Return the
+ * @param selected - the index of the selected button ; win - pointer to the window the button belongs to
+ */
+UI_Button* get_selected_button(int selected, UI_Window* win);
+
+
+/**
  * @brief Perform the action of the button selected
  * @param selected - the index of the selected button ; win - pointer to the window the button belongs to
  */
 void button_perform_action(int selected, UI_Window* win);
+
+
+
+
+void window_draw(UI_Window* window);
+
+void window_layer_build(UI_Window* window);
+
 
 #endif

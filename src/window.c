@@ -21,6 +21,58 @@ static UI_Window* nextWindow = NULL;		//'cause ideally  EACH window would have a
 
 
 
+
+
+
+
+static SJson* _windowJson = NULL; //Global variable to store the entire JSon file 'moves.def'
+static SJson* _windowDefs = NULL; //Global variable to store the JSon list of 'windows':
+static int numWindows;
+
+void windows_close();
+
+void window_masterlist_initialize(const char* filename) {
+	if (!filename) {
+		slog("no filename provided for window list initialization");
+		return;
+	}
+	_windowJson = sj_load(filename);  //Making a JSON object out of the entire file
+	if (!_windowJson) {
+		slog("Failed to load the json for window list");
+		return;
+	}
+	//SPECIFICALLY extracting the masterlist of Windows:
+	_windowDefs = sj_object_get_value(_windowJson, "windows");	//A JSon object/list containing our masterlist of UI Windows
+	if (!_windowDefs) {
+		slog("Window Def file '%s' does not contain a list of windows", filename);
+		sj_free(_windowJson);
+		_windowJson = NULL;
+		return;
+	}
+
+	numWindows = sj_array_get_count(_windowDefs);
+
+	slog("Masterlist of UI Windows initialized");
+	atexit(windows_close);
+}
+
+void windows_close() {
+
+	//do NOT have window_system_close() here.  I have atexit functions to take care of it
+
+	if (_windowJson) {
+		sj_free(_windowJson);
+	}
+	_windowJson = NULL;
+	_windowDefs = NULL; //Defs is only a POINTER to a JSON object I sj_load'ed.  And thus, it needn't be sj_free'd
+	slog("UI Windows List successfully closed");
+}
+
+
+
+//	==========================================================		SUB SYSTEM
+
+
 //Same design pattern as what's in gf2dSprite.c  and entity.c
 
 
@@ -166,13 +218,10 @@ void window_free(UI_Window* self) {
 }
 
 
-
 //--------------------------------------------------------------------------------
 
-
-
-//Not currently used
-void window_layer_build(UI_Window* window) {
+//Not currently used.  Because this is best for Surfaces with NUMEROUS things that need to be drawn at once.. most of my windows wil lat most 20 different elements on scren at a time. As opposed to Worlds that have dozens of tiles
+/*void window_layer_build(UI_Window* window) {
 	if (!window) return;
 
 	if (window->layer) gf2d_sprite_free(window->layer); //in case it already had one, clean it up
@@ -237,8 +286,9 @@ void window_layer_build(UI_Window* window) {
 	}
 	slog("Layer created");
 }
+*/
 
-//Updated.  MISSING IMAGE CONFIG
+//Updated
 void window_configure(UI_Window* self, SJson* json) {
 	if (!json) {
 		slog("No JSON object provided to configure Window. Exiting");
@@ -247,7 +297,7 @@ void window_configure(UI_Window* self, SJson* json) {
 
 	//Let's get started .
 	const char* win_name = { 0 };
-	win_name = sj_object_get_string(json, "name");
+	win_name = sj_object_get_string(json, "window_name");
 	if (win_name) {
 		gfc_line_cpy(self->name, win_name);
 //slog("Name copied: %s",ent_name);
@@ -290,6 +340,7 @@ void window_configure(UI_Window* self, SJson* json) {
 	int i, c;
 
 	SJson *labelList, *label;
+	SJson *imageList, *image;
 	SJson *buttonList, *button;
 	int buttonCount;
 
@@ -301,12 +352,11 @@ void window_configure(UI_Window* self, SJson* json) {
 	//One list at a time
 	if (labelList) {		
 		self->labelCount = sj_array_get_count(labelList);
-		//slog("The number of Labels this window has is: %i", self->labelCount);
+		slog("The number of Labels this window has is: %i", self->labelCount);
 
 		//For every Label JSon object in the list of "labels":
 		for (i = 0; i < self->labelCount; i++) {
 			label = sj_array_get_nth(labelList, i); //Get the individual json object WITHIN  our list of Labels
-			
 			//configure the label
 			if (label) {
 				//Each time:
@@ -326,7 +376,33 @@ void window_configure(UI_Window* self, SJson* json) {
 	}
 	
 //Image Section
-	
+	imageList = sj_object_get_value(json, "images"); //This is now a list/array of N objects
+	//One list at a time
+	if (imageList) {
+		self->imageCount = sj_array_get_count(imageList);
+		slog("The number of Images this window has is: %i", self->imageCount);
+
+		//For every Image JSon object in the list of "images":
+		for (i = 0; i < self->imageCount; i++) {
+			image = sj_array_get_nth(imageList, i); //Get the individual json object WITHIN  our list of Images
+
+			//configure the image
+			if (image) {
+				//Each time:
+				elem = ui_element_new();	//Create a UI_element
+				if (elem) {
+					elem->type = ELEMT_I;		//Specify it's type for the sake of the upcoming configure function (and a bunch of other things tbh):
+					ui_element_configure(elem, image); //Configure the UI element with the JSON object it needs
+
+					//slog("Configured Image #%i and adding it to the Element list", i); //Jlog
+					gfc_list_append(self->element_list, elem); //append the Image to our Window's list.  THIS will be the primary point of contact for them
+				}
+				else { slog("Image configuration failed. On iteration: %i", i); }
+			}
+
+			else { slog("Image on index %i could not be retrieved from 'images' json list", i); }
+		}
+	}
 
 
 //Button Section
@@ -412,20 +488,64 @@ void window_configure(UI_Window* self, SJson* json) {
 	//Build the layer so that I can draw the whole Window  (window's sprite AND alll button sprites)  in one fell swoop:
 	//window_layer_build(self);
 
-	activeWindow = self;
-	self->prev = previousWindow;
+	//activeWindow = self;
+	//slog("We should have an active window");
+	//self->prev = previousWindow;
+	
+	
 	//end of Configure function
 }
 
 void window_configure_from_file(UI_Window* self, const char* filename) {
 	SJson* json;
-	if (!self) return;
+	if (!self) { slog("No Window provided. Not configuring Window"); return; }
 	json = sj_load(filename);
-	if (!json) return;
+	if (!json) { slog("SJson could not be made from filename. Not configuring Window"); return; }
 	window_configure(self, json);
 	//close it
 	sj_free(json);
 }
+
+
+void configure_all_windows() {
+	slog("The number of windows as per what was loaded from the '_windowDefs' array is: %i", numWindows);
+	int i;
+	UI_Window* window;
+	SJson* windowDef;		//This def only contains the name of the window,  and the filepath
+	const char* filepath;
+	SJson* winDef;
+	
+
+	for (i = 0; i < numWindows; i++) {
+		window = window_new();
+		windowDef = sj_array_get_nth(_windowDefs, i);  //for EVERY Object in the masterlist array:
+		filepath = sj_object_get_value_as_string(windowDef, "filepath"); //retrieve the filepath for that window
+		slog("filePath of the window is: %s",filepath);
+		window_configure_from_file(window, filepath);  //Sooo   my masterlist which is window_sub_system's window_system_list,  is getting allocated by window_Create,  and al lthose allocated spots are being filled in with relevant data
+		
+
+		slog("Just configured the %i'th window. The name of this window's attack is: %s", i, window->name);
+	}
+	slog("Done configuring all windows");
+
+}
+
+
+//-----------------------------------------------------------------------------------------------
+
+UI_Window* window_search_by_name(const char* windowName) {
+	int i;
+	for (i = 0; i < window_system.window_max; i++) {
+		if (!window_system.window_list[i]._inuse) continue;  //If it's NOT in use
+
+		if (gfc_strlcmp(window_system.window_list[i].name, windowName) == 0) {
+			slog("Window found!");
+			return &window_system.window_list[i];
+		}
+	}
+	slog("Iterated through the entire list of windows and could not find Window by the name of: %s", windowName);
+}
+
 
 UI_Window* window_get_prev() {
 	return previousWindow;
@@ -463,49 +583,6 @@ void window_set_active(UI_Window* windowToSet) {
 //}
 
 
-void window_draw(UI_Window* window) {
-	GFC_Vector2D pos = gfc_vector2d(0, 0);
-	
-	
-	//gf2d_sprite_draw_image(window->layer, pos);
-	
-	//	^	Labels won't change,  sooo maybe I could find a way to integrate that  SDL_Font rendering  INTO a Window_Layer.  and draw that layer which tackles the Window's sprite AND all Labels.
-	//Images might be dynamic..  and Buttons are DEFINITELY dynamic.  So no use trying to incorporate those into the Layer
-
-
-	//DRAWING EVERYTHING MANUALLY:   WHICH WORKS !!!    assuming you configured the sprites to Keep Surface 0
-	
-	gf2d_sprite_draw(window->sprite,
-		pos,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
-		NULL,			//scale
-		NULL,		//center which is a 2D vector
-		NULL,	//rotation
-		NULL,		//flip
-		NULL,		//colorShift
-		0);
-
-	//Draw elements:
-	int i, c, b = 0;
-	int button_index = get_window_button_index(window); 
-	UI_Element* element;
-	if (window->element_list) {
-		c = gfc_list_count(window->element_list);
-		for (i = 0; i < c; i++) {
-			element = gfc_list_nth(window->element_list, i);
-			//slog("Element of type: %i",element->type); //Jlog
-			if ( (!element)  || (!element->elem_draw) ) continue;
-			
-			//Call the element's draw function
-			if (element->type & ELEMT_B) {
-				b = i - button_index; //Because i iterates through ALL elements.  but I need Buttons to start from 0.  Subtract the difference
-				element->ui.button._selected = b;
-			}
-			element->elem_draw(element/*, b*/);
-		
-		}
-	}
-	
-}
 
 //J note after break:   I can just set the activeWindow whenever each button is pressed. Because each window will be created !  I can just NOT free the old one!!
 	//or. I just make a list of OpenWindows once configured,  removed from that list once freed.  And ofc I can configure them as many times as needed. Open Windows would be those like the Main Battle screen that need to stay open but not ACTIVELY drawn.
@@ -554,7 +631,7 @@ void world_transition(World* old, const char* newWorld, GFC_Vector2D targetPlaye
 	else { slog("New world LOADED: %s", world->name); }
 	
 	activeWorld = world;
-	//and move the player's position to the target spawn point for the new world
+	//and window the player's position to the target spawn point for the new world
 	gfc_vector2d_copy(player->position, targetPlayerSpawn);
 	//return world;
 	
@@ -581,6 +658,7 @@ int get_window_button_index(UI_Window* win) {
 	return index;
 }
 
+//We will not perform any actions in Window.   instead this exact framework  will go through the list of the Window's elements,  to return the Button that's selected, in the funciton: get_selected_button()
 void button_perform_action(int selected, UI_Window* win) {
 	//this is gonna have to load windows in the same way Worlds do
 	if (!win) { slog("Window not provided. Not performing any button actions"); return; }
@@ -588,15 +666,13 @@ void button_perform_action(int selected, UI_Window* win) {
 	GFC_Vector2D position = { 0 };
 	UI_Element* elem;
 	UI_Button* button;
-	slog("Selected's current value is: %i",selected);
+	//slog("Selected's current value is: %i",selected);
 
 	if (win->element_list) {
 		index += win->labelCount;
 		index += win->imageCount;
-		//gotta figure out how I'm gonna get "selected" from my list,,
-
-		index += selected;
-		slog("Slog index of the button performing the action is: %i",index);
+		index += selected;		//in order to get the button index in the list of ALL elements, I gotta offset it by the # of Labels & Images that also exist
+		//slog("Slog index of the button performing the action is: %i",index);
 
 		elem = gfc_list_nth(win->element_list, index);
 		if (!elem) return;
@@ -605,10 +681,90 @@ void button_perform_action(int selected, UI_Window* win) {
 		slog("Calling Selected UI_Button's action function");
 		//Everything up to this point works perfectly fine
 		
+
+		//Call the action function,  passing in the UI_Button
 		elem->ui.button.action(&elem->ui.button);
-		//button->action(button);
-		//... fuck idk how to do this with a function pointer...  truth be told to you
 		
 	}
+}
+
+
+
+
+//====================		New !  For Battle:
+
+UI_Button* get_selected_button(int selected, UI_Window* win) {
+	//this is gonna have to load windows in the same way Worlds do
+	if (!win) { slog("Window not provided. Not returning any button actions"); return NULL; }
+	int index = 0;
+	UI_Element* elem;
+	UI_Button* button;
+	//slog("Selected's current value is: %i",selected);
+
+	if (win->element_list) {
+		index += win->labelCount;
+		index += win->imageCount;
+		index += selected;		//in order to get the button index in the list of ALL elements, I gotta offset it by the # of Labels & Images that also exist
+		//slog("Slog index of the button performing the action is: %i",index);
+
+		elem = gfc_list_nth(win->element_list, index);
+		if (!elem) return NULL;
+		if (!elem->ui.button.action) { slog("Selected UI Element [button ?] does not have an action function assigned"); return NULL; }
+
+		slog("Returning Selected UI_Button's action function");
+
+		//Call the action function,  passing in the UI_Button
+		elem->ui.button.action(&elem->ui.button);
+
+	}
+}
+
+//======================================		DRAWING
+
+void window_draw(UI_Window* window) {
+	GFC_Vector2D pos = gfc_vector2d(0, 0);
+
+	if (!window) {
+		//slog("Bitch there's not window to draw..");
+		return;
+	}
+	//gf2d_sprite_draw_image(window->layer, pos);
+
+	//	^	Labels won't change,  sooo maybe I could find a way to integrate that  SDL_Font rendering  INTO a Window_Layer.  and draw that layer which tackles the Window's sprite AND all Labels.
+	//Images might be dynamic..  and Buttons are DEFINITELY dynamic.  So no use trying to incorporate those into the Layer
+
+
+	//DRAWING EVERYTHING MANUALLY:   WHICH WORKS !!!    assuming you configured the sprites to Keep Surface 0
+
+	gf2d_sprite_draw(window->sprite,
+		pos,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
+		NULL,			//scale
+		NULL,		//center which is a 2D vector
+		NULL,	//rotation
+		NULL,		//flip
+		NULL,		//colorShift
+		0);
+
+	//Draw elements:
+	int i, c, b = 0;
+	int button_index = get_window_button_index(window);
+	UI_Element* element;
+	if (window->element_list) {
+		c = gfc_list_count(window->element_list);
+		for (i = 0; i < c; i++) {
+			element = gfc_list_nth(window->element_list, i);
+			//slog("Element of type: %i",element->type); //Jlog
+			if ((!element) || (!element->elem_draw)) continue;
+
+			//Call the element's draw function
+			if (element->type & ELEMT_B) {
+				b = i - button_index; //Because i iterates through ALL elements.  but I need Buttons to start from 0.  Subtract the difference
+				element->ui.button._selected = b;
+			}
+			element->elem_draw(element/*, b*/);
+
+		}
+	}
+
 }
 

@@ -25,6 +25,8 @@ void battle_start(Entity *player, Entity *monster);
 void battle_end();
 
 
+void player_think_battle(Entity* self);
+
 
 
 #endif

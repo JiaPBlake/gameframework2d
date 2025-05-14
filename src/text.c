@@ -74,7 +74,7 @@ void font_close() {
 
 	memset(&font_manager, 0, sizeof(FontManager));
 	TTF_Quit();
-	slog("Quit TTF");
+	slog("Quit TTF & Font System closed");
 }
 
 //ONLY INITIALIZES  TTF_Init() and FontSizes
@@ -148,7 +148,6 @@ void text_free(Text* self) { //  font_cache_free()'s all cache'd objects.
 	else { slog("What the fuck text doesn't have a surface..?"); }
 	if(self->texture) { SDL_DestroyTexture(self->texture); slog("Text's texture freed"); }
 
-	slog("");
 	memset(self, 0, sizeof(Text));
 	self->_inuse = 0; //Set its inuse flag to 0
 }
@@ -162,7 +161,7 @@ void text_free_all() {
 	}
 }
 
-		//Caveat here. not quite done		(I think atExit is the thing that stacks so maybe we could
+ //This does in fact successfully close in the right order (with respect to Font)
 void text_system_close() {
 //Free everything in the cache using our cache_free() function
 	if (text_manager.recents != NULL) {
@@ -181,7 +180,7 @@ void text_system_close() {
 	memset(&text_manager, 0, sizeof(TextManager));
 	slog("Text System Closed");
 
-	//ASSUMING FONT_INIT()  gets created first,,,     since it has it's own atExit() clause,  I don't need to call font_close() HERE in this function,,, I hope
+	//Since  Font_init is called first,  no need to call font_close() here  because the atExit function will take care of it propery
 }
 
 //Done I think
@@ -629,7 +628,7 @@ void font_draw(const char* text, FontSizes font_size, GFC_Color color, GFC_Vecto
 	//SDL_DestroyTexture(texture);  //no longer destroying the Texture here since we're caching the pieces of Text that we make
 
 	font_add_recent(text, font_size, color, texture, gfc_vector2d(rect.w, rect.h) );
-	slog("Checkpoint 0");
+	slog("Text cached: %s", text);
 }
 
 //Yeah there is.  LITERALLY no point in trying to cache stats.

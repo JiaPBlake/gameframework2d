@@ -1,42 +1,43 @@
-{ //This shit do not work btw LOL
-  "name": "battle_screen",
-  "window_Text": "Are you sure?",
-  //Sprite Object
+{
+  "window_name": "battle_screen",
   "window_sprite": "images/ui/battle_window.png",
   "window_sprite_size": [ 1200, 720 ],
   "window_bounds": [ 0, 0, 1200, 720 ],
   "window_position": [ 0, 0 ],
-  //Button Object
   "buttons": [
-    { //Attack Button
+    {
       "sprite": "images/ui/attack_button.png",
-      "button_position": [ 120, 510 ],
+      "button_position": [ 120, 350 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "ui_window_attack.def"
+      "nextWindow": "def/ui/window_attack.def"
     },
-    { //Converse Button
+    {
       "sprite": "images/ui/converse_button.png",
-      "button_position": [ 200, 390 ],
+      "button_position": [ 200, 230 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "ui_window_converse.def"
+      "nextWindow": "def/window_converse.def"
     },
-    { //Tame Button
-      "sprite": "images/ui/flee_button.png",
-      "button_position": [ 350, 390 ],
+    {
+      "sprite": "images/ui/tame_button.png",
+      "button_position": [ 400, 230 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "exitWindow",
       "text": "Yes"
     },
-    { //Flee Button
-      "sprite": "images/ui/tame_button.png",
-      "button_position": [ 400, 510 ],
+    {
+      "sprite": "images/ui/flee_button.png",
+      "button_position": [ 500, 350 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "exitWindow",
       "text": "Yes"
     }
+
   ]
 
 }
-

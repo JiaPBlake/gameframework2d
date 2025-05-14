@@ -15,13 +15,13 @@ void items_initialize(const char* filename) {
 		slog("no filename provided for item initialization");
 		return;
 	}
-	_itemJson = sj_load(filename);
+	_itemJson = sj_load(filename);  //Making a JSON object out of the entire file
 	if(!_itemJson) {
 		slog("Failed to load the json for item definition");
 		return;
 	}
-	
-	_itemDefs = sj_object_get_value(_itemJson, "items"); //A JSon object/list containing our masterlist of Item Objects
+	//SPECIFICALLY extracting the masterlist of Items:
+	_itemDefs = sj_object_get_value(_itemJson, "items");	//A JSon object/list containing our masterlist of Item Objects
 	if (!_itemDefs) {
 		slog("Item Def file '%s' does not contain a list of items", filename);
 		sj_free(_itemJson);
@@ -83,7 +83,7 @@ Item* item_new(const char* name) {
 	itemDef = items_get_def_by_name(name);
 	if (!itemDef) return NULL;
 
-	item = gfc_allocate_array(sizeof(Item), 1);  //be sure to free this in the free function
+	item = gfc_allocate_array(sizeof(Item), 1);  //be sure to free this in the free function   [Gets cleaned up in inventory_cleanup()  in inventory.c  Since the only funciton that calls this one is inventory_add_item() ]
 	if (!item) { slog("Unable to allocate array for new Item"); return NULL; }
 
 	gfc_line_cpy(item->name, name);

@@ -9,13 +9,13 @@
 	"velocity": [ 3, 0 ],
 	"acceleration": [ -3, 4.5 ],
 
-	"speed_Max": [ 5, 8 ]
+	"speed_Max": [ 5, 8 ],
 	"moveList": [
 		{
-			"Attack": "Fireblast",
-			"move_sprite": "fire.png"
+			"name": "Attack1"
 		},
 		{
+			"name": "Attack2",
 			"Converse": "No",
 			"move_sprite": "fierce_text1"
 		}

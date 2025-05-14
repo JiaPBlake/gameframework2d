@@ -9,6 +9,8 @@
 #include "gf2d_sprite.h"
 
 
+#include "moves.h"
+
 typedef enum {
 	ENT_none = 0,
 	ENT_fierce = 1,
@@ -83,7 +85,7 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	
 
 	Uint8					firstCombat;
-
+	GFC_List				*move_list;   //list of Moves Move Objects.  more specifically:  Pointers to the Move as it exists in the Move subsystem manager
 
 	//Time to set up the think function baby oh boy
 	void					(*think)(struct Entity_S* self);   /**<function to call to make decisions based on the world state*/  //The think function will take a pointer to an Entity

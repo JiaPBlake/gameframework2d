@@ -1,0 +1,25 @@
+{
+  "window_name": "dialogue_screen",
+
+  "labels": [
+    {
+      "name": "Test Box",
+      "text": "Dialogue moment",
+      "tag": 1,
+      "font_size": 3,
+      "color": [ 0, 220, 30, 255 ],
+      "position": [ 300, 200 ]
+    }
+  ],
+  "images": [
+    {
+      "name": "dialogue_box",
+      "sprite": "images/ui/dialogue_box.png",
+      "sprite_size": [ 800, 150 ],
+      "bounds": [ -400, -75, 800, 150 ],
+      "spriteFPL": 1,
+      "position": [ 600, 630 ]
+    }
+  ]
+
+}

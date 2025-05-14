@@ -1,39 +1,39 @@
 {
-	"name": "battle_screen_converse",
-	"window_sprite": "images/ui/battle_window.png",
-	"window_sprite_size": [ 1200, 720 ],
-	"window_bounds": [ 0, 0, 1200, 720 ],
-	"window_position": [ 0, 0 ],
-	"buttons": [
-		{
-          "sprite": "images/ui/attack_button.png",
-          "button_position": [120, 350],
-          "sprite_size": [ 180, 100 ],
-          "action": "newWindow",
-          "nextWindow": "battle_screen_attack"
-        },
-        {
-          "sprite": "images/ui/converse_button.png",
-          "button_position": [ 200, 230 ],
-          "sprite_size": [ 180, 100 ],
-          "action": "newWindow",
-          "nextWindow": "battle_screen_converse"
-        },
-        {
-          "sprite": "images/ui/tame_button.png",
-          "button_position": [ 400, 230 ],
-          "sprite_size": [ 180, 100 ],
-          "action": "exitWindow",
-          "text": "Yes"
-        },
-        {
-          "sprite": "images/ui/flee_button.png",
-          "button_position": [ 500, 350 ],
-          "sprite_size": [ 180, 100 ],
-          "action": "exitWindow",
-          "text": "Yes"
-        }
+  "window_name": "battle_screen_converse",
+  "window_sprite": "images/ui/battle_window.png",
+  "window_sprite_size": [ 1200, 720 ],
+  "window_bounds": [ 0, 0, 1200, 720 ],
+  "window_position": [ 0, 0 ],
+  "buttons": [
+    {
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [ 120, 350 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "newWindow",
+      "nextWindow": "battle_screen_attack"
+    },
+    {
+      "sprite": "images/ui/converse_button.png",
+      "button_position": [ 200, 230 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "newWindow",
+      "nextWindow": "battle_screen_converse"
+    },
+    {
+      "sprite": "images/ui/tame_button.png",
+      "button_position": [ 400, 230 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "exitWindow",
+      "text": "Yes"
+    },
+    {
+      "sprite": "images/ui/flee_button.png",
+      "button_position": [ 500, 350 ],
+      "sprite_size": [ 180, 100 ],
+      "action": "exitWindow",
+      "text": "Yes"
+    }
 
-	]
+  ]
 
 }

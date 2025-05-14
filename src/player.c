@@ -5,10 +5,10 @@
 #include "gf2d_graphics.h"
 
 #include "player.h"
+#include "camera.h"
 #include "collision.h"
 #include "world.h"
-#include "camera.h"
-#include "window.h" //to set selected
+//#include "window.h" //to set selected AND for everything about Player input in the god damn think function..
 #include "inventory.h"
 #include "battle.h"
 
@@ -46,6 +46,17 @@ typedef struct {
 	int trident;
 	int drumstick;
 	int artifact;*/
+
+	int		attack_stat;		//deal higher damage:   Base_dmg of the attack  + attack_stat/2   Dragon's Health out of 100
+	int		persuasion_stat;	//
+	int		worthiness_stat;
+
+	//List of Attacks  (mmm  for Changing ?)
+
+	//mm !   What I could do is I could keep a list of the Attack's Names !  Every Ent will have a GFC_List of Move objects .   but for easy storage  and perhaps even JSon file SAVING: I can keep just the names here
+			//(whereas in entity.c  I'm extracting those names into a list and deleting it in the same funciton as soon as I've configured the Move objects)
+
+
 }PlayerEntityData;
 
 Entity* player_get_the() {
@@ -95,6 +106,9 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 		data->fierce_points = 0;
 		data->docile_points = 0;
 		data->cunning_points = 0;
+		data->attack_stat = 5;
+		data->persuasion_stat = 5;
+		data->worthiness_stat = 5;
 
 		slog("Trying to initialize the player's inventory");
 		inventory_init(&data->inventory); //Player Entity Data's inventory
@@ -213,19 +227,7 @@ void player_think(Entity* self) {
 
 //---------------------------------------------------------------------------  PLAYER INPUT MOVEMENT
 	//gfc_input_update();  //I have since learned that gfc_input_init being in game.c WAS the correct place.  And the reason it didn't work off the bat was because there was a specific SDL update function call and not gfc_input_update().
-			//This has since been moved.
-	/*GFC_Vector2D dir = {0};		Video code just to be sure this works upon compiling.  It does
-	int mx = 0, my = 0;
-	SDL_GetMouseState(&mx, &my);
-	if (self->position.x < mx) dir.x = 1;
-	if (self->position.y < my) dir.y = 1;
-	if (self->position.x > mx) dir.x = -1;
-	if (self->position.y > my) dir.y = -1;
-
-	gfc_vector2d_normalize(&dir);
-	gfc_vector2d_scale(self->velocity, dir, 2); */
-	
-	
+			//This has since been moved.	
 	self->acceleration.y = self->gravity.y;
 
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
@@ -305,6 +307,8 @@ void player_think(Entity* self) {
 		
 		other = gfc_list_get_nth(others, 0); //in my game, the player will really only be colliding with 1 thing at a time
 		if (other->team & ETT_monsters && other->firstCombat == 1) {
+			slog("Colliding with %s",other->name);
+			
 			if (!_INBATTLE) {
 				if (health_frame == 0) { health_frame = 5; slog("Health reset"); }
 				else health_frame--;
@@ -315,15 +319,13 @@ void player_think(Entity* self) {
 			battle_start(self, other);
 			
 			
-			
 			_INBATTLE = 1;  //I only want health to decrease ONCE PER collision.  not while I'm colliding
 			//self->velocity.x = 0;
 			self->think = player_think_battle;
 			reset_selected();
-			//Get the monster I'm colliding with
-			//other = gfc_list_get_nth(others, 0);
 
 			other->firstCombat = 0;
+
 		}
 	
 		/*if (other->team & ETT_cave) {		//Aha ! I don't need to take care of gfc_input  here in player.c ONLY. I can do it anywhere :)
@@ -349,6 +351,7 @@ void player_think(Entity* self) {
 	else {
 		_INBATTLE = 0;
 	}
+	
 	gfc_list_delete(others);
 	//slog("collision list deleted");
 	
@@ -536,16 +539,17 @@ void player_update(Entity* self) {
 
 }
 
-void player_think_battle(Entity* self) {
-
+/*void player_think_battle(Entity* self) {
 	//We should ONLY be in this function if the _INBATTLE flag is on.
 	if (!_INBATTLE) {
 		slog("Not in battle.  Exiting Battle Think function and setting player think back to normal");
 		self->think = player_think;
 	}
 
+	self->position = gfc_vector2d(400, 620);
+	
+	
 	//Select UI box
-
 	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
 		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
 			//slog("Going right");
@@ -565,10 +569,6 @@ void player_think_battle(Entity* self) {
 			keySelectTimer--;
 		}
 	}
-
-
-	self->position = gfc_vector2d(400, 620);
-
 
 	if (gfc_input_command_down("down")) {  //if I'm pressin'  right
 		//self->velocity.x = 1.0;
@@ -609,7 +609,7 @@ void player_think_battle(Entity* self) {
 			//and battle_end  in THIS think
 	
 
-}
+}*/
 
 //Using this to try and draw the sprite of any 1 item just to see what purpose I could give that
 void player_show_inven(Entity* self) {	//This is essentially a draw() function

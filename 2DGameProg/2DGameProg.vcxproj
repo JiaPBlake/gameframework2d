@@ -169,7 +169,7 @@
     <ClCompile Include="..\gfc\src\gfc_types.c" />
     <ClCompile Include="..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\gfc\src\miniz.c" />
-    <ClCompile Include="..\src\attack.c" />
+    <ClCompile Include="..\src\moves.c" />
     <ClCompile Include="..\src\battle.c" />
     <ClCompile Include="..\src\camera.c" />
     <ClCompile Include="..\src\collision.c" />
@@ -224,7 +224,8 @@
     <ClInclude Include="..\gfc\simple_json\include\simple_json_types.h" />
     <ClInclude Include="..\gfc\simple_json\include\simple_json_value.h" />
     <ClInclude Include="..\gfc\simple_logger\include\simple_logger.h" />
-    <ClInclude Include="..\include\attack.h" />
+    <ClInclude Include="..\include\dialogue.h" />
+    <ClInclude Include="..\include\moves.h" />
     <ClInclude Include="..\include\camera.h" />
     <ClInclude Include="..\include\collision.h" />
     <ClInclude Include="..\include\battle.h" />
@@ -270,17 +271,18 @@
     <None Include="..\def\levels\fierce_domain.level" />
     <None Include="..\def\levels\testLevel.level" />
     <None Include="..\def\levels\treasure_trove.level" />
+    <None Include="..\def\moveList.def" />
     <None Include="..\def\player.def" />
-    <None Include="..\def\testitems.def" />
     <None Include="..\def\text\testText.texty" />
     <None Include="..\def\ui\testWindow.def" />
     <None Include="..\def\ui\window_attack.def" />
     <None Include="..\def\ui\window_battle.def" />
     <None Include="..\def\ui\window_converse.def" />
+    <None Include="..\def\ui_windows.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>
   <ItemGroup>
-    <Text Include="..\def\npc_skeleton1.txt" />
+    <Text Include="..\def\npc_skeleton1.def" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

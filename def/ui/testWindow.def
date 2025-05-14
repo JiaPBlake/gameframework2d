@@ -1,5 +1,5 @@
 {
-  "name": "battle_screen",
+  "window_name": "battle_screen_test",
   "window_sprite": "images/ui/battle_window.png",
   "window_sprite_size": [ 1200, 720 ],
   "window_bounds": [ 0, 0, 1200, 720 ],
@@ -10,8 +10,18 @@
       "text": "HAHAHA haaa heheheeee \nfuck you",
       "tag": 1,
       "font_size": 3,
-      "color": [ 100, 170, 30, 255 ],
+      "color": [ 200, 170, 30, 255 ],
       "position": [ 600, 500 ]
+    }
+  ],
+  "images": [
+    {
+      "name": "dialogue_box",
+      "sprite": "images/ui/dialogue_box.png",
+      "sprite_size": [ 800, 150 ],
+      "bounds": [ -400, -75, 800, 150 ],
+      "spriteFPL": 1,
+      "position": [ 600, 630 ]
     }
   ],
   "buttons": [
@@ -19,6 +29,7 @@
       "sprite": "images/ui/attack_button.png",
       "button_position": [ 120, 350 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
       "nextWindow": "def/ui/window_attack.def"
     },
@@ -26,13 +37,15 @@
       "sprite": "images/ui/converse_button.png",
       "button_position": [ 200, 230 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "def/window_converse.def"
+      "nextWindow": "def/ui/window_converse.def"
     },
     {
       "sprite": "images/ui/tame_button.png",
       "button_position": [ 400, 230 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "exitWindow",
       "text": "Yes"
     },
@@ -40,6 +53,7 @@
       "sprite": "images/ui/flee_button.png",
       "button_position": [ 500, 350 ],
       "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
       "action": "exitWindow",
       "text": "Yes"
     }

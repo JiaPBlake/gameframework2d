@@ -99,20 +99,21 @@ typedef enum
 typedef struct
 {
 	Uint8				_inuse;
+	GFC_TextLine		name;		//just incase
 	//  include EVERYTHING in this one thing :o
 		//... actually- ok. My thing is. I can do this 2 ways (Check the Google Doc)
-	ElemTypes		type;    //if we have a Rectangle,  we can ONLY ACCESS  .r  (well.. we COULD access any, but they'd be garbage values 'cause we never defined them)
+	ElemTypes			type;    //if we have a Rectangle,  we can ONLY ACCESS  .r  (well.. we COULD access any, but they'd be garbage values 'cause we never defined them)
 	union
 	{                   //Union lets us kinda like. CHOOSE which one of these members (s)  we wanna us for a given Shape.  We CHOOSE which one we want to use. Hence why we keep track of the type ^ above
-		UI_Label	label;			//And Labels will just overlyyyy use my text.c functions
-		UI_Image	image;
-		UI_Button	button;
+		UI_Label			label;			//And Labels will just overlyyyy use my text.c functions
+		UI_Image			image;
+		UI_Button			button;
 	}ui;
 
 	//Free function can be assigned BASED ON  a given object's->type  data member
 		//yeah no I did not do this ^   I don't PLAN on doing this.  I did all 3 possible cases in 1 Free function
-	void					(*data_free)(struct Entity_S* self); /**<function to call to free any Sub-class specific Entity data (e.g. Player or Caves/Exits)*/
-	void					(*elem_draw)(struct UI_Element* self/*, int selected*/);		//J note: I have since made use of the _selected flag for buttons lmao
+	void				(*data_free)(struct Entity_S* self); /**<function to call to free any Sub-class specific Entity data (e.g. Player or Caves/Exits)*/
+	void				(*elem_draw)(struct UI_Element* self/*, int selected*/);		//J note: I have since made use of the _selected flag for buttons lmao
 
 }UI_Element;
 
@@ -120,30 +121,6 @@ typedef struct
 //----------------------------------------
 
 
-void button_system_init(Uint32 maxButtons);
-
-void button_system_free_all();
-
-/**
- * @brief free a previously created button
- * #param Pointer to the button to free
- */
-void button_free(UI_Button* self);
-
-UI_Button* button_new();
-
-
-/**
- * @brief configures a Button UI Element specifically - meaning sets all of its data members/parameters according to the def (json) file
- * @param json - pointer to the json object. (Created through use of the  sj_load(filename) function )
- */
-void ui_button_configure(UI_Button* self, SJson* json);
-
-/**
- * @brief Create (and configure)  a UI_Element
- * @param element - pointer to the json object - which should be a list of a certain UI Element (i.e. a list of Buttons)
- */
-UI_Element*	ui_elem_create(SJson* element);
 //I actually dk which of these I wanna use..   I think I'm going to stick with the resource maanger.  Thus: Create it with ui_element_new,  THEN configure it with this void function
 void ui_element_configure(UI_Element * self, SJson * json);
 
@@ -151,22 +128,21 @@ void ui_element_configure(UI_Element * self, SJson * json);
 
 
 /**
- * @brief initializes sub system for UI Elements
- * @param maxEnts upper limit for how many entitise ca exist at once
- */
-void ui_system_init(Uint32 maxElems);
-
-/**
  * @brief free all UI Elements in the manager;
  */
 void ui_system_free_all();
 
 /**
-* @brief draw all inuse entities, if they have a sprite
-*/
-void ui_system_draw_all();  //**********I MIGHT!!  want a parameter here for the type of encounter
+ * @brief Free all the aspects of a given element
+ * @param element - the element to clean up
+ */
+void ui_element_free(UI_Element *element);
 
-
+/**
+ * @brief initializes sub system for UI Elements
+ * @param maxEnts upper limit for how many entitise ca exist at once
+ */
+void ui_system_init(Uint32 maxElems);
 /**
  * @brief Create a ui element.
  * @return NULL if not enough space; else pointer to the ui element's position in the list
@@ -174,13 +150,9 @@ void ui_system_draw_all();  //**********I MIGHT!!  want a parameter here for the
  */
 UI_Element* ui_element_new();
 
-		//and then if I used a system.  That Systme would contain a list of UI's  (a pointer to a contiguous place in memory).  so I could make a
-		//void clean_all_ui()    function that would iterate through that list and call clean_ui_element() a  poop ton of times
-/**
- * @brief Free all the aspects of a given element
- * @param element - the element to clean up
- */
-void ui_element_free(UI_Element *element);
+
+//==============================================
+
 
 /**
  * @brief configures a UI Element - meaning sets all of its data members/parameters according to the def (json) file
@@ -195,12 +167,9 @@ void ui_element_configure(UI_Element* self, SJson* json);
 void ui_element_configure_from_file(UI_Element* self, const char* filename);
 
 
-void adjust_health(Sprite* healthbar);
 
-//UI_Element* ui_make();
 
-void label_draw(UI_Element* self);
-void button_draw(UI_Element* self);
+//	==========================		DRAWING
 
 //For selecting buttons
 void set_selected(int index);
@@ -211,6 +180,13 @@ Uint8 get_selected();
 
 void reset_selected();
 
+void adjust_health(Sprite* healthbar);
+
+
+
+void label_draw(UI_Element* self);
+void image_draw(UI_Element* self);
+void button_draw(UI_Element* self);
 
 
 void draw_health_stat(UI_Element* self, float frame);

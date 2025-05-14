@@ -9,7 +9,7 @@
 #include "world.h"
 #include "camera.h"
 #include "player.h"
-#include "spawn.h"
+#include "spawn.h"  //spawn already includes player,,, but I think that's fine
 
 //ONLY used this to help me fix the bugs I had before.of which, the bug was that I forgot the == 0 for the continue statement in the draw .
 /*World* world_test_new() {
@@ -51,6 +51,62 @@ static World* activeWorld = NULL;
 
 //=======  Mon April 21.  a  Tile Layer CLEAR function
 Uint8 world_get_tile_index_by_pos(World* world, GFC_Vector2I position);
+
+void world_free(World* world) {  //What you make you must destroy.				DON'T FORGET to implement the Entity to ignore (the Player)
+	if (!world) return;
+	int i, c;			//don't forget to implement the Entity to ignore
+	Entity* ent;
+
+	if (world->background) {
+		gf2d_sprite_free(world->background);
+		if (!world->background) slog("World Background freed");
+	}
+
+	if (world->tileLayer) gf2d_sprite_free(world->tileLayer);
+
+	gf2d_sprite_free(world->tileSet);
+	if (!world->tileSet) slog("World Tile Set freed");
+	//missed smth here  I'm assuming what I missed here was just tileMapSize
+	if (world->tileMap) { free(world->tileMap); if (!world->tileMap) slog("World tileMap freed"); }
+
+
+	//clean up the entity list.  But if we remove the Player from the World's list,  then we don't have to worry about them being cleaned up
+	if (world->entity_list) {
+
+		c = gfc_list_count(world->entity_list);
+		//slog("The number of entities in the World about to be freed is: %i",c);	//Jlog
+		for (i = 0; i < c; i++) {
+			ent = gfc_list_nth(world->entity_list, i);
+			//if(ent->name) slog("ent grabbed: %s",ent->name); //Jlog
+			if (!ent) continue;
+
+			entity_free(ent);
+		}
+		gfc_list_delete(world->entity_list); //delete the GFC_List itself
+	}
+
+	free(world); //now that pointer is dead/empty
+	slog("World freed successfully");
+}
+
+World* world_new() {
+	World* world;
+	world = gfc_allocate_array(sizeof(World), 1);
+	if (!world) {
+		slog("ERROR: failed to allocate world");
+		return NULL;
+	}
+
+	/*Hard coding this to test to make sure it even works
+	world->tileMap = gfc_allocate_array(sizeof(Uint8), height * width);
+	world->tileMapSize.x = width;
+	world->tileMapSize.y = height;*/
+
+
+	return world;
+}
+
+
 
 void world_set_tile(World* world, GFC_Vector2D point, Uint8 tile) {
 	GFC_Vector2I location = { 0 };  //Integer space vector
@@ -285,7 +341,7 @@ World* world_load(const char* filename) {
 				if (spawnTileValue > 4) {
 					spawnTilePosition = gfc_vector3d_new();		//AHA!!  THIS is how I create a new vecor,  instead of constantly re-writing One.
 					
-					slog("The tile at i: %i; j: %i  is the number %i", i, j, spawnTileValue);
+					//slog("The tile at i: %i; j: %i  is the number %i", i, j, spawnTileValue);
 					spawnTilePosition->x = i * world->tileSet->frame_w;  //corner of the tile
 					spawnTilePosition->y = j * world->tileSet->frame_h;
 					spawnTilePosition->z = spawnTileValue;
@@ -335,7 +391,7 @@ World* world_load(const char* filename) {
 			//Spawn in the entity.  THIS adds them into the Entity Manager
 			ent = spawn_entity(ent_name, default_pos, spawn_coords);
 			if (ent) {	
-//slog("Spawning and appending entity %s to the list", ent->name); //Jlog
+//slog("Spawning and appending entity %s to the list. With position x at: %f", ent->name,default_pos.x); //Jlog
 				gfc_list_append(world->entity_list, ent); //yeah,  I nearly appended just the names, but I suppose it's easier to appent the Entity object itself
 			}
 			/*else { slog("ohhhh we didn't spawn the entity... Name retrieved by the SJon object is: %s", ent_name); }*/
@@ -383,6 +439,9 @@ Uint8 world_get_tile_value(World* world, GFC_Vector2D index) //position will act
 	return world->tileMap[ ((Uint32)index.y * (Uint32)world->tileMapSize.x) + (Uint32)index.x  ]; //AHA position, but like. *Tile height. and then add x position
 	
 }
+
+
+
 
 
 void world_draw(World* world) {
@@ -435,61 +494,6 @@ void world_draw(World* world) {
 				frame);
 		}
 	}*/
-}
-
-
-void world_free(World* world) {  //What you make you must destroy.				DON'T FORGET to implement the Entity to ignore (the Player)
-	if (!world) return;
-	int i, c;			//don't forget to implement the Entity to ignore
-	Entity* ent;
-
-	if (world->background) {
-		gf2d_sprite_free(world->background);
-		if (!world->background) slog("World Background freed");
-	}
-
-	if (world->tileLayer) gf2d_sprite_free(world->tileLayer);
-
-	gf2d_sprite_free(world->tileSet);
-	if (!world->tileSet) slog("World Tile Set freed");
-	//missed smth here  I'm assuming what I missed here was just tileMapSize
-	if (world->tileMap) { free(world->tileMap); if (!world->tileMap) slog("World tileMap freed"); }
-
-
-	//clean up the entity list.  But if we remove the Player from the World's list,  then we don't have to worry about them being cleaned up
-	if (world->entity_list) {
-		
-		c = gfc_list_count(world->entity_list);
-		//slog("The number of entities in the World about to be freed is: %i",c);	//Jlog
-		for (i = 0; i < c; i++) {
-			ent = gfc_list_nth(world->entity_list, i);
-			//if(ent->name) slog("ent grabbed: %s",ent->name); //Jlog
-			if (!ent) continue;
-
-			entity_free(ent);
-		}
-		gfc_list_delete(world->entity_list); //delete the GFC_List itself
-	}
-
-	free(world); //now that pointer is dead/empty
-	slog("World freed successfully");
-}
-
-World* world_new() {
-	World* world;
-	world = gfc_allocate_array(sizeof(World), 1);
-	if (!world) {
-		slog("ERROR: failed to allocate world");
-		return NULL;
-	}
-
-	/*Hard coding this to test to make sure it even works
-	world->tileMap = gfc_allocate_array(sizeof(Uint8), height * width);
-	world->tileMapSize.x = width;
-	world->tileMapSize.y = height;*/
-
-
-	return world;
 }
 
 //-----------------------------------
@@ -563,6 +567,19 @@ GFC_Vector2D world_get_ground() {
 		}
 	}
 	return ground;
+}
+
+
+//in the works..  I want to get the Ground level (y level coordinate) of the tile  that is right underneath me (any given entity).   Most likely, my bounds will actually be colliding within that tile.
+Uint8 world_get_ground_relative(World* world, GFC_Vector2I position) {
+	if ((!world) || (!world->tileMap)) return 0;
+
+	//dawg I am so god damn scatterbrained I have no idea what I'm doing..
+
+	Uint8 tileIndex;
+	//I need to convert screen-space coords to my tileMap index.
+	tileIndex = world_get_tile_index_by_pos(world, position);
+
 }
 
 

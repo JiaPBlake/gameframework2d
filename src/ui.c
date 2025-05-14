@@ -76,9 +76,9 @@ void ui_element_free(UI_Element* self) {
 		//MATTER OF FACT .   IDEK IF I SHOULD DO THIS.  it depends on how the Labels' text is going to be created.  if it's JUST gfc_str_copying.. that's not technically malloc'd !!!
 		//Yeah.  because a character pointer will just point to the colloquial string of characters at.. SOME place in memory. but that place in memory is not dynamically allocated
 
-		slog("About to free Label's text");
+		//slog("About to free Label's text");
 		text_free(self->ui.label.text);  //text, the data member of label  is a POINTER  (character array).  feed that array TO the free() funciton
-		slog("Label branch. Free'd text");
+		//slog("Label branch. Free'd text");
 	}
 
 	//if it's an Image, free the:		sprite
@@ -90,9 +90,9 @@ void ui_element_free(UI_Element* self) {
 
 	//if it's a Button, free the:		sprite
 	if (self->type & ELEMT_B) {
-		slog("button branch");
+		//slog("button branch");
 		gf2d_sprite_free(self->ui.button.sprite);  //I'm more comfortable having local variables be POINTERS TO things that already exist.  as opposed to maybe making another COPY OF an existing thing,  to store locally
-		slog("Button's sprite has been freed");
+		//slog("Button's sprite has been freed");
 	}
 	
 	slog("We're at the end of UI_Element Free");
@@ -117,7 +117,7 @@ UI_Element* ui_element_new() {
 	return NULL; //return NULL outside the for loop
 }
 
-//========================
+//========================	LABEL
 
 
 void label_configure(UI_Label* self, SJson* json) {
@@ -136,9 +136,60 @@ void label_configure(UI_Label* self, SJson* json) {
 
 	self->text = text_new();
 	text_configure(self->text, json);
-	slog("The text for the Label should be configure");
+	//slog("The text for the Label should be configure");
 
 }
+
+
+//========================	IMAGE
+
+	//not done.. idt
+void image_configure(UI_Image* self, SJson* json) {
+	if ((!self) || (!json)) { slog("No JSON object (OR BUTTON) provided to create the image"); return; }
+
+		//well. this is easy. it's just sprite at a very specific location within our window
+	const char* image_sprite = NULL;
+	image_sprite = sj_object_get_string(json, "sprite");
+	if (image_sprite) { //if the Window itself has a sprite
+		//slog("This images's Sprite is '%s'", image_sprite);
+		GFC_Vector2D i_sp_sz = { 0 };
+		sj_object_get_vector2d(json, "sprite_size", &i_sp_sz);  //function from gfc_config.h
+		//slog("Sprite Size vector fetched from json object's x: %i", (Uint32)i_sp_sz.x);
+
+		Uint32 framesPerLine;
+		sj_object_get_int32(json, "spriteFPL", &framesPerLine);
+		//load the sprite into the object's sprite data member
+		self->sprite = gf2d_sprite_load_all(
+			image_sprite,
+			(Uint32)i_sp_sz.x,
+			(Uint32)i_sp_sz.y,
+			framesPerLine,
+			1);
+		//if (!self->sprite->surface) { slog("Image does not have a sprite SURFACE"); }			//don't think I need this
+		//slog("Button Sprite's Frame Height is: %i", self->sprite->frame_h);
+		self->sprite_size = i_sp_sz;
+		self->center = gfc_vector2d(i_sp_sz.x * 0.5, i_sp_sz.y * 0.5);
+		self->framesPerLine = framesPerLine;		//might want to data drive this ?  oh. definitely wanna data drive this.  For the Dialogue-continue-arrow
+		self->frame = 0;
+
+		//images don't really need bounds..
+
+		/*GFC_Vector4D bounds;
+		sj_object_get_vector4d(json, "bounds", &bounds); 
+		self->bounds = gfc_rect_from_vector4(bounds); */
+
+		GFC_Vector2D position = { 0 };
+		sj_object_get_vector2d(json, "position", &position);
+		slog("image position should be set");
+		self->position = position;
+
+	}
+	else { slog("Image Sprite couldn't be found"); }
+
+
+}
+
+
 
 
 //=================================	Button
@@ -212,8 +263,9 @@ void button_configure(UI_Button* self, SJson* json) {
 		self->framesPerLine = 2;	//yeah 'cause if I want the buttons to be highlighted upon Selection-  wait . FUCK
 		self->frame = 0;
 
-		GFC_Rect bounds = gfc_rect(0, 0, (Uint32)b_sp_sz.x, (Uint32)b_sp_sz.y);
-		self->bounds = bounds;
+		GFC_Vector4D bounds;
+		sj_object_get_vector4d(json, "bounds", &bounds); 
+		self->bounds = gfc_rect_from_vector4(bounds);
 
 		GFC_Vector2D button_pos = { 0 };
 		sj_object_get_vector2d(json, "button_position", &button_pos);
@@ -262,19 +314,28 @@ void reset_selected() {
 void ui_element_configure(UI_Element* self, SJson* json) {
 	if ((!self) || (!json)) return;
 
-	//Get the TYPE  first.  then depending on the type,  call either  Label_configure  or button configure
+	const char* string = NULL;
+	string = sj_object_get_string(json, "name");
+	if (string) {
+		gfc_line_cpy(self->name, string);  //something something  Copy A into B  and make sure it's not longer than the length of a Line.
+		//slog("Name copied: %s",move_name);
+	}
+
+	//Depending on the type,  call either  Label_configure  or button configure
 	if (self->type == ELEMT_L) {
-		slog("This UI Element is a Label");
+		//slog("This UI Element is a Label");
 		label_configure(&self->ui.label, json);
 		self->elem_draw = label_draw;
 	}
 
 	if (self->type == ELEMT_I) {
 		slog("This UI Element is an Image");
+		image_configure(&self->ui.image, json);
+		self->elem_draw = image_draw;
 	}
 
 	if (self->type == ELEMT_B) {
-		slog("This UI Element is a Button.  Calling Button Configure functions");
+		//slog("This UI Element is a Button.  Calling Button Configure functions");
 		button_configure(&self->ui.button, json);
 		self->elem_draw = button_draw;
 	}
@@ -336,6 +397,24 @@ void label_draw(UI_Element* self) {
 	//this should just call text_draw and that's it, really
 	text_draw(self->ui.label.text, self->ui.label.text->position);
 }
+
+void image_draw(UI_Element* self) {
+	int frame;
+
+	UI_Image* image = &(self->ui.image);
+	frame = 0;
+
+
+	gf2d_sprite_draw(image->sprite,
+		image->position,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
+		NULL,			//scale
+		&image->center,		//center which is a 2D vector
+		NULL,	//rotation
+		NULL,		//flip
+		NULL,		//colorShift
+		frame);
+}
+
 
 void button_draw(UI_Element* self) {
 	int frame;

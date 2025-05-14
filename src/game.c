@@ -22,6 +22,7 @@
 #include "items.h" //J TESTING (should be good honestly
 #include "text.h" //J TESTING.  Works as a basic thing. Gotta optimize and move things around         **ALSO INCLUDED IN WINDOW --> UI
 #include "particles.h"  //J TO BE TESTED (CLASS)
+#include "moves.h"  //J testing
 
 
 
@@ -43,31 +44,31 @@ int main(int argc, char * argv[])
     int done = 0;
     const Uint8 * keys;
     //Sprite *sprite;
-    World* world;
-    
     int mx,my;
     float mf = 0;
     Sprite *mouse;
     GFC_Color mouseGFC_Color = gfc_color8(100,100,100,200);//J CHANGE:  Changing the Cursor color / Pointer color.  Used to 255, 100, 255, 200
-    Entity* player;   //J START:
+   
+    
+    //J START:
     Entity* thePlayer;
     Entity* monster;
     Entity* cave;
-    GFC_Vector2D player_position;
-    player_position.x = 20;
-    player_position.y = 200;
     GFC_Vector2D monster_position = gfc_vector2d(600, 400);
     GFC_Vector2D default_pos = gfc_vector2d(-1, -1);
-    Sprite* battle_alert;
+    
+    World* world;
+
     Sprite* health_bar;
-    //Uint32 mouseButton;  //making this a global flag instead to let any file see the Mouse state
-    //UI_Element* stats_screen;  //J TO BE ADDED (UI)
-    //UI_Window* battleWin;
+    GFC_Sound* test_sound;
+    GFC_Sound* music;
+
     //Text* testText;  //Jtested  works!
 
     /*program initializtion*/
     init_logger("gf2d.log",0);
-    //parse_args(argc, argv); //argc will always be 1 at LEAST  //J ADDED
+        //parse_args(argc, argv); //argc will always be 1 at LEAST  //J ADDED
+
     slog("---==== BEGIN ====---");
     gf2d_graphics_initialize(
         "gf2d",
@@ -77,33 +78,48 @@ int main(int argc, char * argv[])
         720,
         gfc_vector4d(0,0,0,255),
         0);
+    
+
+    //  I will put initialize_game_state()   here  NEED TO INCLUDE MAINMENU.H
+
+
     //slog("Initializing Config File");  //Jlog
     gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
     //That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
     gf2d_graphics_set_frame_delay(16);          //It will wait 16 ms  before each frame - AT MINIMUM.
+    
+    
     //J TO BE ADDED (AUDIO):
-   /* gfc_audio_init(
-        1000,
-        128,
+   gfc_audio_init(
+        100,
+        64,
         4,
         1,
         1,
-        1);*/
+        1);
         
     gf2d_sprite_init(1024);
+    
     entity_system_init( 100 );    //J ADDED - initalize our Entity system AFTER the sprite system.  Since it depends on the sprites
     
     //font_init();          //J TO BE ADDED (FONTS)  please delete the other fonts down below
     // YEOOO IMPORTANT:   since I separated  font_init() and text_init()  I wonder what the order of operations is there.
         //For example, is what I have in text.c equivalent to calling font_init()  THEN text_init() on the next line??
-    text_init(50);  //J CURRENTLY TESTING
+    text_init(50);  //I believe this works.  I've used it enough times to know. We're good  :)
 
 
     //button_system_init(20);
     ui_system_init(100);
     window_system_init(10);
+    window_masterlist_initialize("def/ui_windows.def");
+    configure_all_windows();
+
     items_initialize("def/items.def");
-  
+    move_masterlist_initialize("def/moveList.def");
+    move_system_init(20);
+
+    configure_all_moves();
+
     //uncomment this once your Windows are in a working state
 
     //particle_system_init(1000);  //J TO BE ADDED particles
@@ -113,48 +129,33 @@ int main(int argc, char * argv[])
 
 
 
-    SDL_ShowCursor(SDL_DISABLE);
+    SDL_ShowCursor(SDL_DISABLE);        //He had the cursor hidden because he uses his own sprite for it !
 
-    //TTF_Init();          //J ADDED
-    //if (TTF_WasInit() == 0) slog("Text not initialized"); else slog("TTF system intialized");
-
-    //Testing fonts
-    /*SDL_Surface* surfaceMessage = NULL;
+    /*Testing fonts  - leaving this here as I got it from an online source and I like their wording explaining each line of code :)
+    SDL_Surface* surfaceMessage = NULL;
     SDL_Texture* Message = NULL;
     SDL_Rect Message_rect; //create a rect 
+    SDL_Color White = { 255, 255, 255 };
 
-    //this opens a font style and sets a size
-    TTF_Font* test_font = TTF_OpenFont("fonts/SansSerifCollection.ttf", 24);
-    if (!test_font) {
-        slog("No font holy shit");
-        TTF_CloseFont(test_font);
-    }
-    
-    else {
-        SDL_Color White = { 255, 255, 255 };
+    // as TTF_RenderText_Solid could only be used on  SDL_Surface then you have to create the surface first
+    surfaceMessage = TTF_RenderText_Solid(test_font, "RAAAAAAAGHHHGHGH", White);
+    if (!surfaceMessage) { slog("Text Surface not created"); }
 
-        // as TTF_RenderText_Solid could only be used on  SDL_Surface then you have to create the surface first
-        surfaceMessage = TTF_RenderText_Solid(test_font, "RAAAAAAAGHHHGHGH", White);
-        if (!surfaceMessage) { slog("Text Surface not created"); }
+    // now you can convert it into a texture
+    Message = SDL_CreateTextureFromSurface(gf2d_graphics_get_renderer(), surfaceMessage);  
+    if (!Message) { slog("Text Texture not created"); }
 
-        // now you can convert it into a texture
-        Message = SDL_CreateTextureFromSurface(gf2d_graphics_get_renderer(), surfaceMessage);  
-        if (!Message) { slog("Text Texture not created"); }
 
-        Message_rect.x = 0;  //controls the rect's x coordinate 
-        Message_rect.y = 0; // controls the rect's y coordinte
-        Message_rect.w = 300; // controls the width of the rect
-        Message_rect.h = 200; // controls the height of the rect
 
-        // Now since it's a texture, you have to put RenderCopy
-        // in your game loop area, the area where the whole code executes
+    // Now since it's a texture, you have to put RenderCopy
+    // in your game loop area, the area where the whole code executes
 
-        // you put the renderer's name first, the Message, the crop size (you can ignore this if you don't want to dabble with cropping),
-        // and the rect which is the size and coordinate of your texture
+    // you put the renderer's name first, the Message, the crop size (you can ignore this if you don't want to dabble with cropping),
+    // and the rect which is the size and coordinate of your texture
         
 
-        // Don't forget to free your surface and texture
-    }*/
+    // Don't forget to free your surface and texture
+    */
 
 //--------------------------------
 
@@ -163,45 +164,42 @@ int main(int argc, char * argv[])
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     
     slog("press [escape] to quit");
+    
+    
     //J START:
-    //monster = monster_new_entity(/*monster_position*/ default_pos, "def/fierce.def" ); //artifact of old thinking
-    //cave = object_new_entity(default_pos, "def/cave.def" );
-    //player = player_new_entity(default_pos /*player_position */, "def/player.def");//artifact of old thinking
-    world = world_load("def/levels/testLevel.level"); /*world_test_new();*/
-    battle_alert = gf2d_sprite_load_all("images/border.png", 605, 74, 1, 0);
+    world = world_load("def/levels/treasure_trove.level"); /*world_test_new();*/
     health_bar = gf2d_sprite_load_all("images/healthbar_full.png", 320, 64, 6, 0);
-    
     GFC_Vector2D h_center = gfc_vector2d(160, 32);
-    //stats_screen = ui_make();     //J TO BE ADDED (UI)
     
-    UI_Window* starting_win = window_new();
-    window_configure_from_file(starting_win, "def/ui/testWindow.def");
-    
+    //litERALLY  waht the fuck audio:
+    music = gfc_sound_load("audio/Ahrix_Nova_shorter.mp3", 0.3, 0);
+    test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
+    if (!test_sound) slog("Couldn't load test_sound");
+    else { slog("holy shit  it work"); }
 
-    //J testing text:
+    //J testing Text:
     /*slog("Configuring Test TEXTTTTTTTT");
     testText = text_new();
     text_configure_from_file(testText, "def/text/testText.texty");
     slog("testText configured??");*/
-    //battleWin = window_configure("def/testWindow.def");
+    
+    //UI_Window* battleWin = window_new();
+   // window_configure_from_file(battleWin, "def/ui/testWindow.def");
     //if (!battleWin) { slog("Shit. no window"); }
-    ////else { slog("Name of the window, to prove I got it to Configure: %s",battleWin->name); }
+    //else { slog("Name of the window, to prove I got it to Configure: %s",battleWin->name); }
+    
+    
     //Button *but1 = gfc_list_get_nth(battleWin->button_list, 0);
     //if (but1) {
     //    slog("Button Sprite's FPL %i", but1->sprite->frames_per_line);
     //}
 
-    //Sprite* attack = gf2d_sprite_load_all("images/ui/attack_button.png", 180, 100, 2, 0);     this was me trying to draw the attack button. I forgot to include either gfc_config of gf2d_graphics in my window.c file I forget which one. but ONE function wasn't defined and that's why it wasn't working
+    //Sprite* attack = gf2d_sprite_load_all("images/ui/attack_button.png", 180, 100, 2, 0);     this was me trying to draw the attack button.
+            // I forgot to include either gfc_config of gf2d_graphics in my window.c file I forget which one. but ONE function wasn't defined and that's why it wasn't working
     //Button* but2 = gfc_list_get_nth(win->button_list, 1);  //just testing to make sure the Button list of a given window was properly accessible
     
     thePlayer = player_get_the();
 
-    //Let's try spawning some entities          --Has since been updated so that the WORLD loaded will take care of spawning the entities needed per world
-    //player = spawn_entity("player", default_pos);   //Using this Spawn function takes care of everything.  The entity is MADE and CONFIGURED, 
-    //monster = spawn_entity("fierce_dragon", default_pos);  //now I just..  dk what to do with the pointer to the thing... Maybe I don't even need it..?  Bc all 3 of these entities
-    //cave = spawn_entity("cave_f", default_pos);       //are IN my ent manager. They exist in the list..  They'd even be drawn to the screen without these pointer assignments !
-
-    //otherEnt = monster; //artifact of old thinking (collision check)
     camera_set_size(gf2d_graphics_get_resolution());  //Feb 26: J added
 
     //MAKE  the main menu.   (For his 3D game - the second picture.   his gf2d_windows_draw_all();  draws the World as well
@@ -209,6 +207,7 @@ int main(int argc, char * argv[])
     //Once the game starts   we don't even need the Main Menu
 
     /*main game loop*/
+    gfc_sound_play(music, 2, 0.1, -1, -1);
     while(!done)
     {
         //world = world_get_active();
@@ -254,17 +253,14 @@ int main(int argc, char * argv[])
         camera_bounds_check(); //Feb 26: J Added
         //world = world_get_active();  //I used to have this here because I planned on transitioning worlds in a file INSTEAD Of just calling the thing in the main game loop.  WHICH I could still probably do but .  Proof of concept comes first
 
-        //WORKSSSS
-        /*if (_MOUSEBUTTON) {
-            if (!_PRESSED) /*world = world_transition(world_get_active(), "def/levels/testLevel.level", thePlayer->position);
-            slog("World successfully reassigned, %s. Back to the main Game loop",world->name);
-            _PRESSED = 1;
-        }*/
-        //slog("HERE");
         if (_MOUSEBUTTON) {
             //slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y);
             //slog("click detected. Enabling flag to draw the item");
             //_INVENTORY_FLAG = 1;
+
+            slog("Click detected Playing audio");
+            if(test_sound) gfc_sound_play(test_sound, 0, 0.1, -1, -1);
+
             slog("Click detected. Incrementing all points");
             inc_player_points(ENT_MAX);
         }
@@ -298,22 +294,10 @@ int main(int argc, char * argv[])
             //draw all items.. ?
             
             //Maybe I should have a extern flag in here? _INBATTLE.  so that I can start drawing the Battle UI when need-be
-            if (_INBATTLE) {
-                //slog("in battle");
-                
+            //if (_INBATTLE) {                
                 //..  basically.  I want a single draw call here:    to Draw the Proper UI_Elements.  While I have them THINK out there ^
                 window_draw(window_get_active());
-                /*GFC_Vector2D center = gfc_vector2d(302, 67);
-                gf2d_sprite_draw(
-                    battle_alert,
-                    gfc_vector2d(600,100),
-                    NULL,
-                    &center,
-                    NULL,
-                    NULL,
-                    NULL,
-                    0);*/
-            }
+            //}
             //slog("Button's turn");
             /*gf2d_sprite_draw(
                 attack,
@@ -326,7 +310,6 @@ int main(int argc, char * argv[])
                 0);*/
             
 
-            //draw_stats(stats_screen, health_frame);  //J TO BE ADDED (UI)
             if (_INVENTORY_FLAG) {
                 player_show_inven(thePlayer);
                 stats_draw("Fierce:", FS_medium, GFC_COLOR_RED, gfc_vector2d(50, 120), get_player_points(ENT_fierce)); //we'll just try it with Fierce first
@@ -370,8 +353,7 @@ int main(int argc, char * argv[])
         if (keys[SDL_SCANCODE_ESCAPE])done = 1; // exit condition
         //slog("Rendering at %f FPS",gf2d_graphics_get_frames_per_second());
     }
-    //entity_free(player); //J ADDED
-    //entity_free(monster); //J ADDED
+
     world_free(world);  //My worlds are not maaged by one System. I will not initialize them ALL before the game loads up. I need to free EACH one when needed. soooo somewhere within Encounter.c
     
     //slog( "Button 2's position: %f", but2->position.x);  //just testing to make sure the Button list of a given window was properly accessible
@@ -381,7 +363,7 @@ int main(int argc, char * argv[])
     //SDL_DestroyTexture(Message);
 
     //TTF_Quit();       //J FONT
-    slog("Text system de-initialized");
+    //slog("Text system de-initialized");
 
     slog("---==== END ====---");
     return 0;

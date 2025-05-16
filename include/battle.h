@@ -29,4 +29,11 @@ void player_think_battle(Entity* self);
 
 
 
+//======================  Attacking !! and stuff!!
+
+void entity_take_damage(Entity* target, int damage);
+
+
+
+
 #endif

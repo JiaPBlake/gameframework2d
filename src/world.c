@@ -469,7 +469,7 @@ void world_draw(World* world) {
 	//Jnote:   gotta draw this on top of all my entities
 
 	if (world->foreground) {
-		gf2d_sprite_draw_image(world->foreground, position);
+		gf2d_sprite_draw_image(world->foreground, gfc_vector2d((position.x / 0.7), position.y));
 	}
 
 	/*

@@ -11,6 +11,8 @@
 
 	"type": "all",
 
+	"health": 150,
+
 	"moveList": [
 		{
 			"AttackList": [

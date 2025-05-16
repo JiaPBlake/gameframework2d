@@ -327,13 +327,12 @@ void text_configure(Text* self, SJson* json) {
 	//Things to extract
 
 
-	slog("Checkpoint 1");
 	string = sj_object_get_string(json, "text");
 	if (string) {
 		//length = strlen(string) + 1;
 		gfc_block_cpy(self->text, string);		//RAAAAHH  STR COPY DOESN'T WORK  because a  const char * is a POINTERRR  IT CANNOT HOLD DATA !!! you cannot COPY characters INTO it!!!
 		//strncpy(self->text, string, length);
-		slog("The text to print from this Text instance is: %s", self->text);  //Jlog
+		//slog("The text to print from this Text instance is: %s", self->text);  //Jlog
 	}
 
 	sj_object_get_int(json, "font_size", &self->font_size);
@@ -343,7 +342,7 @@ void text_configure(Text* self, SJson* json) {
 	sj_object_get_vector4d(json, "color", &col);
 
 	self->color = gfc_color_to_sdl( gfc_color8((int)col.x, (int)col.y, (int)col.z, (int)col.w) );
-	slog("Color is: %f, %f, %f, %f", col.x, col.y, col.z, col.w);
+	//slog("Color is: %f, %f, %f, %f", col.x, col.y, col.z, col.w);
 
 	sj_object_get_vector2d(json, "position", &self->position);
 

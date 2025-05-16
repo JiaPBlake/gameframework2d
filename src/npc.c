@@ -24,6 +24,7 @@ typedef struct {
 
 	GFC_TextLine	itemName;
 	Entity			*item;  //so I can keep track of the item I've spawned in.   Once the player picks it up, the player_think function subsequenty free's the item for us. But just in case
+	Uint8			itemSpawnedFlag;
 
 }NPCEntityData;
 
@@ -48,10 +49,11 @@ Entity* npc_new_entity(GFC_Vector2D position, const char* defFile) //Now that I'
 
 //Def file section
 	entity_configure_from_file(self, defFile);  //INSTEAD OF this Sprite loading bock underneath
-	slog("Entity configured (NPC)");
+	//slog("Entity configured (NPC)");
+
 	//position override from the parameters:
 	if (position.x >= 0) {//if position is a negative vector, don't override, just use the one from the def file
-		slog("Position override for NPC %s",self->name);
+		//slog("Position override for NPC %s",self->name);
 		gfc_vector2d_copy(self->position, position);
 		self->position.y += self->bounds.y;
 	} 
@@ -65,7 +67,7 @@ Entity* npc_new_entity(GFC_Vector2D position, const char* defFile) //Now that I'
 
 	data = gfc_allocate_array(sizeof(NPCEntityData), 1);
 	if (data) {
-		slog("Calling NPC Data_configure function");
+		//slog("Calling NPC Data_configure function");
 		self->data = data;
 		npc_data_configure(self, defFile);
 		if (data->type != 0) slog("NPC's NPC type was properly configured.");
@@ -74,7 +76,7 @@ Entity* npc_new_entity(GFC_Vector2D position, const char* defFile) //Now that I'
 
 	self->data = data;
 
-	slog("Entity Spawned");
+	//slog("Entity Spawned");
 
 	return self;
 } 
@@ -109,14 +111,15 @@ void npc_data_configure(Entity* self, const char* defFile) {
 	SJson* json;
 	json = sj_load(defFile);
 	if (!json) { slog("Could not load JSon from defFile");  return; }
-	slog("Checkpointer");
+
 	NPCEntityData* data; //create a pointer
 	data = self->data;   //make it point.  Especially because "data", in THIS file  is specific to NPCs.  whereas self->data is declared to be a Void pointer
 	data->item = NULL;
+	data->itemSpawnedFlag = 0;
 
 	NPCType type = 0;
 	const char* string = NULL;
-	slog("Extracting string");
+
 	string = sj_object_get_string(json, "npc_type");
 //======================================================================================================	NPC Type
 	if (string) {
@@ -152,7 +155,7 @@ void npc_data_configure(Entity* self, const char* defFile) {
 		string = sj_object_get_string(json, "item");
 		if (string) {
 			gfc_line_cpy(data->itemName, string);
-			slog("Extracted NPC's item name: %s",data->itemName);
+			//slog("Extracted NPC's item name: %s",data->itemName);  //Jlog
 		}
 		else {
 			slog("Could not extract the item the NPC should be holding");
@@ -174,7 +177,6 @@ void npc_data_configure(Entity* self, const char* defFile) {
 
 
 	sj_free(json);
-	slog("JSon object freed. NPC should be fully configured");
 }
 
 
@@ -211,10 +213,11 @@ void npc_perform_action(Entity *self, Entity *player) {
 	data = self->data;
 
 
-	if (data->type & NPCT_Item) {
+	if (data->type & NPCT_Item && !data->itemSpawnedFlag) {
 		//give the player the item
 		slog("spawning item");
 		npc_spawn_item(self, player);
+		data->itemSpawnedFlag = 1;
 	}
 	if (data->type & NPCT_Lore) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
 		slog("The type of %s is: %i", self->name, data->type);

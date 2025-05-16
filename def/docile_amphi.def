@@ -11,23 +11,13 @@
 
 	"type": "docile",
 
-	"speed_Max": 0,
+	"health": 100,
 	"moveList": [
 		{
-			"AttackList": [
-				{
-					"Attack1": "Wingblast",
-					"move_sprite": "fire.png"
-				},
-				{
-					"Attack2": "Galerise",
-					"move_sprite": "fire.png"
-				}
-			]
+			"name": "Radiant Light"
 		},
 		{
-			"Converse": "No",
-			"move_sprite": "fierce_text1"
+			"name": "Wingslice"
 		}
 	]
 }

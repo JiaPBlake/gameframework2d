@@ -11,23 +11,14 @@
 
 	"type": "cunning",
 
-	"speed_Max": 1,
+	"health": 100,
 	"moveList": [
 		{
-			"AttackList": [
-				{
-					"Attack1": "PiercingStone",
-					"move_sprite": "fire.png"
-				},
-				{
-					"Attack2": "Zippyzoom",
-					"move_sprite": "fire.png"
-				}
-			]
+			"name": "Piercing Stone"
 		},
 		{
-			"Converse": "No",
-			"move_sprite": "fierce_text1"
+			"name": "Earth Shatter"
 		}
 	]
+
 }

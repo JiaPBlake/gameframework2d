@@ -6,32 +6,36 @@
   "window_position": [ 0, 0 ],
   "buttons": [
     {
-      "sprite": "images/ui/attack_button.png",
+      "sprite": "images/ui/converse_button.png",
       "button_position": [ 120, 350 ],
       "sprite_size": [ 180, 100 ],
-      "action": "newWindow",
-      "nextWindow": "battle_screen_attack"
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "converse"
+
     },
     {
       "sprite": "images/ui/converse_button.png",
       "button_position": [ 200, 230 ],
       "sprite_size": [ 180, 100 ],
-      "action": "newWindow",
-      "nextWindow": "battle_screen_converse"
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "converse"
+
     },
     {
-      "sprite": "images/ui/tame_button.png",
+      "sprite": "images/ui/converse_button.png",
       "button_position": [ 400, 230 ],
       "sprite_size": [ 180, 100 ],
-      "action": "exitWindow",
-      "text": "Yes"
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "converse"
+
     },
     {
-      "sprite": "images/ui/flee_button.png",
+      "sprite": "images/ui/converse_button.png",
       "button_position": [ 500, 350 ],
       "sprite_size": [ 180, 100 ],
-      "action": "exitWindow",
-      "text": "Yes"
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "converse"
+
     }
 
   ]

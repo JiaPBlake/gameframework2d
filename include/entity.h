@@ -84,6 +84,7 @@ typedef struct Entity_S{		//Using Entity_S  up here is a sort of  "Forward namin
 	GFC_Vector2D			flip;			//To flip the entity sprite - either x or y axis
 	
 
+	int						health;
 	Uint8					firstCombat;
 	GFC_List				*move_list;   //list of Moves Move Objects.  more specifically:  Pointers to the Move as it exists in the Move subsystem manager
 

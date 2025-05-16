@@ -11,7 +11,7 @@
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "def/ui/window_attack.def"
+      "nextWindow": "battle_screen_attack"
     },
     {
       "sprite": "images/ui/converse_button.png",
@@ -19,15 +19,14 @@
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
-      "nextWindow": "def/window_converse.def"
+      "nextWindow": "battle_screen_converse"
     },
     {
       "sprite": "images/ui/tame_button.png",
       "button_position": [ 400, 230 ],
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
-      "action": "exitWindow",
-      "text": "Yes"
+      "action": "tame"
     },
     {
       "sprite": "images/ui/flee_button.png",

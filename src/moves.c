@@ -164,7 +164,10 @@ Move* move_create() {
 void attack_configure(Attack_Move* self, SJson* json) {
 	if ((!self) || (!json)) { slog("No JSON object (OR BUTTON) provided to create the image"); return; }
 
+	int atkPow;
 
+	sj_object_get_int(json, "attackPower", &atkPow);
+	self->attackPower = atkPow;
 	//well. this is easy. it's just sprite at a very specific location within our window
 	const char* sprite = NULL;
 	sprite = sj_object_get_string(json, "sprite");
@@ -229,17 +232,17 @@ void move_configure(Move* self, SJson* json) {
 		return;
 	}
 
-	if (self->type == MOVET_ATTACK) {
+	if (self->type & MOVET_ATTACK) {
 		slog("This Move is an Attack move");
 		attack_configure(&self->m.attack, json);
 		//self->elem_draw = label_draw;				//think function ??
 	}
 
-	if (self->type == MOVET_CONVERSE) {
+	if (self->type & MOVET_CONVERSE) {
 		slog("This Move is a Conversation move");
 	}
 
-	if (self->type == MOVET_TAME) {
+	if (self->type & MOVET_TAME) {
 		slog("lmfao what am I even doing with a Tame move...");
 
 	}
@@ -260,7 +263,9 @@ void configure_all_moves() {
 
 		move_configure(move, moveDef);  //Sooo   my masterlist which is move_sub_system's move_system_list,  is getting allocated by move_Create,  and al lthose allocated spots are being filled in with relevant data
 
-		slog("Just configured the %i'th move. The name of this move's attack is: %s", i, move->name);
+		if (move->type == MOVET_NONE) slog("Move '%s' was not properly configured. It has no type",move->name);
+
+		if(move->type != MOVET_NONE) slog("Just configured the %i'th move. The name of this move's attack is: %s", i, move->name);
 	}
 	slog("Done configuring all moves");
 
@@ -268,20 +273,25 @@ void configure_all_moves() {
 
 
 Move* get_move_by_name(const char* move_name) {
-	Move* mov;
+	Move* move;
 	int i;
 
 	for (i = 0; i < move_sub_system.move_system_max; i++) {
-		mov = &move_sub_system.move_system_list[i];  //use a shorter variable name,, my goodness
-		if (!mov->_inuse) continue;  //if not in use, continue
+		move = &move_sub_system.move_system_list[i];  //use a shorter variable name,, my goodness
+		if (!move->_inuse) continue;  //if not in use, continue
 
-		if (gfc_strlcmp(move_name, mov->name) == 0) { //Length compare to forgo matching ONLY on a substring
+		if (gfc_strlcmp(move_name, move->name) == 0) { //Length compare to forgo matching ONLY on a substring
+			if (move->type == MOVET_NONE) {
+				slog("The move '%s' has not been configured properly.. not appending it to the list");
+				continue;
+			}
 			//slog("Found the JSON object for item '%s' on iteration %i", name, i);	//Jlog
-			return mov; //found it
+			return move; //found it
 		}
 
 	}
 	slog("Move by name %s could not be found in the currently allocated list.", move_name);
+	return NULL;
 }
 
 
@@ -302,7 +312,7 @@ void configure_moves_for_ent(GFC_List* listOfMoveNames, GFC_List* entMoveList) {
 		move = get_move_by_name(nameOfMove);
 		//append it to the MoveList
 		gfc_list_append(entMoveList, move);  //apending the  Address of that corresponding Move object as it exists in our list
-		slog("Move of name %s appended to the entity's MoveList", move->name);
+		slog("Move of name '%s' appended to the entity's MoveList", move->name);
 	}
 }
 
@@ -375,4 +385,3 @@ void configure_moves_for_ent_old(GFC_List* listOfMoveNames, GFC_List* entMoveLis
 //=============================	USING IN BATTLE
    //o h.  well,, this would just be what the Battle.  files are for, no?  Yes. the answer to that question is yes
 
-use_attack();

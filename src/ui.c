@@ -136,7 +136,7 @@ void label_configure(UI_Label* self, SJson* json) {
 
 	self->text = text_new();
 	text_configure(self->text, json);
-	//slog("The text for the Label should be configure");
+	slog("The text for the Label should be configure");
 
 }
 
@@ -180,7 +180,7 @@ void image_configure(UI_Image* self, SJson* json) {
 
 		GFC_Vector2D position = { 0 };
 		sj_object_get_vector2d(json, "position", &position);
-		slog("image position should be set");
+		//slog("image position should be set");
 		self->position = position;
 
 	}
@@ -213,7 +213,7 @@ int button_get_type(const char* action) {
 		return BT_Converse;
 	}
 	if (gfc_strlcmp(action, "tame") == 0) {
-		//slog("UI_Button should close the window");
+		slog("Tame button found.");
 		return BT_Tame;
 	}
 	if (gfc_strlcmp(action, "flee") == 0) {
@@ -329,7 +329,7 @@ void ui_element_configure(UI_Element* self, SJson* json) {
 	}
 
 	if (self->type == ELEMT_I) {
-		slog("This UI Element is an Image");
+		//slog("This UI Element is an Image");
 		image_configure(&self->ui.image, json);
 		self->elem_draw = image_draw;
 	}

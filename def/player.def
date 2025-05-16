@@ -12,12 +12,10 @@
 	"speed_Max": [ 5, 8 ],
 	"moveList": [
 		{
-			"name": "Attack1"
+			"name": "Fire Blast"
 		},
 		{
-			"name": "Attack2",
-			"Converse": "No",
-			"move_sprite": "fierce_text1"
+			"name": "Piercing Stone"
 		}
 	]
 }

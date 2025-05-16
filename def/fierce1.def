@@ -11,23 +11,13 @@
 
 	"type": "fierce",
 
-	"speed_Max": 0,
+	"health": 100,
 	"moveList": [
 		{
-			"AttackList": [
-				{
-					"Attack1": "Fireblast",
-					"move_sprite": "fire.png"
-				},
-				{
-					"Attack2": "Chomp",
-					"move_sprite": "fire.png"
-				}
-			]
+			"name": "Fire Blast"
 		},
 		{
-			"Converse": "No",
-			"move_sprite": "fierce_text1"
+			"name": "Wreath of Flames"
 		}
 	]
 }

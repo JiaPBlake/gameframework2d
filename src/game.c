@@ -24,6 +24,7 @@
 #include "particles.h"  //J TO BE TESTED (CLASS)
 #include "moves.h"  //J testing
 
+#include "mainmenu.h"
 
 
 Uint8 _DRAWBOUNDS = 1;          //.... I need to think of a better way to implement these paths but.  Later..
@@ -36,6 +37,9 @@ Uint8 _PRESSED = 0;
 extern Uint8 health_frame;
 int mouseClickTimer = 0; //10 frames
 
+
+Uint8 _START_SCREEN;
+Uint8 _PAUSED;
 //void parse_args(int argc, char* argv[]);
 
 int main(int argc, char * argv[])
@@ -80,45 +84,45 @@ int main(int argc, char * argv[])
         0);
     
 
-    //  I will put initialize_game_state()   here  NEED TO INCLUDE MAINMENU.H
-
+    
 
     //slog("Initializing Config File");  //Jlog
     gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
     //That being said--  there's already a SAMPLE confic within the gfc folder: gameframework2d\gfc\sample_config
     gf2d_graphics_set_frame_delay(16);          //It will wait 16 ms  before each frame - AT MINIMUM.
-    
-    
+ 
+     
+    gf2d_sprite_init(1024);
+
+    //  I will put initialize_game_state()   here  NEED TO INCLUDE MAINMENU.H
+    initialize_game_state();        //_START_SCREEN set to 1, and _PAUSED set to 0 in here.
+
+    //  OKAY !!!  IT WORKS!!
+
+    //Old initialization functions:
+/*
     //J TO BE ADDED (AUDIO):
-   gfc_audio_init(
+    gfc_audio_init(
         100,
         64,
         4,
         1,
         1,
         1);
-        
-    gf2d_sprite_init(1024);
+//   entity_system_init( 100 );    //J ADDED - initalize our Entity system AFTER the sprite system.  Since it depends on the sprites
+//   text_init(50);  //I believe this works.  I've used it enough times to know. We're good  :)
+
+//    ui_system_init(100);
+//    window_system_init(10);
+//    window_masterlist_initialize("def/ui_windows.def");
+//    configure_all_windows();
+
+//    items_initialize("def/items.def");
+//    move_masterlist_initialize("def/moveList.def");
+//    move_system_init(20);
+//    configure_all_moves();
+*/
     
-    entity_system_init( 100 );    //J ADDED - initalize our Entity system AFTER the sprite system.  Since it depends on the sprites
-    
-    //font_init();          //J TO BE ADDED (FONTS)  please delete the other fonts down below
-    // YEOOO IMPORTANT:   since I separated  font_init() and text_init()  I wonder what the order of operations is there.
-        //For example, is what I have in text.c equivalent to calling font_init()  THEN text_init() on the next line??
-    text_init(50);  //I believe this works.  I've used it enough times to know. We're good  :)
-
-
-    //button_system_init(20);
-    ui_system_init(100);
-    window_system_init(10);
-    window_masterlist_initialize("def/ui_windows.def");
-    configure_all_windows();
-
-    items_initialize("def/items.def");
-    move_masterlist_initialize("def/moveList.def");
-    move_system_init(20);
-
-    configure_all_moves();
 
     //uncomment this once your Windows are in a working state
 
@@ -164,10 +168,11 @@ int main(int argc, char * argv[])
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     
     slog("press [escape] to quit");
+    slog("\n==============================================================\n");
     
     
     //J START:
-    world = world_load("def/levels/treasure_trove.level"); /*world_test_new();*/
+//    world = world_load("def/levels/treasure_trove.level"); /*world_test_new();*/
     health_bar = gf2d_sprite_load_all("images/healthbar_full.png", 320, 64, 6, 0);
     GFC_Vector2D h_center = gfc_vector2d(160, 32);
     
@@ -175,7 +180,6 @@ int main(int argc, char * argv[])
     music = gfc_sound_load("audio/Ahrix_Nova_shorter.mp3", 0.3, 0);
     test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
     if (!test_sound) slog("Couldn't load test_sound");
-    else { slog("holy shit  it work"); }
 
     //J testing Text:
     /*slog("Configuring Test TEXTTTTTTTT");
@@ -183,23 +187,11 @@ int main(int argc, char * argv[])
     text_configure_from_file(testText, "def/text/testText.texty");
     slog("testText configured??");*/
     
-    //UI_Window* battleWin = window_new();
-   // window_configure_from_file(battleWin, "def/ui/testWindow.def");
-    //if (!battleWin) { slog("Shit. no window"); }
-    //else { slog("Name of the window, to prove I got it to Configure: %s",battleWin->name); }
-    
-    
-    //Button *but1 = gfc_list_get_nth(battleWin->button_list, 0);
-    //if (but1) {
-    //    slog("Button Sprite's FPL %i", but1->sprite->frames_per_line);
-    //}
-
     //Sprite* attack = gf2d_sprite_load_all("images/ui/attack_button.png", 180, 100, 2, 0);     this was me trying to draw the attack button.
             // I forgot to include either gfc_config of gf2d_graphics in my window.c file I forget which one. but ONE function wasn't defined and that's why it wasn't working
-    //Button* but2 = gfc_list_get_nth(win->button_list, 1);  //just testing to make sure the Button list of a given window was properly accessible
     
     thePlayer = player_get_the();
-
+    world = world_get_active();
     camera_set_size(gf2d_graphics_get_resolution());  //Feb 26: J added
 
     //MAKE  the main menu.   (For his 3D game - the second picture.   his gf2d_windows_draw_all();  draws the World as well
@@ -208,6 +200,7 @@ int main(int argc, char * argv[])
 
     /*main game loop*/
     gfc_sound_play(music, 2, 0.1, -1, -1);
+    slog("\n==============================================================\n");
     while(!done)
     {
         //world = world_get_active();

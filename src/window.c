@@ -4,8 +4,9 @@
 #include "gf2d_graphics.h"
 
 #include "window.h"
-#include "battle.h" //to end battle upon clicking Flee
-
+//#include "battle.h" //to end battle upon clicking Flee
+		//it has come to my attention that this is here.. (me after actually fleshing out my battle.c file to begin implementing Battle & Attacks...
+		//and.. honestly ?? as much as I could keep it.. I would have better piece of mind doing it all in battle.c  since I include window in there anyway
 
 static UI_Window* activeWindow = NULL;
 static UI_Window* previousWindow = NULL;     //I can keep this global for now... because hopefully I can get away with JUST 2 windows.. and not have to worry about the Text-box / Dialogue based windows I will inevitably need..
@@ -409,7 +410,7 @@ void window_configure(UI_Window* self, SJson* json) {
 	buttonList = sj_object_get_value(json, "buttons"); //This is now a list/array of N objects
 	if (buttonList) {
 		self->buttonCount = sj_array_get_count(buttonList);
-		//slog("The number of Buttons this window has is: %i", self->buttonCount);
+		slog("The number of Buttons this window has is: %i", self->buttonCount);
 
 		//For every Button JSon object in the list of "labels":
 		for (i = 0; i < self->buttonCount; i++) {
@@ -425,10 +426,6 @@ void window_configure(UI_Window* self, SJson* json) {
 
 					if (elem->ui.button.actionType == BT_NewWindow) {
 						elem->ui.button.action = window_transition;
-					}
-					if (elem->ui.button.actionType == BT_CloseWindow) {
-						//slog("This button would Close a window!");
-						elem->ui.button.action = battle_end;
 					}
 
 
@@ -520,11 +517,11 @@ void configure_all_windows() {
 		window = window_new();
 		windowDef = sj_array_get_nth(_windowDefs, i);  //for EVERY Object in the masterlist array:
 		filepath = sj_object_get_value_as_string(windowDef, "filepath"); //retrieve the filepath for that window
-		slog("filePath of the window is: %s",filepath);
+		//slog("filePath of the window is: %s",filepath);
 		window_configure_from_file(window, filepath);  //Sooo   my masterlist which is window_sub_system's window_system_list,  is getting allocated by window_Create,  and al lthose allocated spots are being filled in with relevant data
 		
 
-		slog("Just configured the %i'th window. The name of this window's attack is: %s", i, window->name);
+		slog("Just configured the index i=%i 'th window. The name of this window's attack is: %s", i, window->name);
 	}
 	slog("Done configuring all windows");
 
@@ -587,6 +584,27 @@ void window_set_active(UI_Window* windowToSet) {
 //J note after break:   I can just set the activeWindow whenever each button is pressed. Because each window will be created !  I can just NOT free the old one!!
 	//or. I just make a list of OpenWindows once configured,  removed from that list once freed.  And ofc I can configure them as many times as needed. Open Windows would be those like the Main Battle screen that need to stay open but not ACTIVELY drawn.
 void window_transition(UI_Button* self) {
+	if (!self) {
+		slog("No button provided. Window will not transition.");
+		return;
+	}
+	if (!self->windowToOpen) {
+		slog("Button does not have a stored value for the Window to Open. Not transitioning");
+		return;
+	}
+	
+	UI_Window* win = { 0 };
+	win = window_search_by_name(self->windowToOpen);
+	if (!win) {
+		slog("Could not find window. Not transitioning");
+		return;
+	}
+	previousWindow = activeWindow;
+	window_set_active(win);
+	slog("New Window loaded. Name of previous: %s", previousWindow->name);
+
+
+	/*	//artifact of old thinking:   Using next & prev pointer to swap between ONLY 2 windows.  Since before,  I would constantly window_new() to make said window
 	if (!nextWindow) {
 		slog("in Window transition function");
 		previousWindow = activeWindow;
@@ -600,7 +618,7 @@ void window_transition(UI_Button* self) {
 		slog("Next window has already been loaded. No need to configure it again.");
 		previousWindow = activeWindow; //To go back to Attack screen from Main.  Save Main into prev.  SHOULD already be there.. but. y'know just incase
 		activeWindow = nextWindow;
-	}
+	}*/
 }
 /*					//get_active()
 void world_transition(World* old, const char* newWorld, GFC_Vector2D targetPlayerSpawn) {  //here we go
@@ -709,25 +727,21 @@ UI_Button* get_selected_button(int selected, UI_Window* win) {
 
 		elem = gfc_list_nth(win->element_list, index);
 		if (!elem) return NULL;
-		if (!elem->ui.button.action) { slog("Selected UI Element [button ?] does not have an action function assigned"); return NULL; }
-
-		slog("Returning Selected UI_Button's action function");
-
-		//Call the action function,  passing in the UI_Button
-		elem->ui.button.action(&elem->ui.button);
-
+		slog("Returning Selected UI_Button");
+		return &elem->ui.button;
 	}
+	slog("Window does not have an element list. OR it does not contain the selected Button. Selected index = %i",selected);
+	return NULL;
 }
 
 //======================================		DRAWING
 
 void window_draw(UI_Window* window) {
-	GFC_Vector2D pos = gfc_vector2d(0, 0);
-
 	if (!window) {
 		//slog("Bitch there's not window to draw..");
 		return;
 	}
+	GFC_Vector2D pos = gfc_vector2d(0, 0);
 	//gf2d_sprite_draw_image(window->layer, pos);
 
 	//	^	Labels won't change,  sooo maybe I could find a way to integrate that  SDL_Font rendering  INTO a Window_Layer.  and draw that layer which tackles the Window's sprite AND all Labels.

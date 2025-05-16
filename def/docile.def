@@ -1,4 +1,4 @@
-{ 
+{
 	"name": "docile_dragon",
 	"sprite": "images/docile_d.png",
 	"sprite_size": [ 204, 350 ],
@@ -11,24 +11,13 @@
 
 	"type": "docile",
 
-	"speed_Max": 0,
+	"health": 100,
 	"moveList": [
 		{
-			"AttackList":
-			[
-				{
-					"Attack1": "TailSlap",
-					"move_sprite": "fire.png"
-				},
-				{
-					"Attack2": "Waterblast",
-					"move_sprite": "fire.png"
-				}
-			]
+			"name": "Neptunic Embrace"
 		},
 		{
-			"Converse": "No",
-			"move_sprite": "fierce_text1"
+			"name": "Rolling Thunder"
 		}
 	]
 }

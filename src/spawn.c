@@ -48,6 +48,11 @@ static SpawnPair spawn_list[] =
 		monster_new_entity //assign the spawn function
 	},
 	{
+		"cunning_raptor", //name
+		"def/cunning_raptor.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
 		"docile_dragon", //name
 		"def/docile.def", //name of the def file
 		monster_new_entity //assign the spawn function

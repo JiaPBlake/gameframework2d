@@ -266,7 +266,7 @@ void entity_configure(Entity* self, SJson* json) {
 	if (accel.y != 0) {
 		//gfc_vector2d_copy(self->acceleration, (*accel));
 		self->acceleration = accel;
-		slog("Acceleration in the y direction for this entity: %s is: %f",self->name, accel.y);
+		//slog("Acceleration in the y direction for this entity: %s is: %f",self->name, accel.y);
 		//gfc_vector2d_normalize(&self->acceleration);
 	}
 	/*float accel;
@@ -317,7 +317,12 @@ void entity_configure(Entity* self, SJson* json) {
 		//gfc_line_cpy(self->name, ent_name);
 	}
 
-
+	int health;
+	sj_object_get_int(json, "health", &health);
+	self->health = health;
+	if (self->team & ETT_monsters && self->health <= 0) {
+		slog("We have a monster with no health.. that's a nono.");
+	}
 	self->firstCombat = 0;
 	/*  Just realized I added a "domain" key in my cave def files.   I coulddd configure this,  but truth be told I'd much rather have the next domains hard-coded FOR NOW at least .  Once we get to procedural generation....... yeah .
 	const char* domain = sj_object_get_string(json, "domain");

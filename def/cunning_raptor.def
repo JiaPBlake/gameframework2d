@@ -1,8 +1,8 @@
 {
-	"name": "cunning_wyvern",
+	"name": "cunning_raptor",
 	"sprite": "images/cunning_wyvern.png",
-	"sprite_size": [ 244, 143 ],
-	"bounds": [ -122, -72, 244, 143 ],
+	"sprite_size": [ 244, 183 ],
+	"bounds": [ -122, -92, 244, 183 ],
 	"spriteFPL": 1,
 
 	"spawn_Position": [ 950, 550 ],
@@ -14,7 +14,7 @@
 	"health": 100,
 	"moveList": [
 		{
-			"name": "Razor Edge"
+			"name": "Zippy Zoom"
 		},
 		{
 			"name": "Wither Breath"

@@ -429,6 +429,12 @@
     <None Include="..\def\ui\window_battle.def">
       <Filter>Def Files</Filter>
     </None>
+    <None Include="..\def\ui\window_dialogue.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\cunning_raptor.def">
+      <Filter>Def Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\def\npc_skeleton1.def">

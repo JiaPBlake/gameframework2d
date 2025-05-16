@@ -528,7 +528,7 @@ void player_update(Entity* self) {
 	//slog("Ground's y value is: %f", ground.y);
 	//slog("Player's y position is: %f", self->position.y);
 	//slog("Ground y position = %f", ground.y);
-	if (self->position.y > ground.y) { slog("what the FUCK WE'RE UNDERGROUND???"); self->position.y = ground.y - self->bounds.h; }
+	if (self->position.y > ground.y) { slog("what the FUCK WE'RE UNDERGROUND??? at PLAYER POS: %f   ground pos: %f",self->position.y, ground.y); self->position.y = ground.y - self->bounds.h; }
 
 
 

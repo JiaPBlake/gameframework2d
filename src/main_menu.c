@@ -37,20 +37,22 @@
 void initialize_game_state();
 
 
-Sprite* mouse;
-GFC_Color mouseGFC_Color;
-int mx, my;
-float mf = 0;			//Honestly I might want to leave the mouse in Game.c  just to be consistent with keeping the Keys(board) there
+//Sprite* mouse;
+//GFC_Color mouseGFC_Color;
+//int mx, my;
+//float mf = 0;			//Honestly I might want to leave the mouse in Game.c  just to be consistent with keeping the Keys(board) there
 
+extern Uint8 _START_SCREEN;
+extern Uint8 _PAUSED;
 
 //I wanna move as much of the game setup code here  as I need (mouse capture, key capture etc)
  //since this funciton will be called even BEFORE the main game loop starts .
 void initialize_game_state() {
-	mouseGFC_Color = gfc_color8(100, 100, 100, 200);
+	//mouseGFC_Color = gfc_color8(100, 100, 100, 200);
 	World* world;  // ....?? Where do I want to handle worlds...  Probably here, but think about it more
 
 	//slog("Initializing Config File");  //Jlog
-	gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
+	//gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
 
 	gfc_audio_init(
 		100,
@@ -69,24 +71,29 @@ void initialize_game_state() {
 
 	ui_system_init(100);
 	window_system_init(10);
+	window_masterlist_initialize("def/ui_windows.def");
+	configure_all_windows();
+	
 	items_initialize("def/items.def");
 	move_masterlist_initialize("def/moveList.def");
 	move_system_init(25);		//lmAOOO I hve no idea where I included  move.h  but hey! as long as it works.. I'll trace it later prob
 	configure_all_moves();
 
 
-	mouse = gf2d_sprite_load_all("images/pointer.png", 32, 32, 16, 0);
+	//mouse = gf2d_sprite_load_all("images/pointer.png", 32, 32, 16, 0);
 
 
 	//J START:
-	world = world_load("def/levels/testLevel.level"); /*world_test_new();*/
+	world = world_load("def/levels/cunning_domain.level"); /*world_test_new();*/
 	world_set_active(world);
 
-
+	slog("GAME STATE INITIALIZED");
+	_START_SCREEN = 0;				//SET THIS TO 1 ONCE YOU'VE DRAWN UP A MAIN MENU LMAOO
+	_PAUSED = 0;
 }
 
 //In the event I call this OUTSIDE the main game loop:   (VERY unlikely I will use this approach)
-void main_menu_start() {
+void main_menu_concept_function_with_another_loop() {
 	int begin = 0;
 	const Uint8* keys;
 	int mx, my;
@@ -200,11 +207,20 @@ void game_update() {
 void game_draw() {
 
 	//I will initialize the game state here    and then (after...?)  Draw the actual start screen
+	UI_Window* window = {0};
 
-	UI_Window* startScreen = window_search_by_name("Start Screen");
-	window_draw(startScreen);
+	if(_START_SCREEN) {
+		window = window_search_by_name("Start Screen");
+	}
+	else {
+		window = window_get_active();	
+	}
 
+	if (_PAUSED) {
+		window = window_search_by_name("Pause Screen");
+	}
 
+	window_draw(window);
 	//I have to draw  Dialogue_window
 		//and then draw dialogue on top of it... with dialogue thinking ??  up there ^^??
 

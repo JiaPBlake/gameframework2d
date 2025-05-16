@@ -33,6 +33,7 @@ typedef struct {
 	Uint8			itemSpawnedFlag;
 
 	Move			*moveToTeach;
+	Uint8			moveTaughtFlag;
 
 	Dialogue		*dialogue; //Pointer to a Dialogue object.  Which will be configured with all its appropriate lines
 
@@ -149,6 +150,7 @@ void npc_data_configure(Entity* self, const char* defFile) {
 	data = self->data;   //make it point.  Especially because "data", in THIS file  is specific to NPCs.  whereas self->data is declared to be a Void pointer
 	data->item = NULL;
 	data->itemSpawnedFlag = 0;
+	data->moveTaughtFlag = 0;
 
 	NPCType type = 0;
 	SJson* typeList = { 0 };	//in the event an NPC has more than 1 type
@@ -282,11 +284,11 @@ void npc_perform_action(Entity *self, Entity *player) {
 		npc_spawn_item(self, player);
 		data->itemSpawnedFlag = 1;
 	}
-	if (data->type & NPCT_Move && !data->itemSpawnedFlag) {
+	if (data->type & NPCT_Move && !data->moveTaughtFlag) {
 		//give the player the item
-		slog("spawning item");
+		slog("teaching move");
 		npc_teach_move(self, player);
-		data->itemSpawnedFlag = 1;
+		data->moveTaughtFlag = 1;
 	}
 	if (data->type & NPCT_Lore) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
 		slog("The type of %s is: %i", self->name, data->type);

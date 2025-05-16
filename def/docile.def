@@ -5,7 +5,7 @@
 	"bounds": [ -102, -175, 204, 350 ],
 	"spriteFPL": 1,
 
-	"spawn_Position": [ 950, 600 ],
+	"spawn_Position": [ 1150, 740 ],
 	"velocity": [ 0, 0 ],
 	"acceleration": 0,
 

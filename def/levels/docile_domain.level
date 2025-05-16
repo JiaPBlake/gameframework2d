@@ -36,8 +36,12 @@
 			"name": "cave_f"
 		},
 		{
+			"name": "npc_skeleton_2",
+			"position": [ 550, 800 ]
+		},
+		{
 			"name": "cave_t",
-			"position": [ 2600, 550 ]
+			"position": [ 2600, 750 ]
 		},
 		{
 			"name": "player"

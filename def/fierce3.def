@@ -1,7 +1,7 @@
 {
 	"name": "fierce_wyvern3",
 	"sprite": "images/fierce3.png",
-	"sprite_size": [ 374, 200 ],
+	"sprite_size": [ 374, 350 ],
 	"bounds": [ -187, -175, 374, 350 ],
 	"spriteFPL": 1,
 

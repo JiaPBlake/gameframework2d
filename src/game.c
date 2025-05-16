@@ -192,7 +192,7 @@ int main(int argc, char * argv[])
     GFC_Vector2D h_center = gfc_vector2d(160, 32);
     
     //litERALLY  waht the fuck audio:
-    music = gfc_sound_load("audio/Ahrix_Nova_shorter.mp3", 0.3, 0);
+    music = gfc_sound_load("audio/Ahrix_Nova.mp3", 0.2, 0);
     //test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
     //if (!test_sound) slog("Couldn't load test_sound");
 

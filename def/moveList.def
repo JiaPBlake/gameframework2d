@@ -181,8 +181,16 @@
 			"bounds": [ -83, -146, 166, 292 ],
 
 			"attackPower": 40
+		},
+		{
+			"type": "attack",
+			"name": "How To Pass My Class",
+			"sprite": "images/attacks/pass.png",
+			"sprite_size": [ 100, 68],
+			"spriteFPL": 1,
+			"bounds": [ -50, -34, 100, 68 ],
 
-
+			"attackPower": 70
 		}
 
 	]

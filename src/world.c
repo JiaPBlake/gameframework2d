@@ -2,6 +2,7 @@
 #include "simple_json.h"
 
 #include "gfc_config.h"
+#include "gfc_audio.h"
 #include "gf2d_graphics.h"
 #include "gf2d_draw.h"
 
@@ -48,6 +49,7 @@
 //Make the world a singleton,,
 
 static World* activeWorld = NULL;
+GFC_Sound* test_sound;
 
 //=======  Mon April 21.  a  Tile Layer CLEAR function
 Uint8 world_get_tile_index_by_pos(World* world, GFC_Vector2I position);
@@ -172,6 +174,7 @@ void world_tile_layer_build(World* world) {
 			position.y = j * world->tileSet->frame_h;//So that we can spawn each tile in it's appropriate position
 
 			frame = world->tileMap[index] - 1;
+			frame = frame % 4;
 
 			gf2d_sprite_draw_to_surface(
 				world->tileSet,
@@ -241,7 +244,8 @@ World* world_load(const char* filename) {
 	const char* ent_name = NULL;
 	Entity* ent = NULL;
 	Entity* player = NULL;
-	GFC_Vector2D default_pos;
+	GFC_Vector2D temp;
+	GFC_Vector3D default_pos = { 0 };
 	
 
 	int spawnTileValue, tileValueForTesting;
@@ -370,24 +374,27 @@ World* world_load(const char* filename) {
 //slog("The number of entities that belong to this World's list is: %i",entCount);	//Jlog
 	
 	for (i = 0; i < entCount; i++) {	//! Also what I want to do is I want to be able to use this list of entities to spawn them in.  So call spawn as well
-		default_pos = gfc_vector2d(-1, -1);
 		enty = sj_array_get_nth(entList, i); //enty is now the JSon object that contains all the info about the ent.   That being said !!  The only info my WORLD needs to know about it   is it's name
 		//SO THAT:  I can call  spawn_entity("player", default_pos); :   meaning I want a name and its position OVERRIDE  if there is one..
 
 		if (enty) {
 			ent_name = sj_object_get_string(enty, "name");    //Get the name of the entity/JSon object
-			sj_object_get_vector2d(enty, "position", &default_pos); //if the position argument does not exist, it doesn't change the values of default_pos at all
+			sj_object_get_vector2d(enty, "position", &temp); //if the position argument does not exist, it doesn't change the values of default_pos at all
+			default_pos.x = temp.x;
+			default_pos.y = temp.y;
+			default_pos.z = 0;
 			//Spawn the entity using its name in the Spawn list & its position in the World def file
 			
 			//hmmmm  maybe I SHOULD make a list.  bit a List of 3D vectors.  so that I can also save the value AT that tile.  So I can make
 				//5 = Dragon spawn points.   6  = item spawn points.    7 =  Cave spawn points.  8 = NPCs. Saving those values as the 3d vector's .z value
 			
-			if (spawnTilePosition && spawnTilePosition->x > 0) {
-				default_pos.x = spawnTilePosition->x;
-				default_pos.y = spawnTilePosition->y;
+			//if (spawnTilePosition && spawnTilePosition->x > 0 && spawnTilePosition->z != 5) {
+			//	default_pos.x = spawnTilePosition->x;
+			//	default_pos.y = spawnTilePosition->y;
+			//	default_pos.z = 1;
 				//Jlog   is default_pos is being overriden by any spawn tile Value
 				//slog("Spawning entity at the position indicated BY the Map def file's tileSet, x position: %f",spawnTilePosition->x);
-			}
+			//}
 			//Spawn in the entity.  THIS adds them into the Entity Manager
 			ent = spawn_entity(ent_name, default_pos, spawn_coords);
 			if (ent) {	

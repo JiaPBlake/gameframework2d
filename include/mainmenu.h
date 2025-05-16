@@ -24,5 +24,7 @@ void start_screen();
 void initialize_game_state();
 
 
+void game_draw();
+
 
 #endif

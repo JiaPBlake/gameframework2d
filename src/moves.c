@@ -124,10 +124,10 @@ void move_free(Move* self) {
 
 	//Based on the type of the Move:
 	if (self->type & MOVET_ATTACK) {
-		slog("Freeing Attacking Move's sprite");
+		//slog("Freeing Attacking Move's sprite");
 		//Free the sprite
 		if (self->m.attack.sprite) {
-			slog("Actually freed sprite :)");
+			//slog("Actually freed sprite :)");
 			gf2d_sprite_free(self->m.attack.sprite);
 		}
 		
@@ -136,7 +136,7 @@ void move_free(Move* self) {
 
 	//Add  Converse here later  (freeing text,,)
 
-	slog("Move Freed");
+	//slog("Move Freed");
 	//Just to set the rest of the memory that used to be in use   to 0.  
 	memset(self, 0, sizeof(Move));
 	self->_inuse = 0;
@@ -233,7 +233,7 @@ void move_configure(Move* self, SJson* json) {
 	}
 
 	if (self->type & MOVET_ATTACK) {
-		slog("This Move is an Attack move");
+		//slog("This Move is an Attack move");
 		attack_configure(&self->m.attack, json);
 		//self->elem_draw = label_draw;				//think function ??
 	}
@@ -263,9 +263,9 @@ void configure_all_moves() {
 
 		move_configure(move, moveDef);  //Sooo   my masterlist which is move_sub_system's move_system_list,  is getting allocated by move_Create,  and al lthose allocated spots are being filled in with relevant data
 
-		if (move->type == MOVET_NONE) slog("Move '%s' was not properly configured. It has no type",move->name);
+		//if (move->type == MOVET_NONE) slog("Move '%s' was not properly configured. It has no type",move->name);
 
-		if(move->type != MOVET_NONE) slog("Just configured the %i'th move. The name of this move's attack is: %s", i, move->name);
+		//if(move->type != MOVET_NONE) slog("Just configured the %i'th move. The name of this move's attack is: %s", i, move->name);
 	}
 	slog("Done configuring all moves");
 
@@ -312,7 +312,7 @@ void configure_moves_for_ent(GFC_List* listOfMoveNames, GFC_List* entMoveList) {
 		move = get_move_by_name(nameOfMove);
 		//append it to the MoveList
 		gfc_list_append(entMoveList, move);  //apending the  Address of that corresponding Move object as it exists in our list
-		slog("Move of name '%s' appended to the entity's MoveList", move->name);
+		//slog("Move of name '%s' appended to the entity's MoveList", move->name);	//Jlog
 	}
 }
 

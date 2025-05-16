@@ -1,0 +1,15 @@
+{
+	"name": "npc_teacher",
+	"sprite": "images/teacherr.png",
+	"sprite_size": [ 120, 160 ],
+	"bounds": [ -60, -80, 120, 160 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 380 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "npc",
+	"npc_type": "move",
+	"move": "How To Pass My Class"
+}

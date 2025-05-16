@@ -1,8 +1,8 @@
 {
 	"name": "cunning_raptor",
-	"sprite": "images/cunning_wyvern.png",
-	"sprite_size": [ 244, 183 ],
-	"bounds": [ -122, -92, 244, 183 ],
+	"sprite": "images/cunnning3.png",
+	"sprite_size": [ 298, 238 ],
+	"bounds": [ -150, -119, 300, 238 ],
 	"spriteFPL": 1,
 
 	"spawn_Position": [ 950, 550 ],
@@ -17,7 +17,7 @@
 			"name": "Zippy Zoom"
 		},
 		{
-			"name": "Wither Breath"
+			"name": "Acid Spray"
 		}
 	]
 }

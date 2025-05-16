@@ -361,7 +361,7 @@ void entity_configure(Entity* self, SJson* json) {
 			if (movy) {
 				move_name = sj_object_get_string(movy, "name");    //Get the name of the entity/JSon object
 				if (move_name) {  //append the string to the list
-					slog("On iteration: %i,  the name for the move is: %s", i, move_name);
+					//slog("On iteration: %i,  the name for the move is: %s", i, move_name);
 					gfc_list_append(moveNames, move_name);
 				}
 

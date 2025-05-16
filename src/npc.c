@@ -1,13 +1,19 @@
 #include "simple_logger.h"
 #include "gfc_input.h"
+#include "gfc_audio.h"
+
 #include "gf2d_graphics.h"
 
 #include "npc.h"
 #include "world.h"
 #include "spawn.h"
 
+#include "dialogue.h"
 
 extern int keySelectTimer; //10 frames
+extern GFC_Sound* test_sound;
+
+
 
 typedef enum {
 	NPCT_None = 0,
@@ -25,6 +31,10 @@ typedef struct {
 	GFC_TextLine	itemName;
 	Entity			*item;  //so I can keep track of the item I've spawned in.   Once the player picks it up, the player_think function subsequenty free's the item for us. But just in case
 	Uint8			itemSpawnedFlag;
+
+	Move			*moveToTeach;
+
+	Dialogue		*dialogue; //Pointer to a Dialogue object.  Which will be configured with all its appropriate lines
 
 }NPCEntityData;
 
@@ -104,6 +114,29 @@ void npc_data_free(Entity* self) {
 
 }
 
+int npc_return_type_from_string(Entity* self, const char* string) {
+	if (gfc_strlcmp(string, "item") == 0) {
+		//slog("Item giving npc found: %s", self->name);
+		return NPCT_Item;
+	}
+	else if (gfc_strlcmp(string, "move") == 0) {
+		//slog("Lore dumping npc found: %s", self->name);
+		return NPCT_Move;
+	}
+	else if (gfc_strlcmp(string, "lore") == 0) {
+		//slog("Lore dumping npc found: %s", self->name);
+		return NPCT_Lore;
+	}
+	else if (gfc_strlcmp(string, "all") == 0) {
+		//slog("Npc both gives and item AND lore dumps: %s", self->name);
+		return NPCT_Max;
+	}
+	else {
+		slog("Extracted NPC Type string, but didn't find a match");
+		return NPCT_None;
+	}
+}
+
 
 void npc_data_configure(Entity* self, const char* defFile) {
 	if (!self) { slog("What the .  no NPC entity to configure"); return; }
@@ -118,38 +151,38 @@ void npc_data_configure(Entity* self, const char* defFile) {
 	data->itemSpawnedFlag = 0;
 
 	NPCType type = 0;
+	SJson* typeList = { 0 };	//in the event an NPC has more than 1 type
 	const char* string = NULL;
 
-	string = sj_object_get_string(json, "npc_type");
-//======================================================================================================	NPC Type
-	if (string) {
-		if (gfc_strlcmp(string, "item") == 0) {
-			slog("Item giving npc found: %s", self->name);
-			type = NPCT_Item;
-		}
-		else if (gfc_strlcmp(string, "move") == 0) {
-			//slog("Lore dumping npc found: %s", self->name);
-			type = NPCT_Move;
-		}
-		else if (gfc_strlcmp(string, "lore") == 0) {
-			//slog("Lore dumping npc found: %s", self->name);
-			type = NPCT_Lore;
-		}
-		else if (gfc_strlcmp(string, "both") == 0) {
-			//slog("Npc both gives and item AND lore dumps: %s", self->name);
-			type = NPCT_Max;
+	SJson* dialogueList;
+	int i, c = 0;
 
-		}
-		else {
-			slog("Extracted NPC Type string, but didn't find a match");
-		}
-		data->type = type;
+	
+//======================================================================================================	NPC Type
+	typeList = sj_object_get_value(json, "npc_type");	//this will NOT return null.  the key IS there !!  What I'm concered with: is what form it takes
+	if (sj_is_array(typeList)) {
+		c = sj_array_get_count(typeList);
 	}
 	else {
-		slog("Could not extract what Type of NPC this is");
-		data->type = NPCT_None;
-	}
+		c = 1;
 
+	}
+	
+	for (i = 0; i < c; i++) {
+			//if c > 1,  then get the value(s) from the array.	ELSE !! typeList isn't even an array to begin with. it's just a SJson object that is a string. Get that string
+		string = (c>1) ? sj_get_string_value(sj_array_get_nth(typeList, i)) : sj_get_string_value(typeList);
+		
+		if (string) {
+			//slog("NPC type is string: %s", string);
+			type = npc_return_type_from_string(self, string);
+			data->type |= type;
+		}
+		else {
+			slog("Could not extract what Type of NPC this is");
+			data->type = NPCT_None;
+		}
+	}
+	slog("Checkpoint 0");
 //=======================================================================================================	ITEM carrying
 	if (data->type & NPCT_Item) {
 		string = sj_object_get_string(json, "item");
@@ -164,16 +197,26 @@ void npc_data_configure(Entity* self, const char* defFile) {
 	}
 
 //=======================================================================================================	MOVE giving
-	if (data->type & NPCT_Move) {
-		string = sj_object_get_string(json, "move");
+	if (data->type & NPCT_Move) { 
+		string = sj_object_get_string(json, "move"); 
 		if (string) {
-			slog("aaAAAaa");
+			slog("NPC has move: %s to give to player.", string);
+			data->moveToTeach = get_move_by_name(string);
+
 		}
 		else {
 			slog("Could not extract the name of the item that the NPC should be holding");
 		}
 	}
 
+//=======================================================================================================	Lore dumP
+	if (data->type & NPCT_Lore) {
+		slog("Lore NPC branch.");
+		//dialogueList = sj_object_get_value(json, "dialogue");
+		//This  SJson variable  is a JSon array.
+		//dialogue_configure(self, dialogueList);
+		//slog("The amount of dialogue lines this NPC '%s' has is: '%i'",self->name, c);
+	}
 
 
 	sj_free(json);
@@ -188,15 +231,35 @@ void npc_spawn_item(Entity* self, Entity* player) {
 	NPCEntityData *data;
 	data = self->data;
 
+	if (!test_sound) {
+		slog("Test sound not loaded :(((");
+	}
+	else {
+		slog("Test sound loaded !!!");
+	}
+
 	//wait yeah duh.   no need to GIVE it to the player,  just spawn it right next to them,, LMAO
-	GFC_Vector2D item_pos = { 0 };
+	GFC_Vector3D item_pos = { 0 };
 	item_pos.x = self->position.x + 10;
 	item_pos.y = self->position.y - self->bounds.y;
+	item_pos.z = 0;
 	//I can safely say that an NPC will never be spawned THAT close to a tile of a higher elevation. So just take the NPC'd position, and offset it by like 20 pixels to the right.
 	
 	data->item = spawn_entity(data->itemName, item_pos, NULL);
 		//honestly !! this SHOULD add it to my masterlist in the Entity maanger right???   so I don't ned a separate draw function for this
 
+}
+
+void npc_teach_move(Entity* self, Entity* player) {
+	if (!self || !player) {
+		slog("No self (NPC) OR no player. Cannot teach move");
+		return;
+	}
+	NPCEntityData* data;
+	data = self->data;
+	slog("Teaching Player the move now");
+	gfc_list_append(player->move_list, data->moveToTeach);
+	
 }
 
 void npc_lore_drop(Entity* self, Entity* player) {
@@ -219,6 +282,12 @@ void npc_perform_action(Entity *self, Entity *player) {
 		npc_spawn_item(self, player);
 		data->itemSpawnedFlag = 1;
 	}
+	if (data->type & NPCT_Move && !data->itemSpawnedFlag) {
+		//give the player the item
+		slog("spawning item");
+		npc_teach_move(self, player);
+		data->itemSpawnedFlag = 1;
+	}
 	if (data->type & NPCT_Lore) {   //... :|  for some reason this always equates to 1..  can't remember why but I think it was smth smth the order. Fierce came first.  Maybe I never properly declared types..? don't remember actually
 		slog("The type of %s is: %i", self->name, data->type);
 	}
@@ -230,6 +299,11 @@ void npc_perform_action(Entity *self, Entity *player) {
 
 void npc_think(Entity *self) {
 	if (!self) return;
+
+	//lmfao if I'm the teacher, I should walk at a really slow place back and forth...
+
+
+
 
 	//check if player is colliding with me
 	Entity* other;

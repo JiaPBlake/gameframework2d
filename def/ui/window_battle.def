@@ -7,7 +7,7 @@
   "buttons": [
     {
       "sprite": "images/ui/attack_button.png",
-      "button_position": [ 120, 350 ],
+      "button_position": [ 210, 400 ],
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
@@ -15,7 +15,7 @@
     },
     {
       "sprite": "images/ui/converse_button.png",
-      "button_position": [ 200, 230 ],
+      "button_position": [ 290, 280 ],
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "newWindow",
@@ -23,14 +23,14 @@
     },
     {
       "sprite": "images/ui/tame_button.png",
-      "button_position": [ 400, 230 ],
+      "button_position": [ 490, 280 ],
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "tame"
     },
     {
       "sprite": "images/ui/flee_button.png",
-      "button_position": [ 500, 350 ],
+      "button_position": [ 590, 400 ],
       "sprite_size": [ 180, 100 ],
       "bounds": [ -90, -50, 180, 100 ],
       "action": "exitWindow",

@@ -101,11 +101,12 @@ Text* text_new();
 Text* create_text_raw(const char* text, FontSizes font_size, GFC_Color color, GFC_Vector2D position, TextType tag);
 
 /*
- * @brief: ADD (through the use of |= ) a tag to a given Text object
+ * @brief: Return a tag to a given Text object
  * @param: self - pointer to the Text object whose tag should be set
- * @param: tag - the integer equivalent of the TextType tag
+ * @param: tag - the string extracted from the json object corresponding to the enumerated tag
+ * @return: the TextType (an integer)
 */
-void text_obj_set_tag(Text* self, int tag);
+int text_obj_set_tag(Text* self, const char* tag);
 
 /*
  * @brief: Configure a Text object using a JSon object  (Mainly to be used by UI.c's label_configure() function)
@@ -151,7 +152,7 @@ void stats_draw(const char* text, FontSizes font_size, GFC_Color color, GFC_Vect
 */
 void text_draw(Text* txtObj, GFC_Vector2D position);
 
-
+const char* get_text_name();
 
 
 

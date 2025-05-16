@@ -149,13 +149,13 @@ void window_free(UI_Window* self) {
 	//free the Window's sprite
 	if (self->sprite) {
 		gf2d_sprite_free(self->sprite); //frees the spot IN the masterlist of Sprites.   gf2d_sprite.h takes care of actually deleting things.
-		slog("Window's Sprite freed");
+		//slog("Window's Sprite freed");
 	}
 	
 	//Free the layer made from the Sprite and all the buttons
 	if (self->layer) {
 		gf2d_sprite_free(self->layer);
-		slog("Window's Layer freed");
+		//slog("Window's Layer freed");
 	}
 
 //ELEMENT FREE-ing
@@ -164,7 +164,7 @@ void window_free(UI_Window* self) {
 	if (self->element_list) {
 		slog("Freeing Window '%s's Element List", self->name);
 		c = gfc_list_count(self->element_list);
-		slog("The number of elements in the UI Window about to be freed is: %i",c);	//Jlog  
+		//slog("The number of elements in the UI Window about to be freed is: %i",c);	//Jlog  
 
 		//UI_Element* but2 = gfc_list_get_nth(self->button_list, 2);		//for testing purposes
 		//slog("Button 2's position: %f", but2->position.x);  //Jlog
@@ -172,12 +172,12 @@ void window_free(UI_Window* self) {
 		//Remember,  gfc_deleting a point in the list fucks up the rest of the list.  So don't alter the list.  AND, as an extra precaution, I'll iterate backwards, just incase
 		for (i = (c - 1); i >= 0; i--) {
 			element = NULL;
-			slog("Freeing element");
+			//slog("Freeing element");
 			//but2 = gfc_list_get_nth(self->button_list, 1);			//for testing purposes
 			//slog("Button %i's position: %f", 1, but2->position.x);
 			element = gfc_list_get_nth(self->element_list, i);
 			if ((!element) || (!element->_inuse)) continue;
-			slog("The TYPE of the element being freed is: %i:", element->type);
+			//slog("The TYPE of the element being freed is: %i:", element->type);
 			//slog("Printing something about Button #%i BEFORE Button_Free to be sure I'm not FUCKING tripping: %f", i, element->position.x);
 			ui_element_free(element);
 
@@ -353,7 +353,7 @@ void window_configure(UI_Window* self, SJson* json) {
 	//One list at a time
 	if (labelList) {		
 		self->labelCount = sj_array_get_count(labelList);
-		slog("The number of Labels this window has is: %i", self->labelCount);
+		//slog("The number of Labels this window has is: %i", self->labelCount);
 
 		//For every Label JSon object in the list of "labels":
 		for (i = 0; i < self->labelCount; i++) {
@@ -381,7 +381,7 @@ void window_configure(UI_Window* self, SJson* json) {
 	//One list at a time
 	if (imageList) {
 		self->imageCount = sj_array_get_count(imageList);
-		slog("The number of Images this window has is: %i", self->imageCount);
+		//slog("The number of Images this window has is: %i", self->imageCount);
 
 		//For every Image JSon object in the list of "images":
 		for (i = 0; i < self->imageCount; i++) {
@@ -410,7 +410,7 @@ void window_configure(UI_Window* self, SJson* json) {
 	buttonList = sj_object_get_value(json, "buttons"); //This is now a list/array of N objects
 	if (buttonList) {
 		self->buttonCount = sj_array_get_count(buttonList);
-		slog("The number of Buttons this window has is: %i", self->buttonCount);
+		//slog("The number of Buttons this window has is: %i", self->buttonCount);
 
 		//For every Button JSon object in the list of "labels":
 		for (i = 0; i < self->buttonCount; i++) {
@@ -438,49 +438,6 @@ void window_configure(UI_Window* self, SJson* json) {
 			else { slog("Button on index %i could not be retrieved from 'buttons' json list", i); }
 		}
 	}
-
-//OLDDD Buttons Section
-	/*UI_Button* butto;
-
-
-	//self->button_list = gfc_list_new();  //allocate the list here
-	buttonList = sj_object_get_value(json, "buttons"); //This is now a list/array of N objects
-	
-	if(buttonList){
-		buttonCount = sj_array_get_count(buttonList);
-		slog("The number of buttons in this Window is: %i", buttonCount);	//Jlog
-
-		for (i = 0; i < buttonCount; i++) {
-
-			button = sj_array_get_nth(buttonList, i); //buttons is now the JSon object that contains all the info about a given button
-			//Configure the button
-			if (button) {
-				butto = button_configure(button); //Configure for buttons is like Spawn for entities;  creates a new one an configures it using hte JSon object
-				if (butto) {
-
-					if (butto->actionType == BT_NewWindow) {
-						butto->action = window_transition;
-					}
-					if (butto->actionType == BT_CloseWindow) {
-						//slog("This button would Close a window!");
-						butto->action = battle_end;
-					}
-
-
-					//slog("Configured Button #%i and adding it to the list", i); //Jlog
-					gfc_list_append(self->button_list, butto); //append the button to our Window's list.  THIS will be the primary point of contact for them
-				}
-				else { slog("Button configuration failed. On iteration: %i", i); }
-			}
-
-			else { slog("Button on index %i could not be retrieved from 'buttons' json list", i); }
-		}
-
-	}
-
-	c = gfc_list_count(self->button_list);
-	slog("All buttons should be configured.  Length of the Window's Button List is: %i", c);
-	*/
 
 	//Build the layer so that I can draw the whole Window  (window's sprite AND alll button sprites)  in one fell swoop:
 	//window_layer_build(self);
@@ -521,7 +478,7 @@ void configure_all_windows() {
 		window_configure_from_file(window, filepath);  //Sooo   my masterlist which is window_sub_system's window_system_list,  is getting allocated by window_Create,  and al lthose allocated spots are being filled in with relevant data
 		
 
-		slog("Just configured the index i=%i 'th window. The name of this window's attack is: %s", i, window->name);
+		//slog("Just configured the index i=%i 'th window. The name of this window's attack is: %s", i, window->name);
 	}
 	slog("Done configuring all windows");
 
@@ -536,7 +493,7 @@ UI_Window* window_search_by_name(const char* windowName) {
 		if (!window_system.window_list[i]._inuse) continue;  //If it's NOT in use
 
 		if (gfc_strlcmp(window_system.window_list[i].name, windowName) == 0) {
-			slog("Window found!");
+			//slog("Window found!");
 			return &window_system.window_list[i];
 		}
 	}
@@ -601,7 +558,7 @@ void window_transition(UI_Button* self) {
 	}
 	previousWindow = activeWindow;
 	window_set_active(win);
-	slog("New Window loaded. Name of previous: %s", previousWindow->name);
+	//slog("New Window loaded. Name of previous: %s", previousWindow->name);
 
 
 	/*	//artifact of old thinking:   Using next & prev pointer to swap between ONLY 2 windows.  Since before,  I would constantly window_new() to make said window
@@ -660,10 +617,10 @@ void window_go_back() {
 	if (!previousWindow) { slog("No previous window. Cannot back out"); return; }
 	UI_Window* temp;
 	temp = activeWindow;
-	slog("The CURRENT Window's name is: %s",temp->name);
+	//slog("The CURRENT Window's name is: %s",temp->name);
 	activeWindow = previousWindow;
 	previousWindow = NULL; //so that I can't try and go back more than once.  Otherwise, that messes things up
-	slog("Window sawpped. Now, Window's name is: %s", activeWindow->name);
+	//slog("Window sawpped. Now, Window's name is: %s", activeWindow->name);
 	nextWindow = temp;
 }
 
@@ -727,7 +684,7 @@ UI_Button* get_selected_button(int selected, UI_Window* win) {
 
 		elem = gfc_list_nth(win->element_list, index);
 		if (!elem) return NULL;
-		slog("Returning Selected UI_Button");
+		//slog("Returning Selected UI_Button");
 		return &elem->ui.button;
 	}
 	slog("Window does not have an element list. OR it does not contain the selected Button. Selected index = %i",selected);

@@ -1,25 +1,29 @@
 {
 	"windows": [
 		{
+			"name": "Start Screen",
+			"filepath": "def/ui/window_start_screen.def"
+		},
+		{
 			"name": "battle_screen_test",
-			"comment":"I don't even need the name here tbh."
-			"filepath":"def/ui/testWindow.def"
+			"comment": "I don't even need the name here tbh.",
+			"filepath": "def/ui/testWindow.def"
 		},
 		{
 			"name": "battle_screen",
-			"filepath":"def/ui/window_battle.def"
+			"filepath": "def/ui/window_battle.def"
 		},
 		{
 			"name": "battle_screen_attack",
-			"filepath":"def/ui/window_attack.def"
+			"filepath": "def/ui/window_attack.def"
 		},
 		{
 			"name": "battle_screen_converse",
-			"filepath":"def/ui/window_converse.def"
+			"filepath": "def/ui/window_converse.def"
 		},
 		{
 			"name": "dialogue_screen",
-			"filepath":"def/ui/window_dialogue.def"
+			"filepath": "def/ui/window_dialogue.def"
 		}
 
 	]

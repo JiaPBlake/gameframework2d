@@ -30,6 +30,9 @@ typedef struct {
 }MonsterEntityData;
 
 
+extern Uint8 turn;
+
+
 Entity* monster_new_entity(GFC_Vector2D position, const char* defFile) //Now that I'm configuring the spawn.h file, I'm going to iterate through my list of Spawnable entities
 {															// and call this function providing the position to spawn it AND the DefFile to be used in Configuring this entity
 	Entity* self;
@@ -52,7 +55,7 @@ Entity* monster_new_entity(GFC_Vector2D position, const char* defFile) //Now tha
 	entity_configure_from_file(self, defFile);  //INSTEAD OF this Sprite loading bock underneath
 	//position override from the parameters:
 	if (position.x >= 0) { //if position is a negative vector, don't override, just use the one from the def file
-		//slog("Position override for Monster %s",self->name);
+		//slog("Position override for Monster %s.  Should be at X position: %f",self->name, position.x);
 		gfc_vector2d_copy(self->position, position);
 	}
 /*Calling Sprite hard-coded
@@ -113,24 +116,7 @@ void monster_think(Entity *self) {
 	//if (self->position.x - self->bounds.x >= 1200) self->velocity.x = -1;
 	gfc_vector2d_normalize(&self->velocity);
 	gfc_vector2d_scale(self->velocity, self->velocity, 1);
-	/*
-	if (gfc_input_command_down("right")) {  //if I'm pressin'  right
-		self->velocity.x = 1.0;
-	}
-	else if (gfc_input_command_down("left")) {  //if I'm pressin'  right
-		self->velocity.x = -1.0;
-	}
-	else self->velocity.x = 0;							//something  seomething
 
-	if (gfc_input_command_down("down")) {  //if I'm pressin'  right
-		self->velocity.y = 1.0;
-	}
-	else if (gfc_input_command_down("up")) {  //if I'm pressin'  right
-		self->velocity.y = -1.0;
-	}
-	else self->velocity.y = 0;		//stop movement if we're not holding down a button
-	
-	*/
 
 
 	//screen = gf2d_graphics_get_resolution();

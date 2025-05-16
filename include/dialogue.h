@@ -8,10 +8,27 @@
 
 
 typedef struct {
-	int		diacount;
-	GFC_List diaList;		//pointer ?	List of Text objects that act as a single instance of dialogue.   hm..  or should they be GFC_TextLines.. and I render them AS Text Objects somewhere else..?
+	Uint8		_inuse;
+	int			diaCount;
+	GFC_List	*textList;		//yeah nvm forget the double pointer idea.  I don't know well enough how I should terminate my search through a double pointer WITHOUT knowing the number in advance.. like.. variable sized array type shit... scary
 
-}DialogueList;
+}Dialogue;
+
+
+
+
+//ohhh boy it's a resource alright...
+
+
+void dialogue_init(Uint32 max_dialogue);
+
+
+void dialogue_free(Dialogue* self);
+
+//Allocates spot on the list
+Dialogue* Dialogue_new();
+
+
 
 /**
  * @brief	Using the def file of the entity that should have this dialogue:  configure the list of dialogue options
@@ -19,8 +36,10 @@ typedef struct {
  * @return DialogeList object with a NULL list, and a Count of 0, otherwise: return the DialogueList object fully configured
  * @note <Notes for  freeing  or other important things>
 */
-DialogueList dialogue_list_configure(Entity* ent, SJson* json);		//npc should include dialogue.  And it should be configured in the NPC_new_net function. ... fuck maybe all entities..
+//Dialogue dialogue_configure(Entity* ent, SJson* json);		//npc should include dialogue.  And it should be configured in the NPC_new_net function. ... fuck maybe all entities..
 
+
+void dialogue_configure(Dialogue* self, SJson* json);
 
 /**
  * @brief	<purpose>

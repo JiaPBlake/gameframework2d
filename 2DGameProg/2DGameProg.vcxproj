@@ -169,6 +169,7 @@
     <ClCompile Include="..\gfc\src\gfc_types.c" />
     <ClCompile Include="..\gfc\src\gfc_vector.c" />
     <ClCompile Include="..\gfc\src\miniz.c" />
+    <ClCompile Include="..\src\dialogue.c" />
     <ClCompile Include="..\src\moves.c" />
     <ClCompile Include="..\src\battle.c" />
     <ClCompile Include="..\src\camera.c" />
@@ -266,6 +267,7 @@
     <None Include="..\def\docile_wyvern.def" />
     <None Include="..\def\fierce1.def" />
     <None Include="..\def\fierce2.def" />
+    <None Include="..\def\fierce3.def" />
     <None Include="..\def\items.def" />
     <None Include="..\def\levels\cunning_domain.level" />
     <None Include="..\def\levels\docile_domain.level" />
@@ -273,13 +275,19 @@
     <None Include="..\def\levels\testLevel.level" />
     <None Include="..\def\levels\treasure_trove.level" />
     <None Include="..\def\moveList.def" />
+    <None Include="..\def\npc_skeleton2.def" />
+    <None Include="..\def\npc_teacher.def" />
+    <None Include="..\def\npc_wall1.def" />
+    <None Include="..\def\npc_wall2.def" />
     <None Include="..\def\player.def" />
+    <None Include="..\def\testDialogue.def" />
     <None Include="..\def\text\testText.texty" />
     <None Include="..\def\ui\testWindow.def" />
     <None Include="..\def\ui\window_attack.def" />
     <None Include="..\def\ui\window_battle.def" />
     <None Include="..\def\ui\window_converse.def" />
     <None Include="..\def\ui\window_dialogue.def" />
+    <None Include="..\def\ui\window_start_screen.def" />
     <None Include="..\def\ui_windows.def" />
     <None Include="..\gfc\sample_config\input.cfg" />
   </ItemGroup>

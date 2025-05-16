@@ -2,6 +2,7 @@
 
 #include "simple_logger.h"
 #include "gfc_input.h"
+#include "gfc_audio.h"
 #include "gf2d_graphics.h"
 
 #include "player.h"
@@ -23,6 +24,7 @@ Uint8 _INVENTORY_FLAG = 0;
 Uint8 rightKey = 0;
 Uint8 leftKey = 0;
 
+extern GFC_Sound* test_sound;
 
 
 void player_damage(Entity* self, Entity* other, Entity* creit, float damage, Uint8 damageType);
@@ -40,12 +42,6 @@ typedef struct {
 	int		cunning_points;															//WAIT I LIED I COULD TOTALLY MAKE PICK-UPABLE ITEMS ENTITIES !! THAT WOULD MAKE COLLISSION SO MUCH EASIER LMAOO
 			//Something important to think about.  INVENTORY is something only a player will have.  Inventory has its OWN *itemsList.  and the World will have its own as well - for the purpose of drawing them for pickup
 	Inventory inventory;  //   this.. this should be a pointer . 'cause our init function takes a pointer. (I mean yeah I could just pass &)  but like I feel like... a pointer here makes things easier..?
-	
-	/*int orb;
-	int stone;		Don't need these here. each item in inventory->itemsList has its own count. and that's what the inventory_add_item() functions are for
-	int trident;
-	int drumstick;
-	int artifact;*/
 
 	int		attack_stat;		//deal higher damage:   Base_dmg of the attack  + attack_stat/2   Dragon's Health out of 100
 	int		persuasion_stat;	//
@@ -120,6 +116,13 @@ Entity *player_new_entity(GFC_Vector2D position, const char* defFile) //added de
 
 	//Set my global variable. So others can find me with the player_get_the() function
 	thePlayer = self;
+	test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
+	if (!test_sound) {
+		slog("What the!! :(  Player new  no loaded test sound");
+	}
+	else {
+		slog("HEYOOO soundies work");
+	}
 
 	return self;
 }
@@ -338,6 +341,7 @@ void player_think(Entity* self) {
 		if (other->team & ETT_item) {
 			if (keySelectTimer <= 0) { //Perform Action.  Then reset timer
 				slog("Pick up item");
+				if (test_sound) gfc_sound_play(test_sound, 0, 0.1, -1, -1);
 				if(data) inventory_add_item(&data->inventory, other->name);//update the player's INVENTORY  and free the ENTITY
 				entity_free(other); 
 				keySelectTimer = 10;

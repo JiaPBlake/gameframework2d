@@ -173,6 +173,9 @@
     <ClCompile Include="..\src\npc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\dialogue.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\entity.h">
@@ -433,6 +436,27 @@
       <Filter>Def Files</Filter>
     </None>
     <None Include="..\def\cunning_raptor.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\npc_wall1.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\npc_teacher.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\npc_skeleton2.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\ui\window_start_screen.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\npc_wall2.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\testDialogue.def">
+      <Filter>Def Files</Filter>
+    </None>
+    <None Include="..\def\fierce3.def">
       <Filter>Def Files</Filter>
     </None>
   </ItemGroup>

@@ -241,18 +241,26 @@ Text* text_new() {
 
 }
 
-void text_obj_set_tag(Text* self, int tag) {
-	if (tag == TT_Always) {
-		self->tag |= TT_Always;
+int text_obj_set_tag(Text* self, const char* tag) {
+
+	if (gfc_strlcmp(tag, "always") == 0) {
+		//slog("Item giving npc found: %s", self->name);
+		return TT_Always;
 	}
-	if (tag == TT_Inven) {
-		self->tag |= TT_Inven;
+	else if (gfc_strlcmp(tag, "inventory") == 0) {
+		//slog("Lore dumping npc found: %s", self->name);
+		return TT_Inven;
 	}
-	if (tag == TT_Stats) {
-		self->tag |= TT_Stats;
+	else if (gfc_strlcmp(tag, "status") == 0) {
+		//slog("Lore dumping npc found: %s", self->name);
+		return TT_Stats;
 	}
-	if (tag == TT_Dialogue) {
-		self->tag |= TT_Dialogue;
+	else if (gfc_strlcmp(tag, "dialogue") == 0) {
+		//slog("Npc both gives and item AND lore dumps: %s", self->name);
+		return TT_Dialogue;
+	}
+	else {
+		return 0;
 	}
 }
 
@@ -261,6 +269,9 @@ Text* create_text_raw(const char* text, FontSizes font_size, GFC_Color color, GF
 	Text* self = text_new();
 	
 	gfc_block_cpy(self->text, text); //copy text into the Text object's text field
+	//if (self->text) {
+	//	slog("The text I copied into my text object is: %s",self->text);
+	//}
 
 	//Create the font member FOR the Text object.  (just selecting font_size, really).
 	self->font = gfc_list_get_nth(font_manager.fontSizes, font_size);
@@ -314,7 +325,6 @@ void text_configure(Text* self, SJson* json) {
 	const char* string = NULL;
 	GFC_Vector4D col = { 0 };
 	SDL_Surface* surface;	//so that I can split the two into distinct steps
-	int tag;
 	//size_t length;
 	string = sj_object_get_string(json, "name");
 	if (string) {
@@ -322,9 +332,8 @@ void text_configure(Text* self, SJson* json) {
 		//slog("name of this Text instance is: %s", self->name);  //Jlog
 	}
 
-	sj_object_get_int(json, "tag", &tag);		//SET THE TAG
-	text_obj_set_tag(self, tag);
-	//Things to extract
+	string = sj_object_get_string(json, "tag");
+	self->tag |= text_obj_set_tag(self, string);
 
 
 	string = sj_object_get_string(json, "text");
@@ -384,7 +393,7 @@ void text_configure(Text* self, SJson* json) {
 
 	//Now that we've rendered the text  (into our rectangle),  we can free the Surface and Texture
 	SDL_FreeSurface(surface);
-	slog("Text with name '%s' configured", self->name);
+	//slog("Text with name '%s' configured", self->name);
 }
 
 void text_configure_from_file(Text* self, const char* filename) {
@@ -443,7 +452,7 @@ void font_add_recent(const char* text, FontSizes font_size, GFC_Color color, SDL
 
 
 	//Copy the text by first allocating enough space  BASED ON the length of the text
-	slog("COPYING text from a FONT draw");
+	//slog("COPYING text from a FONT draw");
 	length = strlen(text) + 1;
 	cache->text = gfc_allocate_array(sizeof(char), length);
 
@@ -460,8 +469,8 @@ void font_add_recent(const char* text, FontSizes font_size, GFC_Color color, SDL
 
 	//Finally,  append the cache to the list
 	gfc_list_append(text_manager.recents, cache);
-	slog("Text Cache created");
-	slog("Text appended to Cache list, with text field: %s",cache->text);
+	//slog("Text Cache created");
+	//slog("Text appended to Cache list, with text field: %s",cache->text);
 
 }
 //holy FUCK I think the only reason it wasn't woking when I tried to handle both cases  in ONE function.... is because I never returned NULL at the end of the for loop- OHHhhhh my .
@@ -483,7 +492,7 @@ void text_add_recent(Text *text) {
 	gfc_color_copy(cache->color, gfc_color_from_sdl(text->color));
 	cache->font_size = text->font_size;
 
-	slog("Copying Word TextBlock");
+	//slog("Copying Word TextBlock");
 	gfc_block_cpy(cache->words, text->text);
 	
 

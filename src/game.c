@@ -19,15 +19,17 @@
 #include "spawn.h"
 //#include "ui.h" //J TO BE ADDED
 #include "window.h" //includes ui.h
-#include "items.h" //J TESTING (should be good honestly
+#include "items.h" 
 #include "text.h" //J TESTING.  Works as a basic thing. Gotta optimize and move things around         **ALSO INCLUDED IN WINDOW --> UI
 #include "particles.h"  //J TO BE TESTED (CLASS)
 #include "moves.h"  //J testing
 
+#include "dialogue.h"  //J testing
+
 #include "mainmenu.h"
 
 
-Uint8 _DRAWBOUNDS = 1;          //.... I need to think of a better way to implement these paths but.  Later..
+Uint8 _DRAWBOUNDS = 0;          //.... I need to think of a better way to implement these paths but.  Later..
 //Uint8 _CHANCE1 = 1;        //A change flag (or 3)  that will be initialized as some number,  and will increment repeatedly  (from 0 to 9) as the game loop goes
 extern Uint8 _INVENTORY_FLAG;
 extern Uint8 _INBATTLE;
@@ -39,7 +41,9 @@ int mouseClickTimer = 0; //10 frames
 
 
 Uint8 _START_SCREEN;
+Uint8 _GAME_STARTED;
 Uint8 _PAUSED;
+Uint8 _ANIMPLAYING;
 //void parse_args(int argc, char* argv[]);
 
 int main(int argc, char * argv[])
@@ -58,13 +62,14 @@ int main(int argc, char * argv[])
     Entity* thePlayer;
     Entity* monster;
     Entity* cave;
-    GFC_Vector2D monster_position = gfc_vector2d(600, 400);
+    GFC_Vector2D mouse_position;
     GFC_Vector2D default_pos = gfc_vector2d(-1, -1);
-    
+    UI_Window* window;
+
     World* world;
 
     Sprite* health_bar;
-    GFC_Sound* test_sound;
+   // GFC_Sound* test_sound;
     GFC_Sound* music;
 
     //Text* testText;  //Jtested  works!
@@ -96,6 +101,17 @@ int main(int argc, char * argv[])
 
     //  I will put initialize_game_state()   here  NEED TO INCLUDE MAINMENU.H
     initialize_game_state();        //_START_SCREEN set to 1, and _PAUSED set to 0 in here.
+    dialogue_init(15);
+
+
+    //SJson* dialogueList;
+    //dialogueList = sj_object_get_value(json, "dialogue");
+    ////This  SJson variable  is a JSon array.
+    //slog("Checkpoint 1");
+    ////dialogue_configure(self, dialogueList);
+    //dialogue_configure(test_dia, dialogueList);
+    //dialogue_free(test_dia);
+
 
     //  OKAY !!!  IT WORKS!!
 
@@ -168,7 +184,6 @@ int main(int argc, char * argv[])
     mouse = gf2d_sprite_load_all("images/pointer.png",32,32,16,0);
     
     slog("press [escape] to quit");
-    slog("\n==============================================================\n");
     
     
     //J START:
@@ -178,8 +193,8 @@ int main(int argc, char * argv[])
     
     //litERALLY  waht the fuck audio:
     music = gfc_sound_load("audio/Ahrix_Nova_shorter.mp3", 0.3, 0);
-    test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
-    if (!test_sound) slog("Couldn't load test_sound");
+    //test_sound = gfc_sound_load("audio/dink.mp3", 0.3, 1);
+    //if (!test_sound) slog("Couldn't load test_sound");
 
     //J testing Text:
     /*slog("Configuring Test TEXTTTTTTTT");
@@ -203,16 +218,13 @@ int main(int argc, char * argv[])
     slog("\n==============================================================\n");
     while(!done)
     {
-        //world = world_get_active();
-        //_CHANCE1++;
         gfc_input_update(); // update SDL's internal event structures   //J NOTE - must be called once a frame. If not called, nothing updates, then none of these conditions will ever set
-        
         keys = SDL_GetKeyboardState(NULL); // get the keyboard state for this frame
         /*update things here*/
         
-        cache_cleanup(); //to periodically clean up out fonts  //J ADDED (TEXT)
-        _MOUSEBUTTON = SDL_GetMouseState(&mx,&my);  //HAHAAA  MY MOUSEBUTTON VARIABLE WORKS!! YIPPEEE works for clicks AND holds!!  although that being said a human "click" runs like 5 times in this loop lmao
+        _MOUSEBUTTON = SDL_GetMouseState(&mx, &my);  //HAHAAA  MY MOUSEBUTTON VARIABLE WORKS!! YIPPEEE works for clicks AND holds!!  although that being said a human "click" runs like 5 times in this loop lmao
         //This is true if  ANY mouse button is pressed!!
+
         
         mf+=0.1;
         if (mf >= 16.0)mf = 0;
@@ -239,25 +251,50 @@ int main(int argc, char * argv[])
         //    world_set_tile(world, gfc_vector2d(mx + camera.x, my + camera.y), (_MOUSEBUTTON & SDL_BUTTON(1) ) ? 1 : 0);  //IF the Left mouse button is being pressed, 1. Else 0
         //    
         //}
-
-
-        entity_system_think_all();   //THINK FIRST   //J ADDED
-        entity_system_update_all();  //then update shit  //J ADDED
-        camera_bounds_check(); //Feb 26: J Added
-        //world = world_get_active();  //I used to have this here because I planned on transitioning worlds in a file INSTEAD Of just calling the thing in the main game loop.  WHICH I could still probably do but .  Proof of concept comes first
-
-        if (_MOUSEBUTTON) {
-            //slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y);
-            //slog("click detected. Enabling flag to draw the item");
-            //_INVENTORY_FLAG = 1;
-
-            slog("Click detected Playing audio");
-            if(test_sound) gfc_sound_play(test_sound, 0, 0.1, -1, -1);
-
-            slog("Click detected. Incrementing all points");
-            inc_player_points(ENT_MAX);
+        if (_START_SCREEN) {
+            window = window_search_by_name("Start Screen");
+            window_set_active(window);
+            mouse_position = gfc_vector2d(mx, my);
+            if (mouse_position.x > 435 && mouse_position.x < 765 && mouse_position.y < 553 && mouse_position.y > 387 ) {
+                set_selected(1);
+                if (_MOUSEBUTTON) {
+                    _START_SCREEN = 0;
+                    _GAME_STARTED = 1;
+                }
+            }
+            else {
+                reset_selected();
+            }
+        }
+        if (_GAME_STARTED) {
+            window_set_active(NULL);
+            _GAME_STARTED = 0;
         }
 
+
+        if (!_START_SCREEN) {
+            entity_system_think_all();   //THINK FIRST   //J ADDED
+            //game_think()
+
+            entity_system_update_all();  //then update shit  //J ADDED
+
+            camera_bounds_check(); //Feb 26: J Added
+            //game_update()
+            if (_MOUSEBUTTON) {
+                //slog("Player current position X: %f  &  Y: %f", thePlayer->position.x, thePlayer->position.y);
+                //slog("click detected. Enabling flag to draw the item");
+                //_INVENTORY_FLAG = 1;
+
+                slog("Click detected Playing audio");
+                //if(test_sound) gfc_sound_play(test_sound, 0, 0.1, -1, -1);
+
+                slog("Click detected. Incrementing all points");
+                inc_player_points(ENT_MAX);
+            }
+        
+        }
+        
+        
 
         gf2d_graphics_clear_screen();// clears drawing buffers                //J NOTE: ALL YOUR DRAW CALLS must be within Clear and Next_Frame
         // all drawing should happen betweem clear_screen and next_frame
@@ -265,6 +302,9 @@ int main(int argc, char * argv[])
             //gf2d_sprite_draw_image(sprite,gfc_vector2d(0,0));    //don't need this background anymore
         
             
+
+            //game_draw();
+
             if (world) {
                 //slog("oh bitch we drawin");
                 world = world_get_active();
@@ -309,6 +349,12 @@ int main(int argc, char * argv[])
                 stats_draw("Docile:", FS_medium, GFC_COLOR_CYAN, gfc_vector2d(50, 185), get_player_points(ENT_docile)); //we'll just try it with Fierce first
                 stats_draw("Cunning:", FS_medium, GFC_COLOR_GREEN, gfc_vector2d(50, 250), get_player_points(ENT_cunning)); //we'll just try it with Fierce first
             }
+
+            /*if (_DRAWATTACKNAME) {
+                Text* create_text_raw(const char* text, FS_medium, GFC_COLOR_WHITE, gfc_vector2d(600, 100), 1);
+            }*/
+
+            if(!_START_SCREEN){
             gf2d_sprite_draw(
                 health_bar,
                 gfc_vector2d(300, 650),
@@ -318,13 +364,13 @@ int main(int argc, char * argv[])
                 NULL,
                 NULL,
                 health_frame);
-
+            }
 
             //SDL_RenderCopy(gf2d_graphics_get_renderer(), Message, NULL, &Message_rect);
             //text_rndr(Message, Message_rect);
             
      //------------ tEXT     
-            
+
             font_draw("Press 'ESC' to quit", FS_small, GFC_COLOR_WHITE, gfc_vector2d(940,5));
             
             //Works.  no longer testing.

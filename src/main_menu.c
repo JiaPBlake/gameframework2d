@@ -23,7 +23,7 @@
 #include "window.h" //includes ui.h
 #include "items.h" //J TESTING (should be good honestly
 #include "text.h" //J TESTING.  Works as a basic thing. Gotta optimize and move things around         **ALSO INCLUDED IN WINDOW --> UI
-#include "particles.h"  //J TO BE TESTED (CLASS)
+
 
 
 #include "mainmenu.h"
@@ -42,14 +42,27 @@ void initialize_game_state();
 //int mx, my;
 //float mf = 0;			//Honestly I might want to leave the mouse in Game.c  just to be consistent with keeping the Keys(board) there
 
+
+extern Uint8 _DRAWBOUNDS;
+extern Uint8 _INVENTORY_FLAG;
+extern Uint8 _INBATTLE;
+extern Uint32 _MOUSEBUTTON;
 extern Uint8 _START_SCREEN;
 extern Uint8 _PAUSED;
+extern Uint8 _ANIMPLAYING;
+
+extern Uint8 turn;
+
+static GFC_Sound* test_sound;
+
+static Entity* thePlayer;
+static World* world;  // ....?? Where do I want to handle worlds...  Probably here, but think about it more
 
 //I wanna move as much of the game setup code here  as I need (mouse capture, key capture etc)
  //since this funciton will be called even BEFORE the main game loop starts .
 void initialize_game_state() {
 	//mouseGFC_Color = gfc_color8(100, 100, 100, 200);
-	World* world;  // ....?? Where do I want to handle worlds...  Probably here, but think about it more
+	
 
 	//slog("Initializing Config File");  //Jlog
 	//gfc_input_init("config/my_input.cfg");  //this is the funciton we use to initalize our inputs  a.k.a our keybinds!!
@@ -79,17 +92,22 @@ void initialize_game_state() {
 	move_system_init(25);		//lmAOOO I hve no idea where I included  move.h  but hey! as long as it works.. I'll trace it later prob
 	configure_all_moves();
 
+	//dialogue_init(10);
+
 
 	//mouse = gf2d_sprite_load_all("images/pointer.png", 32, 32, 16, 0);
 
 
 	//J START:
-	world = world_load("def/levels/cunning_domain.level"); /*world_test_new();*/
+	world = world_load("def/levels/testLevel.level"); /*world_test_new();*/
 	world_set_active(world);
+	thePlayer = player_get_the();
 
-	slog("GAME STATE INITIALIZED");
-	_START_SCREEN = 0;				//SET THIS TO 1 ONCE YOU'VE DRAWN UP A MAIN MENU LMAOO
+	_START_SCREEN = 1;				//SET THIS TO 1 ONCE YOU'VE DRAWN UP A MAIN MENU LMAOO
 	_PAUSED = 0;
+	_ANIMPLAYING = 0;  //these are for battle anim's specifically
+	slog("GAME STATE INITIALIZED");
+
 }
 
 //In the event I call this OUTSIDE the main game loop:   (VERY unlikely I will use this approach)
@@ -161,41 +179,13 @@ void main_menu_concept_function_with_another_loop() {
 
 
 void game_think() {
-	World* world = world_get_active();	//wonder if I should make this static global...
-
-	//leaving gfc_input_update in the game loop..?  What do we think  idk. I have the initialization in this file.. couldn't hurt to being the update here
-		//I would just have to make sure that gfc_input_update() is being caleld ONCE a frame,,
-		//ALSO !! make sure you include  input in the header,,  Yeah. I think it's there, 2nd
-
-
-	//also gonna keep keys in game.c,,  idk. just in case
-
-	//could leave Mousbutotn there  since it's already Global, and used in other fiels through  extern
-
-	/*mf += 0.1;
-	if (mf >= 16.0)mf = 0;
-	if (mouseClickTimer <= 0) { //We can click the mouse (leave it 1). And Reset the cooldown
-		mouseClickTimer = 10;
-	}
-	else if (mouseClickTimer > 0) {  //On cooldown.  Do not register the click
-		_MOUSEBUTTON = 0;
-		mouseClickTimer--;
-	}*/
-
-
-
-	cache_cleanup();
-
-
 //===========================	THINK
 	entity_system_think_all();   //THINK FIRST   //J ADDED
-	
-
-
-
 
 }
 void game_update() {
+
+	cache_cleanup(); //to periodically clean up out fonts  //J ADDED (TEXT)
 
 
 	entity_system_update_all();  //then update shit  //J ADDED
@@ -205,6 +195,21 @@ void game_update() {
 // all DRAWing functions  need to be in that specific section of the game.c main game loop
 //I will use this function in the main game loop as a means of drawing everything in my game.  (except the cursor)
 void game_draw() {
+	GFC_Vector2D camera;
+	GFC_Vector2D position = { 0 };
+	if (world) {
+		world = world_get_active();
+		world_draw(world);
+		if (_DRAWBOUNDS) world_draw_bounds(world); //J ADDED
+	}
+	entity_system_draw_all();
+
+	if (world && world->foreground) {
+		camera = camera_get_offset();  //AHA   since out offset is a negative value,  this changes where the Top Left corner of the world is DRAWNNNN  SO IF I'm in the middle of the world, the world ITSELF will be shifted in the negative direction-  sir DJ you are so smart and good at your job
+		position = gfc_vector2d(0, 0);
+		gfc_vector2d_add(position, position, camera);
+		gf2d_sprite_draw_image(world->foreground, gfc_vector2d((position.x / 0.7), position.y));
+	}
 
 	//I will initialize the game state here    and then (after...?)  Draw the actual start screen
 	UI_Window* window = {0};
@@ -221,8 +226,16 @@ void game_draw() {
 	}
 
 	window_draw(window);
+
 	//I have to draw  Dialogue_window
 		//and then draw dialogue on top of it... with dialogue thinking ??  up there ^^??
+
+	if (_INVENTORY_FLAG) {
+		player_show_inven(thePlayer);
+		stats_draw("Fierce:", FS_medium, GFC_COLOR_RED, gfc_vector2d(50, 120), get_player_points(ENT_fierce)); //we'll just try it with Fierce first
+		stats_draw("Docile:", FS_medium, GFC_COLOR_CYAN, gfc_vector2d(50, 185), get_player_points(ENT_docile)); //we'll just try it with Fierce first
+		stats_draw("Cunning:", FS_medium, GFC_COLOR_GREEN, gfc_vector2d(50, 250), get_player_points(ENT_cunning)); //we'll just try it with Fierce first
+	}
 
 
 

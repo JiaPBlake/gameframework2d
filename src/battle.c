@@ -20,6 +20,9 @@ extern Uint8 _INBATTLE;
 Uint8 _INDIALOGUE;
 Entity* dragon;		//global pointer to the thing I'm fighting, so I can use it in the Attack functions,  despite the way the Attack functions are called from player_think_battle()  who doesn't have access to the Monster entity.
 Entity* play;		//wait nvm,, don't need this.  Attacking buttons should not call a button action function.  That function pointer only accepts a Button as its parameter
+Uint8 turn;
+
+Uint8 _DRAWATTACKNAME;
 
 //As a result.  The battle is going to need access to the Player's info.  And the Monster's info
 //#include "player.h"
@@ -50,7 +53,7 @@ void battle_start(Entity* player, Entity* monster) {
 	window_set_active(window_search_by_name("battle_screen"));
 
 	//Hmm  maybe I should split it into battle_think  and Draw ?  where Draw is essentially my update function  :o
-
+	turn = 1;
 }
 
 void player_think_battle(Entity* self) {
@@ -100,8 +103,8 @@ void player_think_battle(Entity* self) {
 		if (keySelectTimer <= 0) { //Less than or equal to 0  just in case we miss 0
 			if (_INDIALOGUE) {
 				reset_selected();
-				window_set_active(window_search_by_name("battle_screen_test"));
-				slog("Window switch ??");
+				window_set_active(window_search_by_name("battle_screen"));
+				//slog("Window switch ??");
 				_INDIALOGUE = 0;
 			}
 
@@ -118,7 +121,7 @@ void player_think_battle(Entity* self) {
 
 			if (button) {  //lmfao  just in case get_selected returns NULL.  Don't wanna crash by trying to do button stuff on a non-button
 				//Using the button's   actionType.  SET IT'S action  function to point to ATTACK  or CONVERSE
-				slog("Button's actionType is: %i. From window: '%s'", button->actionType, window->name);
+				//slog("Button's actionType is: %i. From window: '%s'", button->actionType, window->name);
 
 				//SETTING the action function  for ALL actionTypes..  so I can just call button->action(button).
 
@@ -130,7 +133,7 @@ void player_think_battle(Entity* self) {
 				}
 				if (button->actionType & BT_Tame) {
 					button->action = dialogue_commence;
-					slog("Button action assigned to DIALOGUE_COMMENCE");
+					//slog("Button action assigned to DIALOGUE_COMMENCE");
 				}
 				if (button->actionType & BT_Flee) {
 					//slog("This button would Close a window!");
@@ -141,7 +144,7 @@ void player_think_battle(Entity* self) {
 				}
 
 				if (button->action) {
-					slog("Performing action");
+					//slog("Performing action");
 					button->action(button);
 				}
 				else if ((button->actionType & BT_Attack) || (button->actionType & BT_Converse)){
@@ -168,7 +171,7 @@ void player_think_battle(Entity* self) {
 
 			slog("Trying to back out to last window");
 			window_go_back();
-
+			reset_selected();
 			keySelectTimer = 10;
 		}
 		if (keySelectTimer > 0) {  //ONLY decrement if it's positive.   Just in case
@@ -194,9 +197,9 @@ void battle_end() {
 
 
 
-void dialogue_commence(UI_Button* button) {
+void dialogue_commence() {
 	_INDIALOGUE = 1;
-	slog("DIALOGUE HERE LMFAO");
+	//slog("DIALOGUE HERE LMFAO");
 
 	//I would set active window to window_dialogue.
 	window_set_active(window_search_by_name("dialogue_screen"));
@@ -254,22 +257,23 @@ void use_attack(Entity* self) {
 
 	player_move = gfc_list_get_nth(self->move_list, attack_index);
 	if (!player_move) {
-		slog("uhhhh. We couldn't get the player's move.... not attacking yikes");
+		slog("Move not assigned");
 		return;
 	}
 	if (!(player_move->type & MOVET_ATTACK)) {
 		slog("This is not an attacking move. Canceling attack");
 		return;
 	}
-	slog("Heyy! We're good so far! name of the move is: %s", player_move->name);
+	//slog("Heyy! We're good so far! name of the move is: %s", player_move->name);
 	
-	
+	dialogue_commence();
 	
 
 	//Make the animation play:   set flag  _INATTACK  to pause thinking and JUST draw
 
 
 	//Damage the dragon
+	slog("Player used move: '%s'",player_move->name);
 	entity_take_damage(dragon, player_move->m.attack.attackPower);
 
 

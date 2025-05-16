@@ -26,7 +26,11 @@
 	"entity_List": [
 		{
 			"name": "cunning_drake",
-			"position": [ 950, 480 ]
+			"position": [ 1050, 480 ]
+		},
+		{
+			"name": "npc_teacher",
+			"position": [ 150, 550 ]
 		},
 		{
 			"name": "cave_f",

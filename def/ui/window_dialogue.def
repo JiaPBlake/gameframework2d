@@ -5,7 +5,7 @@
     {
       "name": "Test Box",
       "text": "Dialogue moment",
-      "tag": 1,
+      "tag": "always",
       "font_size": 3,
       "color": [ 0, 220, 30, 255 ],
       "position": [ 300, 200 ]

@@ -38,6 +38,11 @@ static SpawnPair spawn_list[] =
 		monster_new_entity //assign the spawn function
 	},
 	{
+		"fierce_wyvern3", //name
+		"def/fierce3.def", //name of the def file
+		monster_new_entity //assign the spawn function
+	},
+	{
 		"cunning_drake", //name
 		"def/cunning1.def", //name of the def file
 		monster_new_entity //assign the spawn function
@@ -127,6 +132,26 @@ static SpawnPair spawn_list[] =
 		"def/npc_skeleton1.def", //name of the def file
 		npc_new_entity //assign the spawn function
 	},
+	{
+		"npc_skeleton_2", //name
+		"def/npc_skeleton2.def", //name of the def file
+		npc_new_entity //assign the spawn function
+	},
+	{
+		"npc_teacher", //name
+		"def/npc_teacher.def", //name of the def file
+		npc_new_entity //assign the spawn function
+	},
+	{
+		"npc_wall_1", //name
+		"def/npc_wall1.def", //name of the def file
+		npc_new_entity //assign the spawn function
+	},
+	{
+		"npc_wall_2", //name
+		"def/npc_wall2.def", //name of the def file
+		npc_new_entity //assign the spawn function
+	},
 	{0}
 };
 //WAIT WAIT OHH NO  hold on.  THIS JSon file is NOT my def file.  It's ANOTHER JSON file that's essentially a LIST of things to spawn!!!!!! ohhh
@@ -192,7 +217,16 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 				//Remember to return the location as soon as  (??)   
 					//ooooooorrrr  I could make :skull:  YET ANOTHER list..  because of procedural generation . ?  wait wai.  nonono Proced. is just gonna place a SINGLE 5 randomly in my map for me.
 				//yeah.  I don't want to make a list of "Possible 5's to choose from"  I think I can just do that ^^ instead .
-				return  gfc_vector3dxy((*coord)) ;
+				//return  gfc_vector3dxy((*coord)) ;
+
+				//slog("Coordinate IS 5");
+
+				ret_vec = gfc_vector3dxy((*coord));
+				slog("The length of the list is %i  before deleting. And we're on iteration %i", c, i);
+				gfc_list_delete_nth(spawn_coords, i);
+				i--; //DECREMENT i  since gfc list does a WONDERFUL job of shifting everything over.  _I_ must shift over on my end as well so that I'm not skipping over what I need
+				c = spawn_coords->count;
+				//slog("The length of the list AFTER deleting something is %i. We're now supposed to be on iteration %i", c, i );
 
 			}
 			//else { slog("What the fuck coord is NOT equal to 5... it is instead: %f",coord->z); }
@@ -266,19 +300,20 @@ GFC_Vector2D find_entity_spawn_location(const char* name, GFC_List* spawn_coords
 }
 
 //iterate through the bigass list up ^ there
-Entity* spawn_entity(const char* name, GFC_Vector2D position, GFC_List* spawn_coords) {  //what the..  I mean it works now but I genuinely couldn't tell you what problem it had before when th
+Entity* spawn_entity(const char* name, GFC_Vector3D position, GFC_List* spawn_coords) {  //what the..  I mean it works now but I genuinely couldn't tell you what problem it had before when th
 	//string compar functions don't check for NULL
 	if (!name) { slog("Spawn failed. No name provided"); return NULL; }
 	
-	GFC_Vector2D pos = position;
+	GFC_Vector2D pos = gfc_vector3dxy(position);
 	int i;
 	for (i = 0; spawn_list[i].name != NULL; i++) { //the 0 @ the end of our list kinda stands for the name.  that name == NULL
 		if (gfc_strlcmp(spawn_list[i].name, name) == 0) {   //his string compare funciton comes with a little side effect.  Will match the first Substring. But also matches the length, if the length of the strings are not the same, it will not return as matching
 			if (spawn_list[i].spawn) {
 				//slog("Spawning entity %s", name);   //Jlog
 
-				if ( spawn_coords && spawn_coords->count > 0) {
+				if ( spawn_coords && spawn_coords->count > 0 && position.z == 1) {
 					pos = find_entity_spawn_location(name, spawn_coords);
+					slog("Should not be here for entity %s", name);
 				}
 
 				return spawn_list[i].spawn(pos, spawn_list[i].defFile);  //calling the function AT the memory address of our (function) pointer :D

@@ -7,7 +7,7 @@
 #include "camera.h"
 
 #include "ui.h"
-#include "text.h"   //J testing   for Labels..
+#include "text.h"
 
 
 Uint8 selected_button_index = 0; //global variable that I can Set() and Get()  - primarily is use through the Player_think_battle function
@@ -83,9 +83,9 @@ void ui_element_free(UI_Element* self) {
 
 	//if it's an Image, free the:		sprite
 	if (self->type & ELEMT_I) {
-		slog("image branch");
+		//slog("image branch");
 		gf2d_sprite_free(self->ui.image.sprite);  //I'm more comfortable having local variables be POINTERS TO things that already exist.  as opposed to maybe making another COPY OF an existing thing,  to store locally
-		slog("Image's sprite has been freed");
+		//slog("Image's sprite has been freed");
 	}
 
 	//if it's a Button, free the:		sprite
@@ -95,7 +95,7 @@ void ui_element_free(UI_Element* self) {
 		//slog("Button's sprite has been freed");
 	}
 	
-	slog("We're at the end of UI_Element Free");
+	//slog("We're at the end of UI_Element Free");
 	//Just to set the rest of the memory that used to be in use   to 0.  
 	memset(self, 0, sizeof(UI_Element));
 	self->_inuse = 0;
@@ -136,7 +136,7 @@ void label_configure(UI_Label* self, SJson* json) {
 
 	self->text = text_new();
 	text_configure(self->text, json);
-	slog("The text for the Label should be configure");
+	//slog("The text for the Label should be configure");	//Jlog
 
 }
 
@@ -213,7 +213,7 @@ int button_get_type(const char* action) {
 		return BT_Converse;
 	}
 	if (gfc_strlcmp(action, "tame") == 0) {
-		slog("Tame button found.");
+		//slog("Tame button found.");
 		return BT_Tame;
 	}
 	if (gfc_strlcmp(action, "flee") == 0) {
@@ -221,7 +221,7 @@ int button_get_type(const char* action) {
 		return BT_Flee;
 	}
 
-	slog("Neither IF statement occurred,  returning ButtonType 0");
+	//slog("Neither IF statement occurred,  returning ButtonType 0");
 	return 0;
 }
 
@@ -282,7 +282,7 @@ void button_configure(UI_Button* self, SJson* json) {
 
 		button_new_window = sj_object_get_string(json, "nextWindow");
 		gfc_line_cpy(self->windowToOpen, button_new_window);
-		slog("Button's next window to open should be: %s", self->windowToOpen);
+		//slog("Button's next window to open should be: %s", self->windowToOpen);		//Jlog
 	}
 
 }
@@ -406,7 +406,7 @@ void image_draw(UI_Element* self) {
 
 
 	gf2d_sprite_draw(image->sprite,
-		image->position,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
+		image->position,
 		NULL,			//scale
 		&image->center,		//center which is a 2D vector
 		NULL,	//rotation
@@ -430,9 +430,9 @@ void button_draw(UI_Element* self) {
 	else { frame = 0; }
 	
 	gf2d_sprite_draw(button->sprite,
-		button->position,	//position      without offset we use self's position.  WITH the camera's offset, we use the position vector created above 
+		button->position,
 		NULL,			//scale
-		NULL,		//center which is a 2D vector
+		&button->center,		//center which is a 2D vector
 		NULL,	//rotation
 		NULL,		//flip
 		NULL,		//colorShift

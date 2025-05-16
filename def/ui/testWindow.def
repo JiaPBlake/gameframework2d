@@ -7,8 +7,8 @@
   "labels": [
     {
       "name": "Test Box",
-      "text": "HAHAHA haaa heheheeee \nfuck you",
-      "tag": 1,
+      "text": "HAHAHA haaa heheheeee",
+      "tag": "always",
       "font_size": 3,
       "color": [ 200, 170, 30, 255 ],
       "position": [ 600, 500 ]

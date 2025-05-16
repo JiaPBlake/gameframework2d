@@ -1,0 +1,21 @@
+{
+	"name": "npc_wall_2",
+	"sprite": "images/wall1.png",
+	"sprite_size": [ 480, 348 ],
+	"bounds": [ -240, -174, 480, 348 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 460 ],
+
+	"type": "npc",
+	"npc_type": "lore",
+
+	"dialogue": ["I am a wall... A special wall.. One might even say legendary...",
+		"So legendary, in fact, that I can impart wisdom onto you:",
+		"Bepis."
+	],
+	"tag": "dialogue",
+	"color": [ 255, 170, 255, 255 ],
+  "position": [ 600, 500 ]
+
+}

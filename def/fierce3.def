@@ -1,0 +1,23 @@
+{
+	"name": "fierce_wyvern3",
+	"sprite": "images/fierce3.png",
+	"sprite_size": [ 374, 350 ],
+	"bounds": [ -187, -175, 374, 350 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 1120, 520 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "fierce",
+
+	"health": 100,
+	"moveList": [
+		{
+			"name": "Wither Breath"
+		},
+		{
+			"name": "Wreath of Flames"
+		}
+	]
+}

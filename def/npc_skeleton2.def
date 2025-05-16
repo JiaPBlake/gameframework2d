@@ -1,0 +1,14 @@
+{
+	"name": "npc_skeleton_2",
+	"sprite": "images/skele_2.png",
+	"sprite_size": [ 128, 212 ],
+	"bounds": [ -64, -106, 128, 212 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 1150, 480 ],
+
+	"type": "npc",
+	"npc_type": ["item", "move"],
+	"item": "item_drumstick",
+	"move":"Radiant Light"
+}

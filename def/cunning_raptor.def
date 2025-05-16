@@ -1,0 +1,23 @@
+{
+	"name": "cunning_raptor",
+	"sprite": "images/cunnning3.png",
+	"sprite_size": [ 298, 238 ],
+	"bounds": [ -150, -119, 300, 238 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "cunning",
+
+	"health": 100,
+	"moveList": [
+		{
+			"name": "Zippy Zoom"
+		},
+		{
+			"name": "Acid Spray"
+		}
+	]
+}

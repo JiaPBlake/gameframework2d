@@ -1,0 +1,35 @@
+{
+	"name": "npc_skeleton_1",
+	"sprite": "images/skele.png",
+	"sprite_size": [ 120, 160 ],
+	"bounds": [ -60, -80, 120, 160 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "npc",
+	"npc_type": "item",
+	"item": "item_drumstick",
+	"interact": 1,
+
+	"moveList": [
+		{
+			"AttackList": [
+				{
+					"Attack1": "Fireblast",
+					"move_sprite": "fire.png"
+				},
+				{
+					"Attack2": "Chomp",
+					"move_sprite": "fire.png"
+				}
+			]
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

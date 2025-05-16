@@ -17,14 +17,14 @@ typedef struct
     Sprite * sprite_list;
 }SpriteManager;
 
-static SpriteManager sprite_manager;
-
+static SpriteManager sprite_manager = { 0 };  //J NOTE  J CHANGE.  Static acts as a Private for only this File -- Don't let anyone outside of THIS C file grab it.
+//J NOTE:  Global Singleton sprite_manager
 void gf2d_sprite_close()
 {
-    gf2d_sprite_clear_all();
+    gf2d_sprite_clear_all(); //J NOTE:  sprite_close  clears all the spirtes - calls Del
     if (sprite_manager.sprite_list != NULL)
     {
-        free(sprite_manager.sprite_list);
+        free(sprite_manager.sprite_list);  //J NOTE: then frees the sprite_list bc that's what was dynamically allocated [in init() ]
     }
     sprite_manager.sprite_list = NULL;
     sprite_manager.max_sprites = 0;
@@ -39,9 +39,9 @@ void gf2d_sprite_init(Uint32 max)
         return;
     }
     sprite_manager.max_sprites = max;
-    sprite_manager.sprite_list = (Sprite *)malloc(sizeof(Sprite)*max);
+    sprite_manager.sprite_list = (Sprite *)malloc(sizeof(Sprite)*max);      //J NOTE:  allocation the memory.  Casting the pointer that's returned as a Sprite pointer
     memset (sprite_manager.sprite_list,0,sizeof(Sprite)*max);
-    if (!(IMG_Init( IMG_INIT_PNG) & IMG_INIT_PNG))
+    if (!(IMG_Init( IMG_INIT_PNG) & IMG_INIT_PNG))      //J NOTE:   biwise OR  JPG to work with JPGs as well. His code rn as written islooking for at LEAST a PNG
     {
         slog("failed to init image: %s",SDL_GetError());
     }
@@ -84,7 +84,7 @@ Sprite *gf2d_sprite_new()
     int i;
     /*search for an unused sprite address*/
     for (i = 0;i < sprite_manager.max_sprites;i++)
-    {
+    {                                                   //J NOTE   HAVING texture implied this sprite is not free
         if ((sprite_manager.sprite_list[i].ref_count == 0)&&(sprite_manager.sprite_list[i].texture == NULL))
         {
             memset(&sprite_manager.sprite_list[i],0,sizeof(Sprite));
@@ -106,7 +106,7 @@ Sprite *gf2d_sprite_new()
     return NULL;
 }
 
-Sprite *gf2d_sprite_get_by_filename(const char * filename)
+Sprite *gf2d_sprite_get_by_filename(const char * filename)      //J NOTE: Linear search
 {
     int i;
     if (!filename)
@@ -116,7 +116,7 @@ Sprite *gf2d_sprite_get_by_filename(const char * filename)
     }
     for (i = 0;i < sprite_manager.max_sprites;i++)
     {
-        if (gfc_line_cmp(sprite_manager.sprite_list[i].filepath,filename)==0)
+        if (gfc_line_cmp(sprite_manager.sprite_list[i].filepath,filename)==0)       //J NOTE: String compare.  0 is a match - no difference
         {
             return &sprite_manager.sprite_list[i];
         }
@@ -159,7 +159,7 @@ Sprite *gf2d_sprite_load_all(
         return NULL;
     }
     sprite = gf2d_sprite_new();
-    if (!sprite)
+    if (!sprite) // J NOTE:  if no (room to make a new) sprite, free the surface and return failure for the Load call
     {
         SDL_FreeSurface(surface);
         return NULL;
@@ -371,7 +371,7 @@ void gf2d_sprite_render(
             sprite->texture,
             colorShift.w);
     }
-    
+
     fpl = (sprite->frames_per_line)?sprite->frames_per_line:1;
     gfc_rect_set(
         cell,

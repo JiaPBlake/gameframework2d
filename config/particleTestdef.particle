@@ -1,0 +1,10 @@
+{
+	"name":"spray",
+	"angleVariance":30,
+	"speed":3.5,
+	"speedVariance":1.5,
+	"drawColor":[200,20,100,200],
+	"colorVector":[0,0,0,0],
+	"colorVariance":[30,10,10,50],
+	"ttl":100
+}

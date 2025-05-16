@@ -1,0 +1,29 @@
+{
+  "window_name": "Start Screen",
+  "window_sprite": "images/backgrounds/bg_flat.png",
+  "window_sprite_size": [ 1200, 720 ],
+  "window_bounds": [ 0, 0, 1200, 720 ],
+  "window_position": [ 0, 0 ],
+  "labels": [
+    {
+      "name": "Welcome text",
+      "text": "Welcome to Dragon Tamers",
+      "tag": "dialogue",
+      "font_size": 3,
+      "color": [ 255, 20, 20, 255 ],
+      "position": [ 400, 100 ]
+    }
+  ],
+  "buttons": [
+    {
+      "name":"Start Button",
+      "sprite": "images/ui/start_button.png",
+      "button_position": [ 600, 470 ],
+      "sprite_size": [ 330, 166 ],
+      "bounds": [ -165, -83, 330, 166 ],
+      "action": "startGame"
+    }
+
+  ]
+
+}

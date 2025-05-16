@@ -1,0 +1,14 @@
+{
+	"name": "cave_c",
+	"sprite": "images/cave_c.png",
+	"sprite_size": [ 217, 225 ],
+	"bounds": [ -109, -113, 218, 226 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 1750, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "cunning",
+	"domain": "def/levels/cunning_domain.level"
+}

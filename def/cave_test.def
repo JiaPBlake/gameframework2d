@@ -1,0 +1,14 @@
+{
+	"name": "cave_test",
+	"sprite": "images/cavern.png",
+	"sprite_size": [ 217, 225 ],
+	"bounds": [ -109, -113, 218, 226 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 2550, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "test",
+	"domain": "def/levels/testLevel.level",
+}

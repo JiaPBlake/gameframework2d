@@ -1,0 +1,23 @@
+{
+	"name": "docile_amphi",
+	"sprite": "images/amphi.png",
+	"sprite_size": [ 261, 350 ],
+	"bounds": [ -130, -175, 262, 350 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 540 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "docile",
+
+	"health": 100,
+	"moveList": [
+		{
+			"name": "Radiant Light"
+		},
+		{
+			"name": "Wingslice"
+		}
+	]
+}

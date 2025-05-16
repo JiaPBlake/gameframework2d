@@ -1,0 +1,41 @@
+{
+  "window_name": "battle_screen_attack",
+  "window_sprite": "images/ui/battle_window.png",
+  "window_sprite_size": [ 1200, 720 ],
+  "window_bounds": [ 0, 0, 1200, 720 ],
+  "window_position": [ 0, 0 ],
+  "buttons": [
+    {
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [ 210, 400 ],
+      "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "attack"
+
+    },
+    {
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [ 290, 280 ],
+      "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "attack"
+
+    },
+    {
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [ 490, 280 ],
+      "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "attack"
+    },
+    {
+      "sprite": "images/ui/attack_button.png",
+      "button_position": [ 590, 400 ],
+      "sprite_size": [ 180, 100 ],
+      "bounds": [ -90, -50, 180, 100 ],
+      "action": "attack"
+    }
+
+  ]
+
+}

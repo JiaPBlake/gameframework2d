@@ -1,0 +1,24 @@
+{
+	"name": "npc_wall_1",
+	"sprite": "images/wall1.png",
+	"sprite_size": [ 480, 348 ],
+	"bounds": [ -240, -174, 480, 348 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 380 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "npc",
+	"npc_type": "lore",
+
+	"dialogue": [
+		{
+			"I am a wall... A special wall.. One might even say legendary..."
+		},
+		{
+			"Converse": "No",
+			"move_sprite": "fierce_text1"
+		}
+	]
+}

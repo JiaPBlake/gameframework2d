@@ -1,0 +1,23 @@
+{
+	"name": "cunning_wyvern",
+	"sprite": "images/cunning_wyvern.png",
+	"sprite_size": [ 244, 143 ],
+	"bounds": [ -122, -72, 244, 143 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 950, 550 ],
+	"velocity": [ 0, 0 ],
+	"acceleration": 0,
+
+	"type": "cunning",
+
+	"health": 100,
+	"moveList": [
+		{
+			"name": "Razor Edge"
+		},
+		{
+			"name": "Wither Breath"
+		}
+	]
+}

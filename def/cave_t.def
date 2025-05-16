@@ -1,0 +1,15 @@
+{
+	"name": "cave_t",
+	"sprite": "images/cave_t.png",
+	"sprite_size": [ 217, 225 ],
+	"bounds": [ -109, -113, 218, 226 ],
+	"spriteFPL": 1,
+
+	"spawn_Position": [ 2300, 550 ],
+	"velocity": [ 0, 0 ],
+
+	"type": "item",
+	"domain": "def/levels/treasure_trove.level",
+
+	"speed_Max": 0
+}
